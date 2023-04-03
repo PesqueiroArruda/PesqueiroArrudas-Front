@@ -207,7 +207,7 @@ export const CommandsListLayout = ({
                 rounded={4}
                 mt={4}
               >
-                Nenhuma há nenhuma comanda :(
+                Nenhuma comanda aberta!
               </Text>
             </Td>
           </Tr>
