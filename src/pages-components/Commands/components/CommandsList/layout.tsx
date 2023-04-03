@@ -45,6 +45,7 @@ const listColumns = [
 ];
 
 type Props = {
+  allSalesWorth: number;
   items: any[];
   orderBy: string;
   orderByDir: 'asc' | 'desc';
@@ -56,6 +57,7 @@ type Props = {
 };
 
 export const CommandsListLayout = ({
+  allSalesWorth,
   items,
   orderBy,
   orderByDir,
@@ -66,6 +68,11 @@ export const CommandsListLayout = ({
   handleOpenDeleteCommandModal,
 }: Props) => (
   <TableContainer minHeight={400} pb={32}>
+    <Flex>
+      <Text color="blue.800" fontWeight={600} fontSize={[16, 20]} mb={8} ml={4}>
+        Vendas de hoje: {parseToBRL(allSalesWorth)}
+      </Text>
+    </Flex>
     <Table colorScheme="gray" overflow="visible" minHeight={100}>
       <Thead>
         <Tr>

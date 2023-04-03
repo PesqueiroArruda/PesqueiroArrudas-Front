@@ -11,6 +11,7 @@ import { DeleteCommandModal } from '../DeleteCommandModal';
 export const CommandsList = () => {
   const [commandIdToAddProducts, setCommandIdToAddProducts] = useState('');
   const [isAddProductsModalOpen, setIsAddProductsOpen] = useState(false);
+  const [totalSales, setTotalSales] = useState(0);
 
   const [commandToEdit, setCommandToEdit] = useState<Command>({} as Command);
   const [isEditCommandModalOpen, setIsEditCommandModalOpen] = useState(false);
@@ -115,9 +116,18 @@ export const CommandsList = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchContent, filteredBySort, orderByDir]);
 
+  const allSalesWorth = allCommands.reduce((acc: number, command) => {
+    if (!command.total) {
+      return acc;
+    }
+
+    return command.total - (command.discount || 0) + acc;
+  }, 0);
+
   return (
     <>
       <CommandsListLayout
+        allSalesWorth={allSalesWorth}
         items={filteredBySearch}
         orderBy={orderBy}
         orderByDir={orderByDir}
