@@ -11,7 +11,7 @@ import { DeleteCommandModal } from '../DeleteCommandModal';
 export const CommandsList = () => {
   const [commandIdToAddProducts, setCommandIdToAddProducts] = useState('');
   const [isAddProductsModalOpen, setIsAddProductsOpen] = useState(false);
-  const [totalSales, setTotalSales] = useState(0);
+  const [allSalesVisible, setAllSalesVisible] = useState(false);
 
   const [commandToEdit, setCommandToEdit] = useState<Command>({} as Command);
   const [isEditCommandModalOpen, setIsEditCommandModalOpen] = useState(false);
@@ -30,6 +30,10 @@ export const CommandsList = () => {
     allCommands,
     commandStatusFilter,
   } = useContext(CommandsContext);
+
+  const handleToggleAllSalesVisible = () => {
+    setAllSalesVisible((prev) => !prev);
+  }
 
   const handleToggleOrderByDir = useCallback(() => {
     setOrderByDir((prev: string) => (prev === 'asc' ? 'desc' : 'asc'));
@@ -131,6 +135,8 @@ export const CommandsList = () => {
         items={filteredBySearch}
         orderBy={orderBy}
         orderByDir={orderByDir}
+        allSalesVisible={allSalesVisible}
+        handleToggleAllSalesVisible={handleToggleAllSalesVisible}
         handleToggleOrderByDir={handleToggleOrderByDir}
         handleGoToCommandPage={handleGoToCommandPage}
         handleOpenAddProductsModal={handleOpenAddProductsModal}

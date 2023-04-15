@@ -15,7 +15,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { AiOutlineDelete } from 'react-icons/ai';
+import { AiOutlineDelete, AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { BiAddToQueue } from 'react-icons/bi';
 import { CgOptions } from 'react-icons/cg';
 import { FiEdit2 } from 'react-icons/fi';
@@ -49,6 +49,8 @@ type Props = {
   items: any[];
   orderBy: string;
   orderByDir: 'asc' | 'desc';
+  allSalesVisible: boolean;
+  handleToggleAllSalesVisible: () => void; 
   handleToggleOrderByDir: () => void;
   handleGoToCommandPage: ({ commandId }: { commandId: string }) => void;
   handleOpenAddProductsModal: (commandId: string) => void;
@@ -61,15 +63,17 @@ export const CommandsListLayout = ({
   items,
   orderBy,
   orderByDir,
+  allSalesVisible,
+  handleToggleAllSalesVisible,
   handleToggleOrderByDir,
   handleGoToCommandPage,
   handleOpenAddProductsModal,
   handleOpenEditCommandModal,
   handleOpenDeleteCommandModal,
 }: Props) => (
-  <TableContainer minHeight={400} pb={32}>
+  <TableContainer minHeight={400} pb={32}> 
     {items.length > 0 && (
-      <Flex>
+      <Flex alignItems="center">
         <Text
           color="blue.800"
           fontWeight={600}
@@ -77,8 +81,17 @@ export const CommandsListLayout = ({
           mb={8}
           ml={4}
         >
-          Vendas de hoje: {parseToBRL(allSalesWorth)}
+          Vendas de hoje: {allSalesVisible ? parseToBRL(allSalesWorth) : '•••••••'}
+          
         </Text>
+        <Icon 
+          as={allSalesVisible ? AiOutlineEyeInvisible : AiOutlineEye}
+          mb={7}
+          ml={1}
+          fontSize={20}
+          cursor="pointer" 
+          onClick={() => handleToggleAllSalesVisible()}
+        />
       </Flex>
     )}
     <Table colorScheme="gray" overflow="visible" minHeight={100}>
