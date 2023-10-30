@@ -26,12 +26,12 @@ import { Order } from '../../../../types/Order';
 
 const productColumns = [
   {
-    text: 'Nome',
-    prop: 'name',
-  },
-  {
     text: 'Quantidade',
     prop: 'amount',
+  },
+  {
+    text: 'Nome',
+    prop: 'name',
   },
   { text: '', prop: '*' },
 ];
@@ -105,8 +105,8 @@ export const OrderLayout = ({
           <Tbody>
             {order.products.map(({ _id, name, amount, isMade }) => (
               <Tr key={`${order._id}${_id}`}>
-                <Td w="50%">{name}</Td>
                 <Td w="40%">{amount}</Td>
+                <Td w="50%">{name}</Td>
                 <Td
                   isNumeric
                   display="flex"
