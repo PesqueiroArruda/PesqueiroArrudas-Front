@@ -119,7 +119,7 @@ export const ProductsListLayout = ({
   });
 
   return (
-    <TableContainer mt={16} minHeight={400} pb={32}>
+    <TableContainer mt={16} minHeight={400} pb={32} id='commandProducts'>
       <Table overflow="visible" minHeight={100}>
         <Thead>
           <Tr>

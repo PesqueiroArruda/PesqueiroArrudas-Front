@@ -15,6 +15,7 @@ import { Command as CommandType } from 'types/Command';
 import { useRouter } from 'next/router';
 import { Product } from 'types/Product';
 import { SocketContext } from 'pages/_app';
+import { useReactToPrint } from 'react-to-print';
 import { productsReducer } from './reducers/productsReducer';
 import { AddProductModal } from './components/AddProductModal';
 import { DeleteProductModal } from './components/DeleteProductModal';
@@ -212,6 +213,42 @@ export const Command = ({ commandId }: Props) => {
     setIsDiscountModalOpen(true);
   }, []);
 
+  const handlePrintCommand = useReactToPrint({
+    content: () => {
+      const printContent = document.createElement("div");
+      const printHeader = document.createElement("div");
+
+      const element1 = document.getElementById("commandName");
+      const element2 = document.getElementById("commandPrice");
+      const element3 = document.getElementById("commandProducts");
+
+      if (element1) {
+        printHeader.appendChild(element1.cloneNode(true));
+      }
+
+      if (element2) {
+        printHeader.appendChild(element2.cloneNode(true));
+      }
+      printHeader.style.display = "flex"
+      printHeader.style.flexDirection = "row"
+      printHeader.style.justifyContent = "space-around"
+      printHeader.style.marginTop = "100px"
+      printHeader.style.fontSize = "20px"
+      printHeader.style.fontFamily = "Roboto"
+      printHeader.style.fontWeight = "700"
+      printContent.appendChild(printHeader.cloneNode(true));
+
+
+      if (element3) {
+        printContent.appendChild(element3.cloneNode(true));
+      }
+
+
+      return printContent;
+    },
+    documentTitle: `${command.table}_comanda`
+  });
+
   const tempTotalToBePayed =
     Math.round(
       ((command?.total || 0) -
@@ -256,6 +293,7 @@ export const Command = ({ commandId }: Props) => {
         handleOpenCloseCommandModal={handleOpenCloseCommandModal}
         handleEditDiscount={handleEditDiscount}
         totalToBePayed={totalToBePayed}
+        handlePrintCommand={handlePrintCommand}
       />
       <DeleteProductModal
         isModalOpen={isDeleteProductModalOpen}

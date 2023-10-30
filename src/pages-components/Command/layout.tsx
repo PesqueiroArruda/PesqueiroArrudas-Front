@@ -22,6 +22,7 @@ import { MdVerified } from 'react-icons/md';
 import { BsFillTrashFill } from 'react-icons/bs';
 import { IoCashOutline } from 'react-icons/io5';
 import { FaPercentage } from 'react-icons/fa';
+import { FiPrinter } from "react-icons/fi";
 
 import { Header } from 'components/Header';
 import { Layout } from 'components/Layout';
@@ -41,6 +42,7 @@ interface Props {
   handleOpenSentToKitchenModal: () => void;
   handleOpenCloseCommandModal: () => void;
   handleEditDiscount: () => void;
+  handlePrintCommand: () => void;
 }
 
 export const CommandLayout = ({
@@ -53,6 +55,7 @@ export const CommandLayout = ({
   handleOpenCloseCommandModal,
   totalToBePayed,
   handleEditDiscount,
+  handlePrintCommand,
 }: Props) => {
   const dt = DateTime.fromISO(command?.createdAt as string, {
     zone: 'pt-BR',
@@ -132,8 +135,10 @@ export const CommandLayout = ({
             >
               <Stack align={['center', 'center', 'center', 'flex-start']}>
                 <BgBox w={['100%', '100%', '100%', 'auto']} justify="center">
-                  <Heading fontSize={[16, 20, 22]} textAlign="center">
-                    Comanda: {command?.table}
+                  <Heading fontSize={[16, 20, 22]} textAlign="center" >
+                    <div id='commandName'>
+                      Comanda: {command?.table}
+                    </div>
                   </Heading>
                 </BgBox>
                 <Text fontSize={[14, 16]} color="blue.700">
@@ -149,8 +154,10 @@ export const CommandLayout = ({
                 align="stretch"
               >
                 <BgBox w={['100%', 'auto']} justify="center">
-                  <Heading fontSize={[14, 16, 20, 22]}>
-                    Total: {parseToBRL(command?.total || 0)}
+                  <Heading fontSize={[14, 16, 20, 22]} >
+                    <div id='commandPrice'>
+                      Total: {parseToBRL(command?.total || 0)}
+                    </div>
                   </Heading>
                 </BgBox>
                 <BgBox w={['100%', 'auto']} justify="center">
@@ -265,6 +272,29 @@ export const CommandLayout = ({
                     </MenuItem>
                   </MenuList>
                 </Menu>
+                <Button
+                  onClick={() => handlePrintCommand()}
+                  isDisabled={command.isActive === false}
+                  bg="blue.50"
+                  color="blue.500"
+                  fontWeight="700"
+                  display="flex"
+                  justifyItems="center"
+                  alignItems="center"
+                  rounded={4}
+                  gap={2}
+                  _focus={{
+                    bg: 'green.100',
+                    color: 'green.500',
+                  }}
+                  _hover={{
+                    bg: 'green.100',
+                    color: 'green.500',
+                  }}
+                  fontSize={[14, 16, 20]}
+                >
+                  <Icon as={FiPrinter} mt={0.8} />
+                </Button>
               </Flex>
             </GridItem>
           </Grid>

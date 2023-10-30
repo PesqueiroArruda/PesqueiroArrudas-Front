@@ -31,6 +31,8 @@ export const NavHeader = () => {
     setIsAddProductModalOpen(true);
   }, []);
 
+  
+
   return (
     <NavHeaderLayout
       filter={filter}
