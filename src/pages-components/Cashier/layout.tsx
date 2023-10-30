@@ -16,7 +16,6 @@ import { DateTime } from 'luxon';
 import { Dispatch, SetStateAction } from 'react';
 // eslint-disable-next-line import/named
 import { Cashier, CashierPayment } from 'types/Cashier';
-import { formatDecimalNum } from 'utils/formatDecimalNum';
 import { formatPaymentTypes } from 'utils/formatPaymentTypes';
 import { parseToBRL } from 'utils/parseToBRL';
 

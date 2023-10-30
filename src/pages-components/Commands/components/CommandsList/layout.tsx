@@ -15,7 +15,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { AiOutlineDelete } from 'react-icons/ai';
+import { AiOutlineDelete, AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { BiAddToQueue } from 'react-icons/bi';
 import { CgOptions } from 'react-icons/cg';
 import { FiEdit2 } from 'react-icons/fi';
@@ -45,9 +45,12 @@ const listColumns = [
 ];
 
 type Props = {
+  allSalesWorth: number;
   items: any[];
   orderBy: string;
   orderByDir: 'asc' | 'desc';
+  allSalesVisible: boolean;
+  handleToggleAllSalesVisible: () => void; 
   handleToggleOrderByDir: () => void;
   handleGoToCommandPage: ({ commandId }: { commandId: string }) => void;
   handleOpenAddProductsModal: (commandId: string) => void;
@@ -56,16 +59,41 @@ type Props = {
 };
 
 export const CommandsListLayout = ({
+  allSalesWorth,
   items,
   orderBy,
   orderByDir,
+  allSalesVisible,
+  handleToggleAllSalesVisible,
   handleToggleOrderByDir,
   handleGoToCommandPage,
   handleOpenAddProductsModal,
   handleOpenEditCommandModal,
   handleOpenDeleteCommandModal,
 }: Props) => (
-  <TableContainer minHeight={400} pb={32}>
+  <TableContainer minHeight={400} pb={32}> 
+    {items.length > 0 && (
+      <Flex alignItems="center">
+        <Text
+          color="blue.800"
+          fontWeight={600}
+          fontSize={[16, 20]}
+          mb={8}
+          ml={4}
+        >
+          Vendas de hoje: {allSalesVisible ? parseToBRL(allSalesWorth) : '•••••••'}
+          
+        </Text>
+        <Icon 
+          as={allSalesVisible ? AiOutlineEyeInvisible : AiOutlineEye}
+          mb={7}
+          ml={1}
+          fontSize={20}
+          cursor="pointer" 
+          onClick={() => handleToggleAllSalesVisible()}
+        />
+      </Flex>
+    )}
     <Table colorScheme="gray" overflow="visible" minHeight={100}>
       <Thead>
         <Tr>
@@ -94,104 +122,114 @@ export const CommandsListLayout = ({
       </Thead>
       <Tbody>
         {items.length > 0 ? (
-          items.map(({ _id, table, waiter, total, fishingType, isActive }) => (
-            <Tr
-              key={`list-command-${_id}`}
-              h={20}
-              cursor="pointer"
-              _hover={{ bg: 'blue.50' }}
-            >
-              <Td onClick={() => handleGoToCommandPage({ commandId: _id })}>
-                {table}
-              </Td>
-              <Td onClick={() => handleGoToCommandPage({ commandId: _id })}>
-                {waiter}
-              </Td>
-              <Td onClick={() => handleGoToCommandPage({ commandId: _id })}>
-                {parseToBRL(total || 0)}
-              </Td>
-              <Td isNumeric>
-                {isActive === false && (
-                  <Flex
-                    align="center"
-                    bg="green.300"
-                    display="inline-flex"
-                    gap={2}
-                    rounded={4}
-                    py={1}
-                    px={[1, 3]}
-                    mr={[1, 2]}
-                  >
-                    <Icon
-                      as={MdVerified}
-                      fontSize={[18, 22, 24]}
-                      m={0}
-                      color="green.50"
-                    />
-                    <Text
-                      fontSize={[14, 16, 18]}
-                      fontWeight="600"
-                      color="green.50"
+          items.map(
+            ({
+              _id,
+              table,
+              waiter,
+              total,
+              fishingType,
+              isActive,
+              discount,
+            }) => (
+              <Tr
+                key={`list-command-${_id}`}
+                h={20}
+                cursor="pointer"
+                _hover={{ bg: 'blue.50' }}
+              >
+                <Td onClick={() => handleGoToCommandPage({ commandId: _id })}>
+                  {table}
+                </Td>
+                <Td onClick={() => handleGoToCommandPage({ commandId: _id })}>
+                  {waiter}
+                </Td>
+                <Td onClick={() => handleGoToCommandPage({ commandId: _id })}>
+                  {parseToBRL(total - discount || 0)}
+                </Td>
+                <Td isNumeric>
+                  {isActive === false && (
+                    <Flex
+                      align="center"
+                      bg="green.300"
+                      display="inline-flex"
+                      gap={2}
+                      rounded={4}
+                      py={1}
+                      px={[1, 3]}
+                      mr={[1, 2]}
                     >
-                      Paga
-                    </Text>
-                  </Flex>
-                )}
-                <Menu>
-                  <MenuButton
-                    p={1}
-                    rounded={4}
-                    _hover={{
-                      bg: 'blue.50',
-                    }}
-                  >
-                    <Icon
-                      as={CgOptions}
-                      fontSize={[16, 22]}
-                      color="blue.800"
-                      display="block"
-                    />
-                  </MenuButton>
-                  <MenuList>
-                    <MenuItem
-                      icon={<BiAddToQueue />}
-                      onClick={() => handleOpenAddProductsModal(_id)}
-                      display="flex"
-                      alignItems="center"
-                      isDisabled={isActive === false}
+                      <Icon
+                        as={MdVerified}
+                        fontSize={[18, 22, 24]}
+                        m={0}
+                        color="green.50"
+                      />
+                      <Text
+                        fontSize={[14, 16, 18]}
+                        fontWeight="600"
+                        color="green.50"
+                      >
+                        Paga
+                      </Text>
+                    </Flex>
+                  )}
+                  <Menu>
+                    <MenuButton
+                      p={1}
+                      rounded={4}
+                      _hover={{
+                        bg: 'blue.50',
+                      }}
                     >
-                      <Text>Adicionar Produtos</Text>
-                    </MenuItem>
-                    <MenuItem
-                      icon={<FiEdit2 />}
-                      onClick={() =>
-                        handleOpenEditCommandModal({
-                          _id,
-                          fishingType,
-                          table,
-                          waiter,
-                        })
-                      }
-                      isDisabled={isActive === false}
-                      display="flex"
-                      alignItems="center"
-                    >
-                      <Text>Editar</Text>
-                    </MenuItem>
-                    <MenuItem
-                      icon={<AiOutlineDelete />}
-                      color="red.500"
-                      onClick={() => handleOpenDeleteCommandModal(_id)}
-                      display="flex"
-                      alignItems="center"
-                    >
-                      <Text>Deletar</Text>
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-              </Td>
-            </Tr>
-          ))
+                      <Icon
+                        as={CgOptions}
+                        fontSize={[16, 22]}
+                        color="blue.800"
+                        display="block"
+                      />
+                    </MenuButton>
+                    <MenuList>
+                      <MenuItem
+                        icon={<BiAddToQueue />}
+                        onClick={() => handleOpenAddProductsModal(_id)}
+                        display="flex"
+                        alignItems="center"
+                        isDisabled={isActive === false}
+                      >
+                        <Text>Adicionar Produtos</Text>
+                      </MenuItem>
+                      <MenuItem
+                        icon={<FiEdit2 />}
+                        onClick={() =>
+                          handleOpenEditCommandModal({
+                            _id,
+                            fishingType,
+                            table,
+                            waiter,
+                          })
+                        }
+                        isDisabled={isActive === false}
+                        display="flex"
+                        alignItems="center"
+                      >
+                        <Text>Editar</Text>
+                      </MenuItem>
+                      <MenuItem
+                        icon={<AiOutlineDelete />}
+                        color="red.500"
+                        onClick={() => handleOpenDeleteCommandModal(_id)}
+                        display="flex"
+                        alignItems="center"
+                      >
+                        <Text>Deletar</Text>
+                      </MenuItem>
+                    </MenuList>
+                  </Menu>
+                </Td>
+              </Tr>
+            )
+          )
         ) : (
           <Tr>
             <Td>
@@ -207,7 +245,7 @@ export const CommandsListLayout = ({
                 rounded={4}
                 mt={4}
               >
-                Nenhuma há nenhuma comanda :(
+                Nenhuma comanda aberta!
               </Text>
             </Td>
           </Tr>

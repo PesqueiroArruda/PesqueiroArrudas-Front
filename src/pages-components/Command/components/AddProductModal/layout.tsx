@@ -28,7 +28,7 @@ import { IoClose } from 'react-icons/io5';
 import { AiOutlineStar, AiFillStar } from 'react-icons/ai';
 
 import { Modal } from 'components/Modal';
-import { formatDecimalNum } from 'utils/formatDecimalNum';
+// eslint-disable-next-line no-unused-vars
 import { formatAmount } from 'utils/formatAmount';
 import { parseToBRL } from 'utils/parseToBRL';
 
