@@ -219,18 +219,40 @@ export const Command = ({ commandId }: Props) => {
       const printContent = document.createElement("div");
       const printHeader = document.createElement("div");
       const printFooter = document.createElement("div");
-      const printInfo = document.createElement("div");
 
       const element1 = document.getElementById("commandName");
       const element2 = document.getElementById("commandPrice");
+
+      const printInfo = document.createElement("div");
       
       const infoTitleName = document.createTextNode("Pesqueiro e Restaurante Arruda's")
       const infoTitleNameElement = document.createElement("span")
       infoTitleNameElement.appendChild(infoTitleName)
+      infoTitleNameElement.style.alignItems = "center"
+      infoTitleNameElement.style.display = "flex"
+      infoTitleNameElement.style.fontSize = "18px"
+      infoTitleNameElement.style.justifyContent = "center"
+
+      printInfo.appendChild(infoTitleNameElement)
+
 
       const infoSubtitleName = document.createTextNode("Lanchonete Arrudas LTDA")
       const infoSubtitleNameElement = document.createElement("span")
       infoSubtitleNameElement.appendChild(infoSubtitleName)
+
+      infoSubtitleNameElement.style.fontSize = "16px"
+
+      printInfo.appendChild(infoSubtitleNameElement)
+
+
+      const infoPhone = document.createTextNode("(11) 97231-1736")
+      const infoPhoneElement = document.createElement("span")
+      infoPhoneElement.appendChild(infoPhone)
+
+      infoPhoneElement.style.fontSize = "16px"
+
+      printInfo.appendChild(infoPhoneElement)
+
 
       const cnpjContainer = document.createElement("div")
 
@@ -238,47 +260,29 @@ export const Command = ({ commandId }: Props) => {
       const infoCnpjElement = document.createElement("span")
       infoCnpjElement.appendChild(infoCnpj)
 
+      cnpjContainer.appendChild(infoCnpjElement)
+
       const infoIE = document.createTextNode("IE: 623.032.562.119")
       const infoIEElement = document.createElement("span")
       infoIEElement.appendChild(infoIE)
 
-      cnpjContainer.appendChild(infoCnpjElement)
       cnpjContainer.appendChild(infoIEElement)
       
-      cnpjContainer.style.fontSize = "14px"
-      cnpjContainer.style.marginTop = "15px"
-      cnpjContainer.style.marginBottom = "15px"
       cnpjContainer.style.display = "flex"
       cnpjContainer.style.flexDirection = "column"
+      cnpjContainer.style.fontSize = "14px"
       cnpjContainer.style.justifyContent = "space-between"
+      cnpjContainer.style.marginBottom = "10px"
       cnpjContainer.style.marginLeft = "20px"
       cnpjContainer.style.marginRight = "50px"
-      cnpjContainer.style.marginBottom = "50px"
+      cnpjContainer.style.marginTop = "10px"
 
-
-      const infoPhone = document.createTextNode("(11) 97231-1736")
-      const infoPhoneElement = document.createElement("span")
-      infoPhoneElement.appendChild(infoPhone)
-
-      infoTitleNameElement.style.fontSize = "20px"
-      infoTitleNameElement.style.marginBottom = "20px"
-
-      infoPhoneElement.style.fontSize = "20px"
-      infoPhoneElement.style.marginBottom = "10px"
-
-      infoSubtitleNameElement.style.fontSize = "18px"
-
-      printInfo.style.display = "flex"
-      printInfo.style.justifyContent = "center"
-      printInfo.style.flexDirection = "column"
-      printInfo.style.alignItems = "center"
-
-      printInfo.appendChild(infoTitleNameElement)
-      printInfo.appendChild(infoSubtitleNameElement)
-      printInfo.appendChild(infoPhoneElement)
       printInfo.appendChild(cnpjContainer)
 
-      
+      printInfo.style.alignItems = "center"
+      printInfo.style.display = "flex"
+      printInfo.style.flexDirection = "column"
+      printInfo.style.justifyContent = "center"
       printInfo.style.marginLeft = "20px"
       printInfo.style.marginRight = "50px"
 
@@ -329,8 +333,8 @@ export const Command = ({ commandId }: Props) => {
       printHeader.style.justifyContent = "space-between"
       printHeader.style.marginLeft = "20px"
       printHeader.style.marginRight = "50px"
-      printHeader.style.fontSize = "20px"
-      printHeader.style.fontFamily = "Roboto"
+      printHeader.style.fontSize = "16px"
+      printHeader.style.fontFamily = "Monospace"
       printHeader.style.fontWeight = "700"
       printContent.appendChild(printHeader.cloneNode(true));
 
@@ -344,24 +348,26 @@ export const Command = ({ commandId }: Props) => {
         const productNameElement = document.createElement("span")
         productNameElement.appendChild(productName)
 
-        const productQuantity = document.createTextNode(`| ${element.amount  } |`)
+        const productQuantity = document.createTextNode(`${element.amount  }x`)
         const productQuantityElement = document.createElement("span")
         productQuantityElement.appendChild(productQuantity)
 
-        const productPrice = document.createTextNode(`| R$ ${element.unitPrice  } |`)
+        const productPrice = document.createTextNode(`R$ ${element.unitPrice  } |`)
         const productPriceElement = document.createElement("span")
         productPriceElement.appendChild(productPrice)
 
         productNameElement.style.maxWidth = "100px"
         productNameElement.style.width = "100%"
 
+        productNameElement.style.lineHeight = "1.2"
+
         // Adicionando a célula à linha
-        productRow.appendChild(productNameElement);
         productRow.appendChild(productQuantityElement);
+        productRow.appendChild(productNameElement);
         productRow.appendChild(productPriceElement);
 
-        productRow.style.marginTop = "20px"
-        productRow.style.marginBottom = "20px"
+        productRow.style.marginTop = "10px"
+        productRow.style.marginBottom = "10px"
 
         productRow.style.display = "flex"
         productRow.style.justifyContent = "space-between"
@@ -370,7 +376,7 @@ export const Command = ({ commandId }: Props) => {
       })
 
       linhas.forEach((linha) => {
-          productsBody.style.fontSize = "20px";
+          productsBody.style.fontSize = "14px";
           productsBody.style.marginLeft = "20px";
           productsBody.style.marginRight = "50px";
           productsBody.appendChild(linha);
@@ -380,10 +386,6 @@ export const Command = ({ commandId }: Props) => {
         printContent.appendChild(productsBody)
       }
       
-
-
-
-
       if (element2) {
         printFooter.appendChild(element2.cloneNode(true));
         printFooter.style.display = "flex"
@@ -396,7 +398,7 @@ export const Command = ({ commandId }: Props) => {
         printContent.appendChild(printFooter.cloneNode(true));
       }
 
-
+      printContent.style.fontFamily = "Monospace"
 
       return printContent;
     },
