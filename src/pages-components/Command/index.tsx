@@ -16,6 +16,7 @@ import { useRouter } from 'next/router';
 import { Product } from 'types/Product';
 import { SocketContext } from 'pages/_app';
 import { useReactToPrint } from 'react-to-print';
+import { DateTimeFormatOptions } from 'luxon';
 import { productsReducer } from './reducers/productsReducer';
 import { AddProductModal } from './components/AddProductModal';
 import { DeleteProductModal } from './components/DeleteProductModal';
@@ -287,8 +288,9 @@ export const Command = ({ commandId }: Props) => {
         printHeader.appendChild(element1.cloneNode(true));
       }
       const currentDate = new Date()
-      const opcoesFormatacao = { day: 'numeric', month: '2-digit', year: 'numeric' };
+      const opcoesFormatacao: DateTimeFormatOptions = { day: 'numeric', month: '2-digit', year: 'numeric' };
       const dataFormatada = currentDate.toLocaleDateString('pt-BR', opcoesFormatacao);
+
 
       const dayText = document.createTextNode(dataFormatada);
       const dayElement = document.createElement("span")
@@ -301,8 +303,8 @@ export const Command = ({ commandId }: Props) => {
       dateElement.style.justifyContent = "center"
 
 
-      let horas = currentDate.getHours();
-      let minutos = currentDate.getMinutes();
+      let horas : number | string = currentDate.getHours();
+      let minutos : number | string = currentDate.getMinutes();
 
       // Formatar para garantir que tenham dois dígitos
       horas = horas < 10 ? `0${  horas}` : horas;
