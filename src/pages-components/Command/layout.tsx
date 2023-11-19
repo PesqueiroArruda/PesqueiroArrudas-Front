@@ -136,8 +136,8 @@ export const CommandLayout = ({
               <Stack align={['center', 'center', 'center', 'flex-start']}>
                 <BgBox w={['100%', '100%', '100%', 'auto']} justify="center">
                   <Heading fontSize={[16, 20, 22]} textAlign="center" >
-                    <div id='commandName'>
-                      Comanda: {command?.table}
+                    <div>
+                      Comanda: <span id='commandName'>{command?.table}</span>
                     </div>
                   </Heading>
                 </BgBox>
@@ -156,7 +156,7 @@ export const CommandLayout = ({
                 <BgBox w={['100%', 'auto']} justify="center">
                   <Heading fontSize={[14, 16, 20, 22]} >
                     <div id='commandPrice'>
-                      Total: {parseToBRL(command?.total || 0)}
+                      Total: <span>{parseToBRL(command?.total || 0)}</span>
                     </div>
                   </Heading>
                 </BgBox>
@@ -274,7 +274,6 @@ export const CommandLayout = ({
                 </Menu>
                 <Button
                   onClick={() => handlePrintCommand()}
-                  isDisabled={command.isActive === false}
                   bg="blue.50"
                   color="blue.500"
                   fontWeight="700"

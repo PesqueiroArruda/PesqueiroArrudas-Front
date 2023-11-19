@@ -217,31 +217,183 @@ export const Command = ({ commandId }: Props) => {
     content: () => {
       const printContent = document.createElement("div");
       const printHeader = document.createElement("div");
+      const printFooter = document.createElement("div");
+      const printInfo = document.createElement("div");
 
       const element1 = document.getElementById("commandName");
       const element2 = document.getElementById("commandPrice");
-      const element3 = document.getElementById("commandProducts");
+      
+      const infoTitleName = document.createTextNode("Pesqueiro e Restaurante Arruda's")
+      const infoTitleNameElement = document.createElement("span")
+      infoTitleNameElement.appendChild(infoTitleName)
+
+      const infoSubtitleName = document.createTextNode("Lanchonete Arrudas LTDA")
+      const infoSubtitleNameElement = document.createElement("span")
+      infoSubtitleNameElement.appendChild(infoSubtitleName)
+
+      const cnpjContainer = document.createElement("div")
+
+      const infoCnpj = document.createTextNode("CNPJ: 13.521.007/0001-09")
+      const infoCnpjElement = document.createElement("span")
+      infoCnpjElement.appendChild(infoCnpj)
+
+      const infoIE = document.createTextNode("IE: 623.032.562.119")
+      const infoIEElement = document.createElement("span")
+      infoIEElement.appendChild(infoIE)
+
+      cnpjContainer.appendChild(infoCnpjElement)
+      cnpjContainer.appendChild(infoIEElement)
+      
+      cnpjContainer.style.fontSize = "14px"
+      cnpjContainer.style.marginTop = "15px"
+      cnpjContainer.style.marginBottom = "15px"
+      cnpjContainer.style.display = "flex"
+      cnpjContainer.style.flexDirection = "column"
+      cnpjContainer.style.justifyContent = "space-between"
+      cnpjContainer.style.marginLeft = "20px"
+      cnpjContainer.style.marginRight = "50px"
+      cnpjContainer.style.marginBottom = "50px"
+
+
+      const infoPhone = document.createTextNode("(11) 97231-1736")
+      const infoPhoneElement = document.createElement("span")
+      infoPhoneElement.appendChild(infoPhone)
+
+      infoTitleNameElement.style.fontSize = "20px"
+      infoTitleNameElement.style.marginBottom = "20px"
+
+      infoPhoneElement.style.fontSize = "20px"
+      infoPhoneElement.style.marginBottom = "10px"
+
+      infoSubtitleNameElement.style.fontSize = "18px"
+
+      printInfo.style.display = "flex"
+      printInfo.style.justifyContent = "center"
+      printInfo.style.flexDirection = "column"
+      printInfo.style.alignItems = "center"
+
+      printInfo.appendChild(infoTitleNameElement)
+      printInfo.appendChild(infoSubtitleNameElement)
+      printInfo.appendChild(infoPhoneElement)
+      printInfo.appendChild(cnpjContainer)
+
+      
+      printInfo.style.marginLeft = "20px"
+      printInfo.style.marginRight = "50px"
+
+      printContent.appendChild(printInfo)
 
       if (element1) {
         printHeader.appendChild(element1.cloneNode(true));
       }
+      const currentDate = new Date()
+      const opcoesFormatacao = { day: 'numeric', month: '2-digit', year: 'numeric' };
+      const dataFormatada = currentDate.toLocaleDateString('pt-BR', opcoesFormatacao);
 
-      if (element2) {
-        printHeader.appendChild(element2.cloneNode(true));
+      const dayText = document.createTextNode(dataFormatada);
+      const dayElement = document.createElement("span")
+      dayElement.appendChild(dayText)
+
+      const dateElement = document.createElement("div")
+      dateElement.style.display = "flex"
+      dateElement.style.flexDirection = "column"
+      dateElement.style.alignItems = "end"
+      dateElement.style.justifyContent = "center"
+
+
+      let horas = currentDate.getHours();
+      let minutos = currentDate.getMinutes();
+
+      // Formatar para garantir que tenham dois dígitos
+      horas = horas < 10 ? `0${  horas}` : horas;
+      minutos = minutos < 10 ? `0${  minutos}` : minutos;
+      const horaFormatada = `${horas}:${minutos}`;
+      
+      const hourText = document.createTextNode(horaFormatada);
+      const hourElement = document.createElement("span");
+      hourElement.appendChild(hourText);
+
+      
+      if(dateElement){
+        dateElement.appendChild(dayElement)
+        dateElement.appendChild(hourElement)
       }
+
+      printHeader.appendChild(dateElement.cloneNode(true));
+
+      
       printHeader.style.display = "flex"
       printHeader.style.flexDirection = "row"
-      printHeader.style.justifyContent = "space-around"
-      printHeader.style.marginTop = "100px"
+      printHeader.style.justifyContent = "space-between"
+      printHeader.style.marginLeft = "20px"
+      printHeader.style.marginRight = "50px"
       printHeader.style.fontSize = "20px"
       printHeader.style.fontFamily = "Roboto"
       printHeader.style.fontWeight = "700"
       printContent.appendChild(printHeader.cloneNode(true));
 
+      const productsBody = document.createElement("div")
+      
+      const linhas = products.value.map((element) => {
+        const productRow = document.createElement("div")
 
-      if (element3) {
-        printContent.appendChild(element3.cloneNode(true));
+        // Criando um elemento de célula (td) e adicionando o texto do elemento
+        const productName = document.createTextNode(`${element.name  }`)
+        const productNameElement = document.createElement("span")
+        productNameElement.appendChild(productName)
+
+        const productQuantity = document.createTextNode(`| ${element.amount  } |`)
+        const productQuantityElement = document.createElement("span")
+        productQuantityElement.appendChild(productQuantity)
+
+        const productPrice = document.createTextNode(`| R$ ${element.unitPrice  } |`)
+        const productPriceElement = document.createElement("span")
+        productPriceElement.appendChild(productPrice)
+
+        productNameElement.style.maxWidth = "100px"
+        productNameElement.style.width = "100%"
+
+        // Adicionando a célula à linha
+        productRow.appendChild(productNameElement);
+        productRow.appendChild(productQuantityElement);
+        productRow.appendChild(productPriceElement);
+
+        productRow.style.marginTop = "20px"
+        productRow.style.marginBottom = "20px"
+
+        productRow.style.display = "flex"
+        productRow.style.justifyContent = "space-between"
+
+        return productRow;
+      })
+
+      linhas.forEach((linha) => {
+          productsBody.style.fontSize = "20px";
+          productsBody.style.marginLeft = "20px";
+          productsBody.style.marginRight = "50px";
+          productsBody.appendChild(linha);
+      });
+
+      if(productsBody){
+        printContent.appendChild(productsBody)
       }
+      
+
+
+
+
+      if (element2) {
+        printFooter.appendChild(element2.cloneNode(true));
+        printFooter.style.display = "flex"
+        printFooter.style.flexDirection = "column"
+        printFooter.style.alignItems = "start"
+        printFooter.style.justifyContent = "end"
+        printFooter.style.marginLeft = "200px"
+        printFooter.style.width = "100px"
+        printFooter.style.marginBottom = "50px"
+        printContent.appendChild(printFooter.cloneNode(true));
+      }
+
 
 
       return printContent;
