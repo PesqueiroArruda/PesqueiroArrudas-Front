@@ -115,7 +115,6 @@ export const Kitchen = () => {
         setOrderToCheck,
       }}
     >
-      {console.log(allOrders.value)}
       <KitchenLayout orders={allOrders.value} />
       <CheckOrderModal
         isModalOpen={isCheckOrderModalOpen}
