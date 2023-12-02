@@ -10,6 +10,7 @@ import { DeleteCommandModal } from '../DeleteCommandModal';
 
 export const CommandsList = () => {
   const [commandIdToAddProducts, setCommandIdToAddProducts] = useState('');
+
   const [isAddProductsModalOpen, setIsAddProductsOpen] = useState(false);
   const [allSalesVisible, setAllSalesVisible] = useState(false);
 
@@ -127,6 +128,7 @@ export const CommandsList = () => {
 
     return command.total - (command.discount || 0) + acc;
   }, 0);
+
 
   return (
     <>
