@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {
   Icon,
   Menu,
@@ -14,16 +15,19 @@ import {
   Flex,
   Text,
 } from '@chakra-ui/react';
+import {useEffect, useState} from 'react'
 import { motion } from 'framer-motion';
 import { AiOutlineDelete, AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { BiAddToQueue } from 'react-icons/bi';
 import { CgOptions } from 'react-icons/cg';
 import { FiEdit2 } from 'react-icons/fi';
 import { FaArrowUp } from 'react-icons/fa';
+import { LuChefHat } from "react-icons/lu";
 
 import { Command } from 'types/Command';
 import { MdVerified } from 'react-icons/md';
 import { parseToBRL } from 'utils/parseToBRL';
+import KitchenService from 'pages-components/Command/services/KitchenService';
 
 const listColumns = [
   {
@@ -58,6 +62,11 @@ type Props = {
   handleOpenDeleteCommandModal: (commandId: string) => void;
 };
 
+export type ResponseDataItem = {
+  result: boolean;
+  _id: string;
+}
+
 export const CommandsListLayout = ({
   allSalesWorth,
   items,
@@ -69,9 +78,83 @@ export const CommandsListLayout = ({
   handleGoToCommandPage,
   handleOpenAddProductsModal,
   handleOpenEditCommandModal,
-  handleOpenDeleteCommandModal,
-}: Props) => (
-  <TableContainer minHeight={400} pb={32}> 
+  handleOpenDeleteCommandModal
+}: Props) => {
+  const [hasPendingOrderArray, setHasPendingOrderArray] = useState<ResponseDataItem[]>([]);
+  
+  function verificarMudancas(produtosAntigos: any, novosProdutos: any) {
+    let mudancas = false;
+
+    novosProdutos.forEach((novoProduto: any) => {
+      const produtoAntigo = produtosAntigos.find((p: any) => p.id === novoProduto.id);
+
+      if (!produtoAntigo) {
+        // Produto novo foi adicionado
+        mudancas = true
+      } else if (produtoAntigo.amount < novoProduto.amount) {
+        // Quantidade do produto aumentou
+        mudancas = true
+      }
+    });
+
+    return !mudancas;
+  }
+
+  const fetchData = async (command: any): Promise<ResponseDataItem> => {
+    try {
+      const { _id, products } = command;
+
+      let commandOrdersProducts = await KitchenService.getCommandOrdersProducts({
+        commandId: _id as string,
+      });
+
+      if (products?.length > 0) {
+
+        if(commandOrdersProducts.length > 0){
+          commandOrdersProducts = commandOrdersProducts?.map((order: any) => ({
+            name: order.name,
+            amount: order.amount,
+            id: order._id,
+          }));
+        } else commandOrdersProducts = []
+
+        const commandCurrentProducts = products
+        ?.filter((product: any) => product.category === "Pratos" || product.category === "Bebidas-cozinha" || product.category === "Porções")
+        .map((product: any) => ({
+          name: product.name,
+          amount: product.amount,
+          id: product._id,
+        })) || [];
+        const result = verificarMudancas(commandOrdersProducts, commandCurrentProducts)
+        return {result, _id}
+      } 
+      return {result: false, _id}
+      
+    } catch (error) {
+      // Trate os erros conforme necessário
+      console.error("Erro ao buscar dados:", error);
+      return {result: false, _id: 'error'}
+    }
+  };
+
+  useEffect(()=>{
+    setHasPendingOrderArray([])
+    const itemsToSend: ResponseDataItem[] = []
+
+    const fetchDataForEach = async () => {
+      for (const element of items) {
+        const data = await fetchData(element)
+        itemsToSend.push(data);
+      }
+    };
+
+    setHasPendingOrderArray(itemsToSend)
+
+    fetchDataForEach(); 
+  },[])
+
+  return (
+    <TableContainer minHeight={400} pb={32}> 
     {items.length > 0 && (
       <Flex alignItems="center">
         <Text
@@ -146,6 +229,9 @@ export const CommandsListLayout = ({
                 </Td>
                 <Td onClick={() => handleGoToCommandPage({ commandId: _id })}>
                   {parseToBRL(total - discount || 0)}
+                </Td>
+                <Td>
+                  {hasPendingOrderArray.find((orderItem) => orderItem._id === _id)?.result === false && <LuChefHat size={20} color='red'/>}
                 </Td>
                 <Td isNumeric>
                   {isActive === false && (
@@ -253,4 +339,5 @@ export const CommandsListLayout = ({
       </Tbody>
     </Table>
   </TableContainer>
-);
+  )
+}
