@@ -16,6 +16,7 @@ import {
   Button,
 } from '@chakra-ui/react';
 import { DateTime } from 'luxon';
+import {useEffect, useState} from 'react'
 
 import { CgOptions } from 'react-icons/cg';
 import { MdVerified } from 'react-icons/md';
@@ -31,6 +32,7 @@ import { GiCook } from 'react-icons/gi';
 import { parseToBRL } from 'utils/parseToBRL';
 import { NavHeader } from './components/NavHeader';
 import { ProductsList } from './components/ProductsList';
+import KitchenService from './services/KitchenService';
 
 interface Props {
   command: Command;
@@ -63,6 +65,69 @@ export const CommandLayout = ({
   }).setLocale('pt-BR');
   const createdAtFormatted = dt.toLocaleString(DateTime.DATETIME_MED);
 
+  const [canSendToKichen, setCanSendToKitchen] = useState(false)
+  const [dummy, setDummy] = useState(false)
+
+
+  function verificarMudancas(produtosAntigos: any, novosProdutos: any) {
+    let mudancas = false;
+
+    novosProdutos.forEach((novoProduto: any) => {
+      const produtoAntigo = produtosAntigos.find((p: any) => p.id === novoProduto.id);
+
+      if (!produtoAntigo) {
+        // Produto novo foi adicionado
+        mudancas = true
+      } else if (produtoAntigo.amount < novoProduto.amount) {
+        // Quantidade do produto aumentou
+        mudancas = true
+      }
+    });
+
+    return !mudancas;
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { _id, products } = command;
+
+        let commandOrdersProducts = await KitchenService.getCommandOrdersProducts({
+          commandId: _id as string,
+        });
+
+        if (products && products?.length > 0) {
+
+          if(commandOrdersProducts.length > 0){
+            commandOrdersProducts = commandOrdersProducts?.map((order: any) => ({
+              name: order.name,
+              amount: order.amount,
+              id: order._id,
+            }));
+          } else commandOrdersProducts = []
+
+          const commandCurrentProducts = products
+          ?.filter((product) => product.category === "Pratos" || product.category === "Bebidas-cozinha" || product.category === "Porções")
+          .map((product) => ({
+            name: product.name,
+            amount: product.amount,
+            id: product._id,
+          })) || [];
+
+          setCanSendToKitchen(verificarMudancas(commandOrdersProducts, commandCurrentProducts))
+        } 
+        else {
+          setCanSendToKitchen(true)
+        }
+      } catch (error) {
+        // Trate os erros conforme necessário
+        console.error("Erro ao buscar dados:", error);
+      }
+    };
+
+    fetchData(); // Chama a função assíncrona imediatamente
+
+}, [command, command.products, dummy]);
   return (
     <Layout>
       <Header hasBackPageBtn handleBackPage={handleGoToCommands}>
@@ -86,7 +151,10 @@ export const CommandLayout = ({
           </BgBox>
         ) : (
           <Button
-            onClick={() => handleOpenSentToKitchenModal()}
+            onClick={() => {
+              setDummy(!dummy)
+              handleOpenSentToKitchenModal()
+            }}
             display="flex"
             alignItems="center"
             gap={3}
@@ -102,6 +170,7 @@ export const CommandLayout = ({
               bg: 'blue.200',
             }}
             color="blue.800"
+            disabled={canSendToKichen}
           >
             <Heading
               fontSize={[14, 16, 18]}
