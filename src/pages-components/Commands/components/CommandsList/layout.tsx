@@ -165,7 +165,7 @@ export const CommandsListLayout = ({
 
   useEffect(()=>{
     getPendingOrders();
-  },[items])
+  },[])
 
   return (
     <TableContainer minHeight={400} pb={32}> 
