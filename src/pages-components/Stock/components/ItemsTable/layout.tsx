@@ -1,5 +1,4 @@
 /* eslint-disable react/jsx-no-useless-fragment */
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import {
   Flex,
