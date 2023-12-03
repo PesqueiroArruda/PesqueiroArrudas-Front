@@ -1,5 +1,4 @@
 /* eslint-disable react/jsx-no-useless-fragment */
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import {
   Flex,
@@ -13,15 +12,19 @@ import {
   Icon,
   Spinner,
 } from '@chakra-ui/react';
-import { FaArrowUp } from 'react-icons/fa';
+import { FaArrowUp, FaGlassWhiskey } from 'react-icons/fa';
 import { AiFillStar, AiOutlineStar, AiOutlineDelete } from 'react-icons/ai';
 import { FiEdit2 } from 'react-icons/fi';
+import { PiForkKnife, PiBowlFood } from "react-icons/pi";
+import { TbBottle } from "react-icons/tb";
+import { BiDrink } from "react-icons/bi";
+import { GiFishingHook, GiFishing, GiChocolateBar, GiIceCube } from "react-icons/gi";
 
 import { Product } from 'pages-components/Stock/types/Product';
 import { parseToBRL } from 'utils/parseToBRL';
 
 const stockColumns = [
-  { text: 'Imagem', prop: 'image' },
+  { text: '', prop: 'image' },
   { text: 'Nome', prop: 'name' },
   { text: 'Categoria', prop: 'category' },
   { text: 'Qntd', prop: 'amount' },
@@ -58,7 +61,13 @@ export const ItemsTableLayout = ({
   return (
     <>
       {isLoading ? (
-        <Spinner size="xl" />
+        <Spinner 
+          size="xl" 
+          position="absolute"
+          left="50%"
+          top="50%"
+          transform="translate(-50%, -50%)"
+        />
       ) : (
         <TableContainer>
           <Table variant="simple">
@@ -111,13 +120,33 @@ export const ItemsTableLayout = ({
                     }}
                   >
                     <Td>
-                      <Image
-                        src="https://wallpaperaccess.com/full/5227230.png"
-                        width={32}
-                        height={32}
-                        objectFit="cover"
-                        alt="product-image"
-                      />
+                      {category === "Bebidas" && (
+                        <TbBottle size={28} color='blue'/>
+                      )}
+                      {category === "Pratos" && (
+                        <PiForkKnife size={28} color='orange'/>
+                      )}
+                      {category === "Porções" && (
+                        <PiBowlFood size={28} color='yellow'/>
+                      )}
+                      {category === "Bebidas-Cozinha" && (
+                        <BiDrink size={28} color='purple'/>
+                      )}
+                      {category === "Pesca" && (
+                        <GiFishingHook size={28} color='gray'/>
+                      )}
+                      {category === "Peixes" && (
+                        <GiFishing size={28} color="lightblue"/>
+                      )}
+                      {category === "Sobremesas" && (
+                        <GiChocolateBar size={28} color="brown"/>
+                      )}
+                      {category === "Doses" && (
+                        <FaGlassWhiskey size={28} color="red"/>
+                      )}
+                      {category === "Misturas Congeladas" && (
+                        <GiIceCube size={28} color="lightblue"/>
+                      )}
                     </Td>
                     <Td>{name}</Td>
                     <Td>{category}</Td>
