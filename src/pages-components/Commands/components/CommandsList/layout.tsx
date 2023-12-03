@@ -81,7 +81,8 @@ export const CommandsListLayout = ({
   handleOpenDeleteCommandModal
 }: Props) => {
   const [hasPendingOrderArray, setHasPendingOrderArray] = useState<ResponseDataItem[]>([]);
-  
+  const [isLoading, setIsLoading] = useState(true)
+
   function verificarMudancas(produtosAntigos: any, novosProdutos: any) {
     let mudancas = false;
 
@@ -127,8 +128,9 @@ export const CommandsListLayout = ({
         })) || [];
         const result = verificarMudancas(commandOrdersProducts, commandCurrentProducts)
         return {result, _id}
-      } 
-      return {result: false, _id}
+      }
+
+      return {result: true, _id}
       
     } catch (error) {
       // Trate os erros conforme necessário
@@ -137,21 +139,32 @@ export const CommandsListLayout = ({
     }
   };
 
+  const getPendingOrders = () => {
+    setIsLoading(true)
+    try {
+      setHasPendingOrderArray([])
+      const itemsToSend: ResponseDataItem[] = []
+
+      const fetchDataForEach = async () => {
+        for (const element of items) {
+          const data = await fetchData(element)
+          itemsToSend.push(data);
+        }
+      };
+
+      setHasPendingOrderArray(itemsToSend)
+
+      fetchDataForEach(); 
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   useEffect(()=>{
-    setHasPendingOrderArray([])
-    const itemsToSend: ResponseDataItem[] = []
-
-    const fetchDataForEach = async () => {
-      for (const element of items) {
-        const data = await fetchData(element)
-        itemsToSend.push(data);
-      }
-    };
-
-    setHasPendingOrderArray(itemsToSend)
-
-    fetchDataForEach(); 
-  },[])
+    getPendingOrders();
+  },[items])
 
   return (
     <TableContainer minHeight={400} pb={32}> 
@@ -231,7 +244,11 @@ export const CommandsListLayout = ({
                   {parseToBRL(total - discount || 0)}
                 </Td>
                 <Td>
-                  {hasPendingOrderArray.find((orderItem) => orderItem._id === _id)?.result === false && <LuChefHat size={20} color='red'/>}
+                  {hasPendingOrderArray.length > 0 ? (
+                    hasPendingOrderArray.find((orderItem) => orderItem._id === _id)?.result === false ? <LuChefHat size={20} color='red'/> : <LuChefHat size={20} color='transparent'/>
+                  ) : (
+                    <LuChefHat size={20} color='transparent'/>
+                  )}
                 </Td>
                 <Td isNumeric>
                   {isActive === false && (
