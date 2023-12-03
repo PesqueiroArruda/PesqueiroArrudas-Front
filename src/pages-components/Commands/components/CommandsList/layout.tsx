@@ -121,7 +121,7 @@ export const CommandsListLayout = ({
         } else commandOrdersProducts = []
 
         const commandCurrentProducts = products
-        ?.filter((product: any) => product.category === "Pratos" || product.category === "Bebidas-cozinha" || product.category === "Porções")
+        ?.filter((product: any) => product.category === "Pratos" || product.category === "Bebidas-Cozinha" || product.category === "Porções")
         .map((product: any) => ({
           name: product.name,
           amount: product.amount,
