@@ -62,7 +62,13 @@ export const ItemsTableLayout = ({
   return (
     <>
       {isLoading ? (
-        <Spinner size="xl" />
+        <Spinner 
+          size="xl" 
+          position="absolute"
+          left="50%"
+          top="50%"
+          transform="translate(-50%, -50%)"
+        />
       ) : (
         <TableContainer>
           <Table variant="simple">
