@@ -14,6 +14,7 @@ import {
   Tr,
   Flex,
   Text,
+  Spinner
 } from '@chakra-ui/react';
 import {useEffect, useState} from 'react'
 import { motion } from 'framer-motion';
@@ -245,9 +246,9 @@ export const CommandsListLayout = ({
                 </Td>
                 <Td>
                   {hasPendingOrderArray.length > 0 ? (
-                    hasPendingOrderArray.find((orderItem) => orderItem._id === _id)?.result === false ? <LuChefHat size={20} color='red'/> : <LuChefHat size={20} color='transparent'/>
+                    hasPendingOrderArray.find((orderItem) => orderItem._id === _id)?.result === false ? <LuChefHat size={24} color='red'/> : <LuChefHat size={24} color='transparent'/>
                   ) : (
-                    <LuChefHat size={20} color='transparent'/>
+                    <Spinner size='md' color='red.500'/>
                   )}
                 </Td>
                 <Td isNumeric>
