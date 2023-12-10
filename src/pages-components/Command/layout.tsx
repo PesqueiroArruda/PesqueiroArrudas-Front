@@ -224,14 +224,16 @@ export const CommandLayout = ({
               >
                 <BgBox w={['100%', 'auto']} justify="center">
                   <Heading fontSize={[14, 16, 20, 22]} >
-                    <div id='commandPrice'>
+                    <div >
                       Total: <span>{parseToBRL(command?.total || 0)}</span>
                     </div>
                   </Heading>
                 </BgBox>
                 <BgBox w={['100%', 'auto']} justify="center">
                   <Heading fontSize={[14, 16, 20, 22]}>
-                    A Pagar: {parseToBRL(totalToBePayed || 0)}
+                    <div id='commandPrice'>
+                      A Pagar: {parseToBRL(totalToBePayed || 0)}
+                    </div>
                   </Heading>
                 </BgBox>
                 <Button
