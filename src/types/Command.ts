@@ -8,6 +8,7 @@ export interface Command {
   products?: Product[];
   total?: number;
   isActive?: boolean;
+  hasPendingOrders?: boolean;
   totalPayed?: number;
   createdAt?: string;
   waiterExtra?: number;

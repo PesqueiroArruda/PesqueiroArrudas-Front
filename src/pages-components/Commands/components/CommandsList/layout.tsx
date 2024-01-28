@@ -81,92 +81,6 @@ export const CommandsListLayout = ({
   handleOpenEditCommandModal,
   handleOpenDeleteCommandModal
 }: Props) => {
-  const [hasPendingOrderArray, setHasPendingOrderArray] = useState<ResponseDataItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true)
-
-  function verificarMudancas(produtosAntigos: any, novosProdutos: any) {
-    let mudancas = false;
-
-    novosProdutos.forEach((novoProduto: any) => {
-      const produtoAntigo = produtosAntigos.find((p: any) => p.id === novoProduto.id);
-
-      if (!produtoAntigo) {
-        // Produto novo foi adicionado
-        mudancas = true
-      } else if (produtoAntigo.amount < novoProduto.amount) {
-        // Quantidade do produto aumentou
-        mudancas = true
-      }
-    });
-
-    return !mudancas;
-  }
-
-  const fetchData = async (command: any): Promise<ResponseDataItem> => {
-    try {
-      const { _id, products } = command;
-
-      let commandOrdersProducts = await KitchenService.getCommandOrdersProducts({
-        commandId: _id as string,
-      });
-
-      if (products?.length > 0) {
-
-        if(commandOrdersProducts.length > 0){
-          commandOrdersProducts = commandOrdersProducts?.map((order: any) => ({
-            name: order.name,
-            amount: order.amount,
-            id: order._id,
-          }));
-        } else commandOrdersProducts = []
-
-        const commandCurrentProducts = products
-        ?.filter((product: any) => product.category === "Pratos" || product.category === "Bebidas-Cozinha" || product.category === "Porções")
-        .map((product: any) => ({
-          name: product.name,
-          amount: product.amount,
-          id: product._id,
-        })) || [];
-        const result = verificarMudancas(commandOrdersProducts, commandCurrentProducts)
-        return {result, _id}
-      }
-
-      return {result: true, _id}
-      
-    } catch (error) {
-      // Trate os erros conforme necessário
-      console.error("Erro ao buscar dados:", error);
-      return {result: false, _id: 'error'}
-    }
-  };
-
-  const getPendingOrders = () => {
-    setIsLoading(true)
-    try {
-      setHasPendingOrderArray([])
-      const itemsToSend: ResponseDataItem[] = []
-
-      const fetchDataForEach = async () => {
-        for (const element of items) {
-          const data = await fetchData(element)
-          itemsToSend.push(data);
-        }
-      };
-
-      setHasPendingOrderArray(itemsToSend)
-
-      fetchDataForEach(); 
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  useEffect(()=>{
-    getPendingOrders();
-  },[])
-
   return (
     <TableContainer minHeight={400} pb={32}> 
     {items.length > 0 && (
@@ -179,7 +93,6 @@ export const CommandsListLayout = ({
           ml={4}
         >
           Vendas de hoje: {allSalesVisible ? parseToBRL(allSalesWorth) : '•••••••'}
-          
         </Text>
         <Icon 
           as={allSalesVisible ? AiOutlineEyeInvisible : AiOutlineEye}
@@ -228,6 +141,7 @@ export const CommandsListLayout = ({
               fishingType,
               isActive,
               discount,
+              hasPendingOrders
             }) => (
               <Tr
                 key={`list-command-${_id}`}
@@ -245,10 +159,10 @@ export const CommandsListLayout = ({
                   {parseToBRL(total - discount || 0)}
                 </Td>
                 <Td>
-                  {hasPendingOrderArray.length > 0 ? (
-                    hasPendingOrderArray.find((orderItem) => orderItem._id === _id)?.result === false ? <LuChefHat size={24} color='red'/> : <LuChefHat size={24} color='transparent'/>
+                  {hasPendingOrders ? (
+                    <LuChefHat size={24} color='red'/>
                   ) : (
-                    <Spinner size='md' color='red.500'/>
+                    <LuChefHat size={24} color='transparent'/>
                   )}
                 </Td>
                 <Td isNumeric>
