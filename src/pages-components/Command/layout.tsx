@@ -16,7 +16,6 @@ import {
   Button,
 } from '@chakra-ui/react';
 import { DateTime } from 'luxon';
-import {useEffect, useState} from 'react'
 
 import { CgOptions } from 'react-icons/cg';
 import { MdVerified } from 'react-icons/md';
@@ -32,7 +31,6 @@ import { GiCook } from 'react-icons/gi';
 import { parseToBRL } from 'utils/parseToBRL';
 import { NavHeader } from './components/NavHeader';
 import { ProductsList } from './components/ProductsList';
-import KitchenService from './services/KitchenService';
 
 interface Props {
   command: Command;

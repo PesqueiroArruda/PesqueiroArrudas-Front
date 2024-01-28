@@ -14,9 +14,7 @@ import {
   Tr,
   Flex,
   Text,
-  Spinner
 } from '@chakra-ui/react';
-import {useEffect, useState} from 'react'
 import { motion } from 'framer-motion';
 import { AiOutlineDelete, AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { BiAddToQueue } from 'react-icons/bi';
