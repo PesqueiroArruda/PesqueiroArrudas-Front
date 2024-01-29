@@ -144,6 +144,23 @@ export const Command = ({ commandId }: Props) => {
   }, []);
 
   useEffect(() => {
+    socket.on('kitchen-order-created', async (payload: any) => {
+      if(payload.commandId === commandId){
+        
+        const { command: commandFound } = await CommandService.getOneCommand({
+          commandId,
+        });
+        setCommand(commandFound);
+
+        productsDispatch({
+          type: 'add-products',
+          payload: commandFound?.products,
+        });
+
+        setIsLoading(false);
+      }
+    });
+
     socket.on('command-updated', (updatedCommand: CommandType) => {
       if (updatedCommand._id === commandId) {
         setCommand(updatedCommand);
