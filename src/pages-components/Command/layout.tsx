@@ -104,7 +104,7 @@ export const CommandLayout = ({
               bg: 'blue.200',
             }}
             color="blue.800"
-            disabled={!command.hasPendingOrders}
+            // disabled={!command.hasPendingOrders}
           >
             <Heading
               fontSize={[14, 16, 18]}
