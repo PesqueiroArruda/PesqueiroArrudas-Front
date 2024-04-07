@@ -416,6 +416,8 @@ export const Command = ({ commandId }: Props) => {
       }
 
       printContent.style.fontFamily = "Monospace"
+      printContent.style.paddingBottom = '10px'
+      printContent.style.borderBottom = '1px solid black'
 
       return printContent;
     },
