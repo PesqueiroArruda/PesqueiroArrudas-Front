@@ -11,6 +11,7 @@ import { Layout } from 'components/Layout';
 import { Dispatch, SetStateAction } from 'react';
 import { ClosedCashiers } from './components/ClosedCashiers';
 import { PayedCommands } from './components/PayedCommands';
+import { SoldItems } from './components/SoldItems';
 
 interface Props {
   handleAsksPermition: () => void;
@@ -29,6 +30,7 @@ export const HomeLayout = ({
       <TabList mb={[2, 4]}>
         <Tab>Comandas Pagas</Tab>
         <Tab onClick={handleAsksPermition}>Caixas Fechados</Tab>
+        <Tab>Itens vendidos</Tab>
       </TabList>
 
       <TabPanels>
@@ -43,6 +45,9 @@ export const HomeLayout = ({
               Acessar Caixas
             </Button>
           )}
+        </TabPanel>
+        <TabPanel>
+          <SoldItems />
         </TabPanel>
       </TabPanels>
     </Tabs>

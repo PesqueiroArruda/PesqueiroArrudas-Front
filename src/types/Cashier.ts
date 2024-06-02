@@ -1,4 +1,4 @@
-interface CashierProduct {
+export interface CashierProduct {
   _id: string;
   name: string;
   amount: number;
@@ -28,4 +28,12 @@ interface Cashier {
   payments: CashierPayment[];
 }
 
-export type { Cashier, CashierPayment };
+interface CashierByMonth {
+  _id: string;
+  month: string;
+  year: string;
+  total: number;
+  payments: CashierPayment[];
+}
+
+export type { Cashier, CashierPayment, CashierByMonth };
