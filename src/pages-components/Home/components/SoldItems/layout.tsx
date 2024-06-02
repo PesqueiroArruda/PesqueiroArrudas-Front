@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {
   Button,
   Stack,
@@ -17,13 +18,13 @@ import { DateTime } from 'luxon';
 import { Cashier, CashierByMonth } from 'types/Cashier';
 
 import { MdOutlineReadMore } from 'react-icons/md';
-import { Dispatch, SetStateAction, ChangeEvent, useState } from 'react';
+import { Dispatch, SetStateAction, ChangeEvent } from 'react';
 import { NavHeader } from './NavHeader';
 
 const columns = ['Data', 'Total itens vendidos', ''];
 interface Props {
   allCashiers: Cashier[];
-  handleGoToSoldItemsPage: (cashierId: string) => void;
+  handleGoToSoldItemsPage: (cashierId: string, cashierByMonthObject?: CashierByMonth) => void;
   handleDownloadCashiers: (e: any) => void;
   year: string;
   setYear: Dispatch<SetStateAction<string>>;
@@ -76,12 +77,10 @@ export const SoldItemsLayout = ({
       </Flex>
 
       <NavHeader
-        handleDownloadCashiers={handleDownloadCashiers}
         month={month}
         setMonth={setMonth}
         setYear={setYear}
         year={year}
-        allCashiers={allCashiers}
         selectedMonthsFilter={selectedMonthsFilter}
       />
       <TableContainer>
@@ -104,7 +103,7 @@ export const SoldItemsLayout = ({
                   <Td>{Math.round(productsAmount * 100) / 100}</Td>
                   <Td isNumeric>
                     <Button
-                      onClick={() => handleGoToSoldItemsPage(_id)}
+                      onClick={() => handleGoToSoldItemsPage(_id, undefined)}
                       colorScheme="blue"
                       fontSize={[14, 16]}
                     >

@@ -14,7 +14,7 @@ export const SoldItems = ({ cashierId }: Props) => {
   const [cashier, setCashier] = useState<CashierProps>({} as CashierProps);
   const [products, setProducts] = useState<Product[]>([] as Product[]);
   const [isLoading, setIsLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search] = useState('');
 
   const router = useRouter();
 
@@ -22,7 +22,7 @@ export const SoldItems = ({ cashierId }: Props) => {
 
     (async () => {
        const storedData = localStorage.getItem('cashierByMonthObject');
-        if (storedData !== 'undefined' ) {
+        if (storedData !== 'undefined' && storedData !== null) {
           setCashier(JSON.parse(storedData));
         }
         const allProducts = await StockService.getAllProducts();
@@ -81,8 +81,6 @@ export const SoldItems = ({ cashierId }: Props) => {
       handleBackPage={handleBackPage}
       isLoading={isLoading}
       payments={filteredBySearchPayments}
-      search={search}
-      setSearch={setSearch}
     />
   );
 };

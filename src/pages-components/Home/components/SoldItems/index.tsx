@@ -10,8 +10,8 @@ import { SoldItemsLayout } from './layout';
 
 export const SoldItems = () => {
   const [allCashiers, setAllCashiers] = useState<Cashier[]>([]);
-  const [cashiersByMonth, _] = useState<CashierByMonth[]>([]);
-  const [cashiersFilteredByMonth, __] = useState<CashierByMonth[]>([]);
+  const [cashiersByMonth] = useState<CashierByMonth[]>([]);
+  const [cashiersFilteredByMonth] = useState<CashierByMonth[]>([]);
   const [selectedMonthsFilter, setSelectedMonthsFilter] = useState(false)
 
 
@@ -67,7 +67,7 @@ export const SoldItems = () => {
     };
   }, []);
 
-  function handleGoToSoldItemsPage(cashierId: string, cashierByMonthObject: CashierByMonth) {
+  function handleGoToSoldItemsPage(cashierId: string, cashierByMonthObject?: CashierByMonth) {
     localStorage.setItem('cashierByMonthObject', JSON.stringify(cashierByMonthObject));
 
     router.push(`/sold-items/${cashierId}`);

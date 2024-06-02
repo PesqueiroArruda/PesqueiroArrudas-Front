@@ -1,9 +1,7 @@
-import { Button, Grid, Stack, Text, Select } from '@chakra-ui/react';
+import {Grid, Stack, Text, Select } from '@chakra-ui/react';
 import { Dispatch, SetStateAction } from 'react';
-import { parseToBRL } from 'utils/parseToBRL';
 
 interface Props {
-  handleDownloadCashiers: (e: any) => void;
   year: string;
   setYear: Dispatch<SetStateAction<string>>;
   month: string;
@@ -40,13 +38,12 @@ const cashiersYearOptions = [
 ];
 
 export const NavHeaderLayout = ({
-  handleDownloadCashiers,
   month,
   setMonth,
   setYear,
   year,
   selectedMonthsFilter
-}: Props) => !selectedMonthsFilter && (
+}: Props) => !selectedMonthsFilter ? (
   <Stack gap={2}>
     <Grid gridTemplateColumns={['1fr 1fr']} gap={4}>
       <Stack color="blue.800">
@@ -75,4 +72,4 @@ export const NavHeaderLayout = ({
       </Stack>
     </Grid>
   </Stack>
-);
+) : null;

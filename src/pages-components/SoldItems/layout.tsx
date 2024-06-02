@@ -16,7 +16,6 @@ import {
 import { Header } from 'components/Header';
 import { Layout } from 'components/Layout';
 import { DateTime } from 'luxon';
-import { Dispatch, SetStateAction } from 'react';
 // eslint-disable-next-line import/named
 import { Cashier, CashierPayment, CashierProduct } from 'types/Cashier';
 import { Product } from 'types/Product';
@@ -28,8 +27,6 @@ interface Props {
   isLoading: boolean;
   payments: CashierPayment[];
   products: Product[];
-  search: string;
-  setSearch: Dispatch<SetStateAction<string>>;
 }
 
 interface ProductRenderProps {
@@ -115,7 +112,6 @@ export const SoldItemsLayout = ({
             align="center"
           >
             <Heading fontSize={[18, 22, 26]} color="blue.800" fontWeight={600}>
-              {console.log(cashier?.date)}
               {cashier?.date ? (
                 <>
                   Itens do dia:{' '}

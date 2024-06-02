@@ -26,6 +26,8 @@ interface Cashier {
   total: number;
   date: any;
   payments: CashierPayment[];
+  month?: string;
+  year?: string;
 }
 
 interface CashierByMonth {
