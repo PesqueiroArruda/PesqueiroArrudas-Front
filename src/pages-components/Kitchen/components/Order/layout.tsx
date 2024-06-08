@@ -78,7 +78,22 @@ export const OrderLayout = ({
           </Box>
         </Text>
       </Flex>
-      {order.observation && <Text color="blue.800">{order.observation}</Text>}
+      {order.observation && (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          // justifyContent: 'center'
+        }}>
+          <text style={{
+            background: 'red',
+            color: 'white',
+            padding: 6
+          }}>
+            {order.observation}
+          </text>
+        </div>
+      )}
       <TableContainer
         bg="whiteAlpha.700"
         // bg="blue.50"
