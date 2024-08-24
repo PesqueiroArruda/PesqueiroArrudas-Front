@@ -12,6 +12,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { ClosedCashiers } from './components/ClosedCashiers';
 import { PayedCommands } from './components/PayedCommands';
 import { SoldItems } from './components/SoldItems';
+import { Customers } from './components/Customers';
 
 interface Props {
   handleAsksPermition: () => void;
@@ -31,6 +32,7 @@ export const HomeLayout = ({
         <Tab>Comandas Pagas</Tab>
         <Tab onClick={handleAsksPermition}>Caixas Fechados</Tab>
         <Tab>Itens vendidos</Tab>
+        <Tab>Clientes recorrentes</Tab>
       </TabList>
 
       <TabPanels>
@@ -48,6 +50,9 @@ export const HomeLayout = ({
         </TabPanel>
         <TabPanel>
           <SoldItems />
+        </TabPanel>
+        <TabPanel>
+          <Customers />
         </TabPanel>
       </TabPanels>
     </Tabs>
