@@ -28,6 +28,7 @@ export const PaymentModal = ({
   const { command, setCommand } = useContext(CommandContext);
   const [isPaying, setIsPaying] = useState(false);
   const [receivedValue, setReceivedValue] = useState('');
+  const [totalValuePayment, setTotalValuePayment] = useState(false);
   const [exchange, setExchange] = useState('0');
   const [isReceivedValueInvalid, setIsReceivedValueInvalid] = useState({
     value: false,
@@ -225,7 +226,9 @@ export const PaymentModal = ({
         paymentType={paymentType}
         setPaymentType={setPaymentType}
         receivedValue={receivedValue}
+        totalValuePayment={totalValuePayment}
         setReceivedValue={setReceivedValue}
+        setTotalValuePayment={setTotalValuePayment}
         isReceivedValueInvalid={isReceivedValueInvalid}
         totalToBePayed={totalToBePayed}
         isPaying={isPaying}

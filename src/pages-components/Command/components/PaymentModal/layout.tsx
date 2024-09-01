@@ -1,6 +1,7 @@
 /* eslint-disable react/destructuring-assignment */
 import {
   Button,
+  Checkbox,
   Divider,
   Flex,
   FormControl,
@@ -25,7 +26,9 @@ interface Props {
   paymentType: string;
   setPaymentType: Dispatch<SetStateAction<string>>;
   receivedValue: string;
+  totalValuePayment: boolean;
   setReceivedValue: Dispatch<SetStateAction<string>>;
+  setTotalValuePayment: Dispatch<SetStateAction<boolean>>;
   isReceivedValueInvalid: { value: boolean; message: string };
   totalToBePayed: number;
   isPaying: boolean;
@@ -48,6 +51,8 @@ export const PaymentModalLayout = ({
   setPaymentType,
   receivedValue,
   setReceivedValue,
+  setTotalValuePayment,
+  totalValuePayment,
   isReceivedValueInvalid,
   totalToBePayed,
   isPaying,
@@ -123,12 +128,25 @@ export const PaymentModalLayout = ({
               errorMsg={isReceivedValueInvalid.message}
             >
               <TitleText>Valor Recebido</TitleText>
+              
               <Input
                 placeholder="Ex: R$ 23,90"
                 value={receivedValue}
                 onChange={(e) => setReceivedValue(e.target.value)}
+                disabled={totalValuePayment}
               />
             </InputGroup>
+            <Checkbox style={{display: 'flex', width: '20%'}} onChange={(e) => {
+              if(e.target.checked){
+                setTotalValuePayment(true)
+                setReceivedValue(totalToBePayed.toString())
+              } else {
+                setTotalValuePayment(false)
+                setReceivedValue('')
+              }
+            }}>
+              Valor total
+            </Checkbox>
           </GridItem>
           {/* )} */}
           <GridItem gridColumn={['1 / 3', '1 / 3', '2 / 3']}>
