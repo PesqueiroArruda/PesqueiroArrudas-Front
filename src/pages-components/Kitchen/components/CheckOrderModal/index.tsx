@@ -34,11 +34,23 @@ export const CheckOrderModal = ({
 
   const handleCheckOrder = useCallback(async () => {
     try {
+      if(order.products.some(product => product.isMade === false)){
+        toast.closeAll();
+        toast({
+          status: 'error',
+          title: 'Baixe todos os itens antes de baixar o pedido!',
+          duration: 1000,
+          isClosable: true,
+        });
+        handleCloseModal();
+
+        return
+      }
       if (isSending) {
         return;
       }
       setIsSending(true);
-      // TODO -> remove the order of kicthen page
+
       await KitchenOrdersService.checkOneOrder({
         orderId: order._id as string,
         isMade: true,
@@ -48,8 +60,6 @@ export const CheckOrderModal = ({
         type: 'REMOVE-ONE-ORDER',
         payload: { order: { _id: order._id } },
       });
-
-      // TODO -> alert to home page that this food order is complete
 
       toast.closeAll();
       toast({
