@@ -22,6 +22,8 @@ import {
   Th,
   Tr,
   Td,
+  Textarea,
+  Checkbox
 } from '@chakra-ui/react';
 import { BiSad, BiSearchAlt } from 'react-icons/bi';
 import { IoClose } from 'react-icons/io5';
@@ -62,6 +64,7 @@ interface Props {
   handleRemoveSelectedProduct: ({ id }: { id: string }) => void;
   handleAddProductsInCommand: () => void;
   filter: string;
+  observation: string;
   searchContent: string;
   setSearchContent: Dispatch<SetStateAction<string>>;
   // eslint-disable-next-line no-unused-vars
@@ -69,6 +72,9 @@ interface Props {
   isAddingProducts: boolean;
   handleFavoriteProduct: (_id: string) => void;
   handleUnfavoriteProduct: (_id: string) => void;
+  setObservation: (value: string) => void;
+  setSendToKitchen : (value: boolean) => void;
+  sendToKitchen: boolean;
 }
 
 export const AddProductModalLayout = ({
@@ -86,6 +92,10 @@ export const AddProductModalLayout = ({
   isAddingProducts,
   handleFavoriteProduct,
   handleUnfavoriteProduct,
+  setObservation,
+  observation,
+  setSendToKitchen,
+  sendToKitchen
 }: Props) => (
   <Modal
     isOpen={isModalOpen}
@@ -141,6 +151,21 @@ export const AddProductModalLayout = ({
           />
         </InputGroup>
       </Grid>
+      <Flex>
+        <Checkbox 
+          onChange={(e) => setSendToKitchen(e.target.checked)}
+          defaultChecked={sendToKitchen}
+        >
+          Enviar para cozinha
+        </Checkbox>
+        <Textarea
+          placeholder="Ex: Coca Cola com gelo e limão"
+          value={observation}
+          onChange={(e) => setObservation(e.target.value)}
+          disabled={!sendToKitchen}
+        />
+      </Flex>
+      
 
       {/* Products selected */}
       <Grid gridTemplateColumns="repeat(3, 1fr)" gap={[2, 4]}>

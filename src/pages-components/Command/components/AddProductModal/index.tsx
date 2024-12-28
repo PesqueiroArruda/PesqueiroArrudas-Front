@@ -12,12 +12,14 @@ import { useToast } from '@chakra-ui/react';
 
 import CommandService from 'pages-components/Command/services/CommandService';
 import ProductsService from 'pages-components/Command/services/ProductsService';
+import KitchenService from 'pages-components/Command/services/KitchenService';
 import { Command } from 'types/Command';
 import { formatAmount } from 'utils/formatAmount';
 import { Product } from 'types/Product';
 import { CommandContext } from 'pages-components/Command';
 import { AddProductModalLayout } from './layout';
 import { SetAmountModal } from './SetAmountModal';
+import { StoreKitchen } from '../SendToKitchenModal';
 
 interface AllProductsAction {
   type:
@@ -65,6 +67,9 @@ export const AddProductModal = ({
   const [isAddingProducts, setIsAddingProducts] = useState(false);
   const [isSelectingProduct, setIsSelectingProduct] = useState(false);
 
+  const [observation, setObservation] = useState('');
+  const [sendToKitchen, setSendToKitchen] = useState(true);
+
   const { productsDispatch } = useContext(CommandContext);
   const toast = useToast();
 
@@ -72,6 +77,7 @@ export const AddProductModal = ({
     setIsModalOpen(false);
     setIsAddingProducts(false);
     setIsSelectingProduct(false);
+    setObservation('');
     amount.current = '1';
   }
 
@@ -150,6 +156,51 @@ export const AddProductModal = ({
     );
   }
 
+
+  const categoriesToKitchenPrepare = ['pratos', 'porções', 'bebidas-cozinha']
+  const { command: commandContext } = useContext(CommandContext);
+  const handleSendToKitchen = useCallback(async () => {
+      try {
+        const { command: commandFound } = await CommandService.getOneCommand({
+          commandId,
+        })
+
+        const { table, waiter, products } = commandFound
+  
+        const productsToPrepare = products?.filter(({ category } : { category: any }) =>
+          categoriesToKitchenPrepare.some(
+            (categ) => category?.toLowerCase() === categ
+          )
+        );
+  
+        console.log(observation)
+        await KitchenService.storeKitchenOrder({
+          commandId,
+          table,
+          waiter,
+          products: productsToPrepare,
+          observation : sendToKitchen ? observation : '',
+        } as StoreKitchen);
+
+        toast.closeAll();
+        toast({
+          status: 'success',
+          title: 'Pedido enviado à cozinha!',
+        });
+      } catch (error: any) {
+        toast.closeAll();
+        console.log(error)
+        toast({
+          status: 'error',
+          title: error?.response?.data?.message || 'Erro em mandar para cozinha',
+          duration: 2000,
+          isClosable: true,
+        });
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commandContext]);
+
+  
   async function handleAddProductsInCommand() {
     try {
       if (isAddingProducts) {
@@ -205,8 +256,6 @@ export const AddProductModal = ({
         type: 'add-products',
         payload: updatedCommand.products,
       });
-
-      // Diminish the amount of products selected in stock
       selectedProducts.forEach(
         (selectedProduct: { _id: string; amount: string }) => {
           (async () => {
@@ -235,6 +284,10 @@ export const AddProductModal = ({
         duration: 2000,
         isClosable: true,
       });
+
+      if(sendToKitchen){
+        await handleSendToKitchen()
+      }
       handleCloseModal();
     } catch (error: any) {
       setIsAddingProducts(false);
@@ -253,6 +306,7 @@ export const AddProductModal = ({
     amount.current = '1';
     setFilter('');
     setSearchContent('');
+    setObservation('');
   }, []);
 
   function handleChangeFilter(selectedFilter: string) {
@@ -332,6 +386,10 @@ export const AddProductModal = ({
         isAddingProducts={isAddingProducts}
         handleFavoriteProduct={handleFavoriteProduct}
         handleUnfavoriteProduct={handleUnfavoriteProduct}
+        setObservation={setObservation}
+        observation={observation}
+        setSendToKitchen={setSendToKitchen}
+        sendToKitchen={sendToKitchen}
       />
       {/* Set amount of product modal */}
       <SetAmountModal

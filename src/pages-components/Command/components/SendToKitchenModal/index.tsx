@@ -18,7 +18,7 @@ interface Props {
   setIsModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-interface StoreKitchen {
+export interface StoreKitchen {
   commandId: string;
   table: string;
   waiter: string;
