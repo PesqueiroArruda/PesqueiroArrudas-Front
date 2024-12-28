@@ -173,13 +173,12 @@ export const AddProductModal = ({
           )
         );
   
-        console.log(observation)
         await KitchenService.storeKitchenOrder({
           commandId,
           table,
           waiter,
           products: productsToPrepare,
-          observation : sendToKitchen ? observation : '',
+          observation,
         } as StoreKitchen);
 
         toast.closeAll();
@@ -198,7 +197,7 @@ export const AddProductModal = ({
         });
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [commandContext]);
+  }, [commandContext, observation]);
 
   
   async function handleAddProductsInCommand() {

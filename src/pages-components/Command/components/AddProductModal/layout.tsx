@@ -161,7 +161,10 @@ export const AddProductModalLayout = ({
         <Textarea
           placeholder="Ex: Coca Cola com gelo e limão"
           value={observation}
-          onChange={(e) => setObservation(e.target.value)}
+          onChange={(e) => {
+            console.log(e.target.value)
+            setObservation(e.target.value)
+          }}
           disabled={!sendToKitchen}
         />
       </Flex>
