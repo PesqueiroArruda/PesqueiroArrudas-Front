@@ -273,9 +273,9 @@ export const AddProductModal = ({
         }
       );
 
-      // TODO: Broadcast to necessary entities the update of command
+      const hasSomeProductToSendToKitchen = selectedProducts.some((product: any) => categoriesToKitchenPrepare.includes(product.category.toLowerCase()))
 
-      cleanModalValues();
+
       toast.closeAll();
       toast({
         status: 'success',
@@ -283,10 +283,11 @@ export const AddProductModal = ({
         duration: 2000,
         isClosable: true,
       });
-
-      if(sendToKitchen){
+      
+      if(sendToKitchen && hasSomeProductToSendToKitchen){
         await handleSendToKitchen()
       }
+      cleanModalValues();
       handleCloseModal();
     } catch (error: any) {
       setIsAddingProducts(false);
