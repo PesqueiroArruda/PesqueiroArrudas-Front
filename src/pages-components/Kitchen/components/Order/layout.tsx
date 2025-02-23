@@ -161,7 +161,7 @@ export const OrderLayout = ({
                         fontWeight="600"
                         rounded={4}
                       >
-                        <Text m={0}>Marcar como feito</Text>
+                        <Text m={0}>Baixar pedido</Text>
                       </MenuItem>
                     </MenuList>
                   </Menu>
