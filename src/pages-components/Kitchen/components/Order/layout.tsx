@@ -161,7 +161,7 @@ export const OrderLayout = ({
                         fontWeight="600"
                         rounded={4}
                       >
-                        <Text m={0}>Baixar pedido</Text>
+                        <Text m={0}>Marcar item como feito</Text>
                       </MenuItem>
                     </MenuList>
                   </Menu>
@@ -175,7 +175,7 @@ export const OrderLayout = ({
         onClick={() => handleOpenCheckOrderModal(order)}
         colorScheme="blue"
       >
-        Marcar como Feito
+        Baixar pedido
       </Button>
     </Stack>
   );
