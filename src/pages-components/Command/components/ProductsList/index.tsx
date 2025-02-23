@@ -16,7 +16,7 @@ interface AmountProduct {
   amount: number;
 }
 
-export const ProductsList = () => {
+export const ProductsList = ({isAdmin} : {isAdmin: boolean}) => {
   const [fishIdToEditAmount, setFishIdToEditAmount] = useState('');
   const [newProductAmount, setNewProductAmount] = useState('');
 
@@ -107,7 +107,7 @@ export const ProductsList = () => {
         (product) => product._id === productId
       )?.amount as number;
 
-      if (oldProductAmount > newAmount) {
+      if ((oldProductAmount > newAmount) && isAdmin) {
         // If the amount of product before updated it is less than the newAmount. it means I NEED TO INCREASE THE AMOUNT IN STOCK
         const amountToIncreaseInStock = oldProductAmount - Number(newAmount);
         const { product: stockUpdatedProduct } =
@@ -137,22 +137,26 @@ export const ProductsList = () => {
         });
       }
 
-      const { command: updatedCommand } = await CommandService.updateCommand({
-        _id: command?._id,
-        products: newProducts,
-      });
 
-      setCommand(updatedCommand);
+      if((newAmount > oldProductAmount) || ((newAmount > oldProductAmount) && isAdmin)) {
+        const { command: updatedCommand } = await CommandService.updateCommand({
+          _id: command?._id,
+          products: newProducts,
+        });
 
-      productsDispatch({
-        type: 'update-product-amount',
-        payload: {
-          product: {
-            id: productId,
-            amount: newAmount,
+        setCommand(updatedCommand);
+
+        productsDispatch({
+          type: 'update-product-amount',
+          payload: {
+            product: {
+              id: productId,
+              amount: newAmount,
+            },
           },
-        },
-      });
+        });
+      }
+      
     } catch (error: any) {
       toast({
         status: 'error',
@@ -231,69 +235,71 @@ export const ProductsList = () => {
   const handleDecrementProductAmount = useCallback(
     async (product: AmountProduct) => {
       try {
-        const productId = product?._id;
-        // TODO: verify if when I'm decrementing the total will be less than total payed
-        const total =
-          Math.round(
-            (product.amount * product.unitPrice + Number.EPSILON) * 100
-          ) / 100;
+        if(isAdmin){
+          const productId = product?._id;
+          // TODO: verify if when I'm decrementing the total will be less than total payed
+          const total =
+            Math.round(
+              (product.amount * product.unitPrice + Number.EPSILON) * 100
+            ) / 100;
 
-        const newAmount = product.amount - 1;
-        if (newAmount < 0) {
-          toast.closeAll();
-          toast({
-            status: 'error',
-            duration: 1000,
-            isClosable: true,
-            title: 'Quantidade menor que 0',
-          });
-          return;
-        }
-
-        if (total - product.unitPrice < product.totalPayed) {
-          toast.closeAll();
-          toast({
-            status: 'warning',
-            title:
-              'Abaixando a quantidade, o total do produto seria menor do que já foi pago',
-          });
-          return;
-        }
-
-        // Save the update in command
-        const newProducts = command?.products?.map((prod: Product) => {
-          if (prod._id === productId) {
-            const newProduct = {
-              ...prod,
-              amount: product.amount - 1,
-            };
-            return newProduct;
+          const newAmount = product.amount - 1;
+          if (newAmount < 0) {
+            toast.closeAll();
+            toast({
+              status: 'error',
+              duration: 1000,
+              isClosable: true,
+              title: 'Quantidade menor que 0',
+            });
+            return;
           }
-          return prod;
-        });
-        const { command: updatedCommand } = await CommandService.updateCommand({
-          _id: command?._id as string,
-          products: newProducts,
-        });
 
-        // I'm already receiving the updated version of socket event -> so I don't need to udpate in fr
-        // productsDispatch({
-        //   type: 'decrement-amount',
-        //   payload: { id: productId },
-        // });
-        setCommand(updatedCommand);
+          if (total - product.unitPrice < product.totalPayed) {
+            toast.closeAll();
+            toast({
+              status: 'warning',
+              title:
+                'Abaixando a quantidade, o total do produto seria menor do que já foi pago',
+            });
+            return;
+          }
 
-        // Decreasing the amount of this product in stock
-        const { product: stockUpdatedProduct } =
-          await ProductsService.increaseAmount({
-            productId,
-            amount: 1,
+          // Save the update in command
+          const newProducts = command?.products?.map((prod: Product) => {
+            if (prod._id === productId) {
+              const newProduct = {
+                ...prod,
+                amount: product.amount - 1,
+              };
+              return newProduct;
+            }
+            return prod;
           });
-        if (stockUpdatedProduct) {
-          stockProductsDispatch({
-            type: 'UPDATE-ONE-PRODUCT',
-            payload: { product: stockUpdatedProduct },
+          const { command: updatedCommand } = await CommandService.updateCommand({
+            _id: command?._id as string,
+            products: newProducts,
           });
+
+          // I'm already receiving the updated version of socket event -> so I don't need to udpate in fr
+          // productsDispatch({
+          //   type: 'decrement-amount',
+          //   payload: { id: productId },
+          // });
+          setCommand(updatedCommand);
+
+          // Decreasing the amount of this product in stock
+          const { product: stockUpdatedProduct } =
+            await ProductsService.increaseAmount({
+              productId,
+              amount: 1,
+            });
+          if (stockUpdatedProduct) {
+            stockProductsDispatch({
+              type: 'UPDATE-ONE-PRODUCT',
+              payload: { product: stockUpdatedProduct },
+            });
+          }
         }
       } catch (err: any) {
         toast.closeAll();
@@ -377,6 +383,7 @@ export const ProductsList = () => {
         handleOpenPayProductModal={handleOpenPayProductModal}
         handleIncrementProductAmount={handleIncrementProductAmount}
         handleDecrementProductAmount={handleDecrementProductAmount}
+        isAdmin={isAdmin}
       />
       <PayProductModal
         isModalOpen={isPayProductModalOpen}

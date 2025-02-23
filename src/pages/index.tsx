@@ -4,6 +4,8 @@ import { Home as HomeComponent } from '../pages-components/Home';
 
 const Home: NextPage = () => <HomeComponent />;
 
+
+
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const cookies = nookies.get(context);
   const { isAuthorized } = cookies;

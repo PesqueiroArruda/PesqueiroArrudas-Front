@@ -58,6 +58,7 @@ export const Stock = () => {
 
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const { socket } = useContext(SocketContext);
   const router = useRouter();
@@ -69,6 +70,15 @@ export const Stock = () => {
       productsDispatch({ type: 'ADD-PRODUCTS', payload: allProducts });
     })();
   }, []);
+
+  useEffect(() => {
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
+    setIsAdmin(isAdmin)
+
+    if (!isAdmin) {
+      router.push("/commands");
+    }
+  }, [router]);
 
   useEffect(() => {
     socket.on('product-updated', (updatedProduct: Product) => {
@@ -101,35 +111,39 @@ export const Stock = () => {
     router.push('/');
   }
 
-  return (
-    <StockContext.Provider
-      value={{
-        filters,
-        setFilters,
-        orderBy,
-        setOrderBy,
-        orderByDir,
-        handleToggleOrderByDir,
-        searchContent,
-        setSearchContent,
-        products: products.value,
-        productsDispatch,
-        isLoading,
-      }}
-    >
-      <AddItemModal
-        isAddItemModalOpen={isAddItemModalOpen}
-        setIsAddItemModalOpen={setIsAddItemModalOpen}
-      />
-      <StockLayout
-        filters={filters}
-        setFilters={setFilters}
-        orderBy={orderBy}
-        setOrderBy={setOrderBy}
-        setIsAddItemModalOpen={setIsAddItemModalOpen}
-        handleGoToHome={handleGoToHome}
-        handleDownload={handleDownload}
-      />
-    </StockContext.Provider>
-  );
+
+  if(isAdmin){
+    return (
+      <StockContext.Provider
+        value={{
+          filters,
+          setFilters,
+          orderBy,
+          setOrderBy,
+          orderByDir,
+          handleToggleOrderByDir,
+          searchContent,
+          setSearchContent,
+          products: products.value,
+          productsDispatch,
+          isLoading,
+        }}
+      >
+        <AddItemModal
+          isAddItemModalOpen={isAddItemModalOpen}
+          setIsAddItemModalOpen={setIsAddItemModalOpen}
+        />
+        <StockLayout
+          filters={filters}
+          setFilters={setFilters}
+          orderBy={orderBy}
+          setOrderBy={setOrderBy}
+          setIsAddItemModalOpen={setIsAddItemModalOpen}
+          handleGoToHome={handleGoToHome}
+          handleDownload={handleDownload}
+        />
+      </StockContext.Provider>
+    );
+  }
+  
 };

@@ -18,26 +18,31 @@ interface Props {
   handleAsksPermition: () => void;
   isPermittedToSeeClosedCahiers: boolean;
   setIsAsksPermitionModalOpen: Dispatch<SetStateAction<boolean>>;
+  isAdmin: boolean;
 }
 
 export const HomeLayout = ({
   handleAsksPermition,
   isPermittedToSeeClosedCahiers,
   setIsAsksPermitionModalOpen,
+  isAdmin
 }: Props) => (
   <Layout>
     <Header />
     <Tabs>
-      <TabList mb={[2, 4]}>
-        <Tab>Comandas Pagas</Tab>
-        <Tab onClick={handleAsksPermition}>Caixas Fechados</Tab>
-        <Tab>Itens vendidos</Tab>
-        <Tab>Clientes recorrentes</Tab>
-      </TabList>
+      {console.log(isAdmin)}
+      {isAdmin && (
+        <TabList mb={[2, 4]}>
+          <Tab>Comandas Pagas</Tab>
+          <Tab onClick={handleAsksPermition}>Caixas Fechados</Tab>
+          <Tab>Itens vendidos</Tab>
+          <Tab>Clientes recorrentes</Tab>
+        </TabList>
+      )}
 
       <TabPanels>
         <TabPanel>
-          <PayedCommands />
+          <PayedCommands isAdmin={isAdmin} />
         </TabPanel>
         <TabPanel>
           {isPermittedToSeeClosedCahiers ? (

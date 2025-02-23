@@ -16,6 +16,7 @@ import { KitchenLayout } from './layout';
 import { allOrdersReducer } from './reducers/allOrdersReducer';
 import KitchenOrdersService from './services/KitchenOrdersService';
 import { KitchenContextProps } from './types/KitchenContext';
+import { useRouter } from "next/router";
 
 import NotifySound from '../../../public/kitchenalarm.mp3';
 import { CheckOrderModal } from './components/CheckOrderModal';
@@ -23,6 +24,7 @@ import { CheckOrderModal } from './components/CheckOrderModal';
 export const KitchenContext = createContext({} as KitchenContextProps);
 
 export const Kitchen = () => {
+  const router = useRouter()
   const [isCheckOrderModalOpen, setIsCheckOrderModalOpen] = useState(false);
   const [orderToCheck, setOrderToCheck] = useState<Order>({} as Order);
 
@@ -105,6 +107,14 @@ export const Kitchen = () => {
       setPlaySound(false);
     }
   }, [playSound, playNotify]);
+
+  useEffect(() => {
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
+
+    if (!isAdmin) {
+      router.push("/commands");
+    }
+  }, [router]);
 
   return (
     <KitchenContext.Provider

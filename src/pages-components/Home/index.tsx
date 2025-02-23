@@ -1,8 +1,9 @@
 import { Button, FormControl, Input, Text, useToast } from '@chakra-ui/react';
 import { Modal } from 'components/Modal';
-import { useState, useRef, FormEvent } from 'react';
+import { useState, useRef, FormEvent, useEffect } from 'react';
 import { HomeLayout } from './layout';
 import AuthService from './services/AuthService';
+import { useRouter } from "next/router";
 
 export const Home = () => {
   const [isPermittedToSeeClosedCahiers, setIsPermittedToSeeClosedCahiers] =
@@ -10,8 +11,10 @@ export const Home = () => {
   const [isAsksPermitionModalOpen, setIsAsksPermitionModalOpen] =
     useState(false);
   const password = useRef('');
+  const [isAdmin, setIsAdmin] = useState(false)
 
   const toast = useToast();
+  const router = useRouter();
 
   function handleAsksPermition() {
     password.current = '';
@@ -52,12 +55,22 @@ export const Home = () => {
     password.current = '';
   }
 
+  useEffect(() => {
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
+    setIsAdmin(isAdmin)
+
+    if (!isAdmin) {
+      router.push("/commands");
+    }
+  }, [router]);
+
   return (
     <>
       <HomeLayout
         handleAsksPermition={handleAsksPermition}
         isPermittedToSeeClosedCahiers={isPermittedToSeeClosedCahiers}
         setIsAsksPermitionModalOpen={setIsAsksPermitionModalOpen}
+        isAdmin={isAdmin}
       />
       <Modal
         isOpen={isAsksPermitionModalOpen}
