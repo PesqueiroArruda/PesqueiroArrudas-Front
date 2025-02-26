@@ -12,11 +12,11 @@ import { SocketContext } from 'pages/_app';
 
 import { Order } from 'types/Order';
 import { animateScroll } from 'react-scroll';
+import { useRouter } from "next/router";
 import { KitchenLayout } from './layout';
 import { allOrdersReducer } from './reducers/allOrdersReducer';
 import KitchenOrdersService from './services/KitchenOrdersService';
 import { KitchenContextProps } from './types/KitchenContext';
-import { useRouter } from "next/router";
 
 import NotifySound from '../../../public/kitchenalarm.mp3';
 import { CheckOrderModal } from './components/CheckOrderModal';

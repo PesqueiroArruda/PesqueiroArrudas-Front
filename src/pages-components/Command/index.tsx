@@ -201,8 +201,8 @@ export const Command = ({ commandId }: Props) => {
   }, []);
 
   useEffect(() => {
-    const isAdmin = localStorage.getItem("isAdmin") === "true";
-    setIsAdmin(isAdmin)
+    const isAdminUse = localStorage.getItem("isAdmin") === "true";
+    setIsAdmin(isAdminUse)
   }, [router]);
 
   const handleOpenDeleteModal = useCallback(

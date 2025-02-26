@@ -1,9 +1,9 @@
+import { useState } from 'react';
 import { Flex, Heading, Icon, Stack, Switch } from '@chakra-ui/react';
 import { RiZzzFill } from 'react-icons/ri';
 
 import { Order } from '../Order';
 import { Order as OrderProps } from '../../../../types/Order';
-import { useState } from 'react';
 
 interface Props {
   orders: OrderProps[];

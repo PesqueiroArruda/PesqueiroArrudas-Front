@@ -1,9 +1,9 @@
 import { Button, FormControl, Input, Text, useToast } from '@chakra-ui/react';
 import { Modal } from 'components/Modal';
 import { useState, useRef, FormEvent, useEffect } from 'react';
+import { useRouter } from "next/router";
 import { HomeLayout } from './layout';
 import AuthService from './services/AuthService';
-import { useRouter } from "next/router";
 
 export const Home = () => {
   const [isPermittedToSeeClosedCahiers, setIsPermittedToSeeClosedCahiers] =
@@ -56,10 +56,10 @@ export const Home = () => {
   }
 
   useEffect(() => {
-    const isAdmin = localStorage.getItem("isAdmin") === "true";
-    setIsAdmin(isAdmin)
+    const isAdminUse = localStorage.getItem("isAdmin") === "true";
+    setIsAdmin(isAdminUse)
 
-    if (!isAdmin) {
+    if (!isAdminUse) {
       router.push("/commands");
     }
   }, [router]);

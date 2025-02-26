@@ -72,10 +72,10 @@ export const Stock = () => {
   }, []);
 
   useEffect(() => {
-    const isAdmin = localStorage.getItem("isAdmin") === "true";
-    setIsAdmin(isAdmin)
+    const isAdminUse = localStorage.getItem("isAdmin") === "true";
+    setIsAdmin(isAdminUse)
 
-    if (!isAdmin) {
+    if (!isAdminUse) {
       router.push("/commands");
     }
   }, [router]);
@@ -144,8 +144,7 @@ export const Stock = () => {
         />
       </StockContext.Provider>
     );
-  } else {
-    return <></>
-  }
+  } 
+  return <div />
   
 };

@@ -10,9 +10,9 @@ import {
 } from 'react';
 import { Order as OrderProps } from 'types/Order';
 
+import capitalizeFirstLetter from 'utils/capitalizeFirstLetter';
 import { SendToKitchenModalLayout } from './layout';
 import { OrderActions } from './OrderActions';
-import capitalizeFirstLetter from 'utils/capitalizeFirstLetter';
 
 interface Props {
   isModalOpen: boolean;

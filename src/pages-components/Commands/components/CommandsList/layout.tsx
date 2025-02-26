@@ -26,7 +26,6 @@ import { MdVerified } from "react-icons/md";
 
 import { Command } from "types/Command";
 import { parseToBRL } from "utils/parseToBRL";
-import KitchenService from "pages-components/Command/services/KitchenService";
 
 const listColumns = [
   { text: "Mesa", prop: "table" },

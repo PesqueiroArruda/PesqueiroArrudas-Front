@@ -17,10 +17,10 @@ import { Command } from 'types/Command';
 import { formatAmount } from 'utils/formatAmount';
 import { Product } from 'types/Product';
 import { CommandContext } from 'pages-components/Command';
+import capitalizeFirstLetter from 'utils/capitalizeFirstLetter';
 import { AddProductModalLayout } from './layout';
 import { SetAmountModal } from './SetAmountModal';
 import { StoreKitchen } from '../SendToKitchenModal';
-import capitalizeFirstLetter from 'utils/capitalizeFirstLetter';
 
 interface AllProductsAction {
   type:

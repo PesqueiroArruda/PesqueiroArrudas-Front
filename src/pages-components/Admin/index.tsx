@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Stack, Text, Flex, Button, useToast, Input } from '@chakra-ui/react';
 import { Layout } from 'components/Layout';
 import { Modal } from 'components/Modal';
-import AdminService from './services/index';
 import { useRouter } from "next/router";
+import AdminService from './services/index';
 
 export const Admin = () => {
   const router = useRouter()
@@ -70,10 +70,10 @@ export const Admin = () => {
   }
 
   useEffect(() => {
-    const isAdmin = localStorage.getItem("isAdmin") === "true";
-    setIsAdmin(isAdmin)
+    const isAdminUse = localStorage.getItem("isAdmin") === "true";
+    setIsAdmin(isAdminUse)
 
-    if (!isAdmin) {
+    if (!isAdminUse) {
       router.push("/commands");
     }
   }, [router]);
