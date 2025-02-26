@@ -15,6 +15,8 @@ interface Store {
   observation: string;
   products: Product[];
   isMade?: boolean;
+  orderCategory: string;
+  orderWaiter: string;
 }
 
 interface DiminishOrder {
@@ -31,6 +33,8 @@ class KitchenService {
     observation,
     products,
     isMade,
+    orderCategory,
+    orderWaiter
   }: Store) {
     const { data } = await serverApi.post('/kitchen/orders', {
       commandId,
@@ -39,6 +43,8 @@ class KitchenService {
       observation,
       products,
       isMade,
+      orderCategory,
+      orderWaiter
     });
     return data;
   }

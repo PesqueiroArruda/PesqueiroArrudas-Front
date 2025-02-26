@@ -94,6 +94,7 @@ export const Command = ({ commandId }: Props) => {
   const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
 
   const [filter, setFilter] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const [orderBy, setOrderBy] = useState('');
   const [orderByDir, setOrderByDir] = useState('' as 'asc' | 'desc');
   const [searchContent, setSearchContent] = useState('');
@@ -198,6 +199,11 @@ export const Command = ({ commandId }: Props) => {
       socket.off('product-updated');
     };
   }, []);
+
+  useEffect(() => {
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
+    setIsAdmin(isAdmin)
+  }, [router]);
 
   const handleOpenDeleteModal = useCallback(
     ({ productId }: { productId: string }) => {
@@ -469,6 +475,7 @@ export const Command = ({ commandId }: Props) => {
         handleEditDiscount={handleEditDiscount}
         totalToBePayed={totalToBePayed}
         handlePrintCommand={handlePrintCommand}
+        isAdmin={isAdmin}
       />
       <DeleteProductModal
         isModalOpen={isDeleteProductModalOpen}

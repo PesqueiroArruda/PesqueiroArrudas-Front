@@ -1,14 +1,17 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Stack, Text, Flex, Button, useToast, Input } from '@chakra-ui/react';
 import { Layout } from 'components/Layout';
 import { Modal } from 'components/Modal';
 import AdminService from './services/index';
+import { useRouter } from "next/router";
 
 export const Admin = () => {
+  const router = useRouter()
   const [isConfirmResetModalOpen, setIsConfirmResetModalOpen] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
   const [isReseting, setIsReseting] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const accessKey = useRef('');
 
@@ -66,6 +69,15 @@ export const Admin = () => {
     }
   }
 
+  useEffect(() => {
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
+    setIsAdmin(isAdmin)
+
+    if (!isAdmin) {
+      router.push("/commands");
+    }
+  }, [router]);
+
   return (
     <>
       <Layout>
@@ -96,6 +108,7 @@ export const Admin = () => {
               onClick={() => handleOpenConfirmationModal()}
               colorScheme="red"
               fontSize={[18, 20]}
+              disabled={!isAdmin}
               h="auto"
               py={[3, 4]}
             >

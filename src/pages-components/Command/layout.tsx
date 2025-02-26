@@ -43,6 +43,7 @@ interface Props {
   handleOpenCloseCommandModal: () => void;
   handleEditDiscount: () => void;
   handlePrintCommand: () => void;
+  isAdmin: boolean;
 }
 
 export const CommandLayout = ({
@@ -56,6 +57,7 @@ export const CommandLayout = ({
   totalToBePayed,
   handleEditDiscount,
   handlePrintCommand,
+  isAdmin
 }: Props) => {
   const dt = DateTime.fromISO(command?.createdAt as string, {
     zone: 'pt-BR',
@@ -170,140 +172,146 @@ export const CommandLayout = ({
                     </div>
                   </Heading>
                 </BgBox>
-                <Button
-                  onClick={() => handleOpenPaymentModal()}
-                  isDisabled={command.isActive === false}
-                  bg="blue.50"
-                  color="blue.500"
-                  fontWeight="700"
-                  display="flex"
-                  justifyItems="center"
-                  alignItems="center"
-                  rounded={4}
-                  gap={2}
-                  _focus={{
-                    bg: 'green.100',
-                    color: 'green.500',
-                  }}
-                  _hover={{
-                    bg: 'green.100',
-                    color: 'green.500',
-                  }}
-                  fontSize={[14, 16, 20]}
-                >
-                  <Icon as={IoCashOutline} mt={0.8} />
-                  <Text>Pagar</Text>
-                </Button>
-                <Menu>
-                  <MenuButton
-                    bg="blue.50"
-                    rounded={4}
-                    _hover={{
-                      bg: 'blue.50',
-                    }}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    px={3}
-                  >
-                    <Icon
-                      as={CgOptions}
-                      fontSize={[16, 22]}
-                      display="inline-block"
-                      m={0}
-                      p={0}
-                      mt={1.5}
-                      color="blue.800"
-                    />
-                  </MenuButton>
 
-                  <MenuList bg="blue.50" p={2}>
-                    <MenuItem
-                      icon={<IoCashOutline fontSize={14} />}
-                      onClick={() => handleOpenCloseCommandModal()}
+                {isAdmin && (
+                  <>
+                    <Button
+                      onClick={() => handleOpenPaymentModal()}
                       isDisabled={command.isActive === false}
-                      color="blue.400"
+                      bg="blue.50"
+                      color="blue.500"
                       fontWeight="700"
                       display="flex"
+                      justifyItems="center"
                       alignItems="center"
                       rounded={4}
+                      gap={2}
                       _focus={{
-                        bg: 'blue.100',
-                        color: 'blue.500',
+                        bg: 'green.100',
+                        color: 'green.500',
                       }}
                       _hover={{
-                        bg: 'blue.100',
-                        color: 'blue.500',
+                        bg: 'green.100',
+                        color: 'green.500',
                       }}
+                      fontSize={[14, 16, 20]}
                     >
-                      <Text>Fechar Comanda</Text>
-                    </MenuItem>
-                    <MenuItem
-                      icon={<FaPercentage fontSize={14} />}
-                      onClick={() => handleEditDiscount()}
-                      isDisabled={command.isActive === false}
-                      color="blue.900"
+                      <Icon as={IoCashOutline} mt={0.8} />
+                      <Text>Pagar</Text>
+                    </Button>
+                    <Menu>
+                      <MenuButton
+                        bg="blue.50"
+                        rounded={4}
+                        _hover={{
+                          bg: 'blue.50',
+                        }}
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        px={3}
+                      >
+                        <Icon
+                          as={CgOptions}
+                          fontSize={[16, 22]}
+                          display="inline-block"
+                          m={0}
+                          p={0}
+                          mt={1.5}
+                          color="blue.800"
+                        />
+                      </MenuButton>
+
+                      <MenuList bg="blue.50" p={2}>
+                        <MenuItem
+                          icon={<IoCashOutline fontSize={14} />}
+                          onClick={() => handleOpenCloseCommandModal()}
+                          isDisabled={command.isActive === false}
+                          color="blue.400"
+                          fontWeight="700"
+                          display="flex"
+                          alignItems="center"
+                          rounded={4}
+                          _focus={{
+                            bg: 'blue.100',
+                            color: 'blue.500',
+                          }}
+                          _hover={{
+                            bg: 'blue.100',
+                            color: 'blue.500',
+                          }}
+                        >
+                          <Text>Fechar Comanda</Text>
+                        </MenuItem>
+                        <MenuItem
+                          icon={<FaPercentage fontSize={14} />}
+                          onClick={() => handleEditDiscount()}
+                          isDisabled={command.isActive === false}
+                          color="blue.900"
+                          display="flex"
+                          alignItems="center"
+                          rounded={4}
+                          _focus={{
+                            bg: 'blue.100',
+                            color: 'blue.500',
+                          }}
+                          _hover={{
+                            bg: 'blue.100',
+                            color: 'blue.500',
+                          }}
+                        >
+                          <Text>Editar Desconto</Text>
+                        </MenuItem>
+                        <MenuItem
+                          icon={<BsFillTrashFill fontSize={14} />}
+                          onClick={() => handleDeleteCommand()}
+                          color="blue.900"
+                          display="flex"
+                          alignItems="center"
+                          rounded={4}
+                          _focus={{
+                            bg: 'red.100',
+                            color: 'red.500',
+                          }}
+                          _hover={{
+                            bg: 'red.100',
+                            color: 'red.500',
+                          }}
+                        >
+                          <Text>Deletar Comanda</Text>
+                        </MenuItem>
+                      </MenuList>
+                    </Menu>
+                    <Button
+                      onClick={() => handlePrintCommand()}
+                      bg="blue.50"
+                      color="blue.500"
+                      fontWeight="700"
                       display="flex"
+                      justifyItems="center"
                       alignItems="center"
                       rounded={4}
+                      gap={2}
                       _focus={{
-                        bg: 'blue.100',
-                        color: 'blue.500',
+                        bg: 'green.100',
+                        color: 'green.500',
                       }}
                       _hover={{
-                        bg: 'blue.100',
-                        color: 'blue.500',
+                        bg: 'green.100',
+                        color: 'green.500',
                       }}
+                      fontSize={[14, 16, 20]}
                     >
-                      <Text>Editar Desconto</Text>
-                    </MenuItem>
-                    <MenuItem
-                      icon={<BsFillTrashFill fontSize={14} />}
-                      onClick={() => handleDeleteCommand()}
-                      color="blue.900"
-                      display="flex"
-                      alignItems="center"
-                      rounded={4}
-                      _focus={{
-                        bg: 'red.100',
-                        color: 'red.500',
-                      }}
-                      _hover={{
-                        bg: 'red.100',
-                        color: 'red.500',
-                      }}
-                    >
-                      <Text>Deletar Comanda</Text>
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-                <Button
-                  onClick={() => handlePrintCommand()}
-                  bg="blue.50"
-                  color="blue.500"
-                  fontWeight="700"
-                  display="flex"
-                  justifyItems="center"
-                  alignItems="center"
-                  rounded={4}
-                  gap={2}
-                  _focus={{
-                    bg: 'green.100',
-                    color: 'green.500',
-                  }}
-                  _hover={{
-                    bg: 'green.100',
-                    color: 'green.500',
-                  }}
-                  fontSize={[14, 16, 20]}
-                >
-                  <Icon as={FiPrinter} mt={0.8} />
-                </Button>
+                      <Icon as={FiPrinter} mt={0.8} />
+                    </Button>
+                  </>
+                )}
+                
               </Flex>
             </GridItem>
           </Grid>
           {command?.isActive && <NavHeader />}
-          <ProductsList />
+          <ProductsList isAdmin={isAdmin} />
         </>
       )}
     </Layout>

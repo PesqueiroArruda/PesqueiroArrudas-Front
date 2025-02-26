@@ -28,6 +28,7 @@ interface Props {
   handleCloseCashier: () => void;
   isGettingPayments: boolean;
   total: number;
+  isAdmin: boolean;
 }
 
 export const PayedCommandsLayout = ({
@@ -38,9 +39,9 @@ export const PayedCommandsLayout = ({
   handleCloseCashier,
   isGettingPayments,
   total,
+  isAdmin
 }: Props) => {
   const past10Days = get10PastDays();
-
   return (
     <Stack gap={[4, 8]}>
       <Flex justifyContent="space-between">
@@ -64,6 +65,7 @@ export const PayedCommandsLayout = ({
             display="flex"
             alignItems="center"
             gap={[2, 3]}
+            disabled={!isAdmin}
           >
             Fechar Caixa
             <Icon as={BsCashStack} mt={0.4} />

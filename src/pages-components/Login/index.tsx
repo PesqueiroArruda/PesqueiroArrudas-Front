@@ -33,8 +33,15 @@ export const Login = () => {
         return;
       }
 
-      // TODO: Make the request to the backend and see if the password is correct
-      const { isAuthorized, message } = await LoginService.login(accessKey);
+      const splitedValues = accessKey.split('@')
+
+      const user = splitedValues[0]
+      const userValidation = splitedValues[1]
+
+      const isUser = splitedValues[1] === 'usuario'
+
+
+      const { isAuthorized, message, isAdmin } = await LoginService.login(isUser ? `@${userValidation}` : accessKey);
 
       if (!isAuthorized) {
         toast.closeAll();
@@ -48,6 +55,9 @@ export const Login = () => {
         return;
       }
 
+      localStorage.setItem('loggedUser', !isAdmin ? user : "Bar")
+      localStorage.setItem('isAdmin', isAdmin)
+
       toast.closeAll();
       toast({
         status: 'success',
@@ -59,7 +69,8 @@ export const Login = () => {
         maxAge: 60 * 60 * 24 * 20,
       });
 
-      router.push('/');
+      if(isAdmin) router.push('/');
+      else router.push('/commands')
     } catch (error: any) {
       setSendedLoginRequest(false);
       toast.closeAll();

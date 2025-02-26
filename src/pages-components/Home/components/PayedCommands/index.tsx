@@ -8,7 +8,7 @@ import { SocketContext } from 'pages/_app';
 import { PayedCommandsLayout } from './layout';
 import { CloseCashier } from '../CloseCahier';
 
-export const PayedCommands = () => {
+export const PayedCommands = ({isAdmin} : {isAdmin: boolean}) => {
   const [payedCommandsDate, setPayedCommandsDate] = useState(
     get10PastDays()[0].formatted
   );
@@ -89,6 +89,7 @@ export const PayedCommands = () => {
         handleCloseCashier={handleCloseCashier}
         isGettingPayments={isGettingPayments}
         total={tempTotal}
+        isAdmin={isAdmin}
       />
       <CloseCashier
         isModalOpen={isCloseCashierModalOpen}

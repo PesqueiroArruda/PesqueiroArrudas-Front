@@ -89,6 +89,7 @@ interface Props {
     productId: string;
     amount: number;
   }) => void;
+  isAdmin: boolean;
 }
 
 export const ProductsListLayout = ({
@@ -106,6 +107,7 @@ export const ProductsListLayout = ({
   handleOpenPayProductModal,
   handleIncrementProductAmount,
   handleDecrementProductAmount,
+  isAdmin
 }: Props) => {
   const { command } = useContext(CommandContext);
   const commandIsPayed = command?.isActive === false;
@@ -187,13 +189,17 @@ export const ProductsListLayout = ({
                           {!commandIsPayed && !isFishingCategory(category) && (
                             <Icon
                               as={AiOutlineMinusCircle}
-                              onClick={() =>
-                                handleDecrementProductAmount({
-                                  _id,
-                                  amount,
-                                  unitPrice,
-                                  totalPayed: Number(totalPayed) as number,
-                                })
+                              onClick={() =>{
+                                  if(isAdmin){
+                                    handleDecrementProductAmount({
+                                      _id,
+                                      amount,
+                                      unitPrice,
+                                      totalPayed: Number(totalPayed) as number,
+                                    })
+                                  }
+                                  
+                                }
                               }
                               cursor="pointer"
                             />
@@ -235,55 +241,58 @@ export const ProductsListLayout = ({
                   <Td>{parseToBRL(Number((amount * unitPrice).toFixed(2)))}</Td>
                   {!commandIsPayed && <Td>{parseToBRL(totalPayed || 0)}</Td>}
 
-                  <Td isNumeric>
-                    {!commandIsPayed && (
-                      <Menu>
-                        <MenuButton
-                          p={1}
-                          rounded={4}
-                          _hover={{
-                            bg: 'blue.50',
-                          }}
-                        >
-                          <Icon
-                            as={CgOptions}
-                            fontSize={[16, 22]}
-                            color="blue.800"
-                          />
-                        </MenuButton>
-                        <MenuList>
-                          <MenuItem
-                            icon={<IoCashOutline fontSize={14} />}
-                            onClick={() =>
-                              handleOpenPayProductModal({
-                                _id,
-                                name,
-                                amount,
-                                unitPrice,
-                                category,
-                                totalPayed,
-                              })
-                            }
-                            display="flex"
-                            alignItems="center"
+                  {isAdmin && (
+                    <Td isNumeric>
+                      {(!commandIsPayed) && (
+                        <Menu>
+                          <MenuButton
+                            p={1}
+                            rounded={4}
+                            _hover={{
+                              bg: 'blue.50',
+                            }}
                           >
-                            <Text>Pagar Produto</Text>
-                          </MenuItem>
-                          <MenuItem
-                            icon={<BsFillTrashFill fontSize={14} />}
-                            onClick={() =>
-                              handleOpenDeleteModal({ productId: _id })
-                            }
-                            color="red.500"
-                            display="flex"
-                            alignItems="center"
-                          >
-                            <Text>Deletar</Text>
-                          </MenuItem>
-                        </MenuList>
-                      </Menu>
-                    )}
-                  </Td>
+                            <Icon
+                              as={CgOptions}
+                              fontSize={[16, 22]}
+                              color="blue.800"
+                            />
+                          </MenuButton>
+                          <MenuList>
+                            <MenuItem
+                              icon={<IoCashOutline fontSize={14} />}
+                              onClick={() =>
+                                handleOpenPayProductModal({
+                                  _id,
+                                  name,
+                                  amount,
+                                  unitPrice,
+                                  category,
+                                  totalPayed,
+                                })
+                              }
+                              display="flex"
+                              alignItems="center"
+                            >
+                              <Text>Pagar Produto</Text>
+                            </MenuItem>
+                            <MenuItem
+                              icon={<BsFillTrashFill fontSize={14} />}
+                              onClick={() =>
+                                handleOpenDeleteModal({ productId: _id })
+                              }
+                              color="red.500"
+                              display="flex"
+                              alignItems="center"
+                            >
+                              <Text>Deletar</Text>
+                            </MenuItem>
+                          </MenuList>
+                        </Menu>
+                      )}
+                    </Td>
+                  )}
+                  
                 </Tr>
               )
             )}
