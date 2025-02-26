@@ -110,6 +110,8 @@ export const OrderActions = ({
                 waiter: kitchenOrder?.waiter,
                 observation: '',
                 isMade: true,
+                orderCategory: kitchenOrder?.orderCategory,
+                orderWaiter: kitchenOrder?.orderWaiter
               });
               toast({
                 status: 'success',
@@ -154,6 +156,8 @@ export const OrderActions = ({
             waiter: kitchenOrder?.waiter,
             observation: '',
             isMade: true,
+            orderCategory: kitchenOrder?.orderCategory,
+            orderWaiter: kitchenOrder?.orderWaiter
           });
           toast({
             status: 'success',
