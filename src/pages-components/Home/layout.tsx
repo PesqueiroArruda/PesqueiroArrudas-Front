@@ -30,7 +30,6 @@ export const HomeLayout = ({
   <Layout>
     <Header />
     <Tabs>
-      {console.log(isAdmin)}
       {isAdmin && (
         <TabList mb={[2, 4]}>
           <Tab>Comandas Pagas</Tab>

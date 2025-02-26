@@ -71,6 +71,12 @@ export const OrderLayout = ({
             {order?.table}
           </Box>
         </Text>
+        <Text color="blue.800" fontSize={[18, 20]} fontWeight={600}>
+          Pedido por:{' '}
+          <Box as="span" display="inline-block" fontWeight={700}>
+            {order?.orderWaiter}
+          </Box>
+        </Text>
         <Text>
           Criado:{' '}
           <Box as="span" fontWeight={600}>

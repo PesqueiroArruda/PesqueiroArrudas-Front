@@ -15,7 +15,6 @@ export const Login = () => {
   const toast = useToast();
 
   async function handleLogin(e: any) {
-    console.log(accessKey)
     e.preventDefault();
     if (sendedLoginRequest) {
       return;
@@ -56,7 +55,7 @@ export const Login = () => {
         return;
       }
 
-      localStorage.setItem('loggedUser', user)
+      localStorage.setItem('loggedUser', !isAdmin ? user : "Bar")
       localStorage.setItem('isAdmin', isAdmin)
 
       toast.closeAll();

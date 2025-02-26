@@ -8,4 +8,6 @@ export interface Order {
   observation: string;
   products: OrderProduct[];
   createdAt?: string;
+  orderCategory: string;
+  orderWaiter: string;
 }

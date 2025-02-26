@@ -162,7 +162,6 @@ export const AddProductModalLayout = ({
           placeholder="Ex: Coca Cola com gelo e limão"
           value={observation}
           onChange={(e) => {
-            console.log(e.target.value)
             setObservation(e.target.value)
           }}
           disabled={!sendToKitchen}

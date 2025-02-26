@@ -42,7 +42,6 @@ export const PayedCommandsLayout = ({
   isAdmin
 }: Props) => {
   const past10Days = get10PastDays();
-  console.log(isAdmin)
   return (
     <Stack gap={[4, 8]}>
       <Flex justifyContent="space-between">

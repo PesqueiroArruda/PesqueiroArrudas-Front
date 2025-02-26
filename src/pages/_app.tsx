@@ -14,7 +14,7 @@ const devUrl = 'http://localhost:8080';
 // const prodUrl = process.env.API_URL as string;
 const prodUrl = 'https://pesqueiroarruda-back.herokuapp.com';
 
-const socket = io(devUrl);
+const socket = io(prodUrl);
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (

@@ -12,6 +12,7 @@ import { Order as OrderProps } from 'types/Order';
 
 import { SendToKitchenModalLayout } from './layout';
 import { OrderActions } from './OrderActions';
+import capitalizeFirstLetter from 'utils/capitalizeFirstLetter';
 
 interface Props {
   isModalOpen: boolean;
@@ -24,9 +25,18 @@ export interface StoreKitchen {
   waiter: string;
   products: { _id: string; name: string; amount: number }[];
   observation: string;
+  orderCategory: string;
+  orderWaiter: string;
 }
 
-// const categoriesToKitchenPrepare = ['pratos', 'porções', 'bebidas'];
+const categoriesToBarPrepare = [
+  'pesca',
+  'peixes',
+  'bebidas',
+  'doses',
+  'sobremesas',
+  'misturas congeladas',
+]
 const categoriesToKitchenPrepare = ['pratos', 'porções', 'bebidas-cozinha'];
 
 export const SendToKitchenModal = ({ isModalOpen, setIsModalOpen }: Props) => {
@@ -56,21 +66,40 @@ export const SendToKitchenModal = ({ isModalOpen, setIsModalOpen }: Props) => {
 
       const { _id: commandId, table, waiter, products } = command;
 
-      const productsToPrepare = products?.filter(({ category }) =>
+      const productsToPrepareKitchen = products?.filter(({ category }) =>
         categoriesToKitchenPrepare.some(
           (categ) => category?.toLowerCase() === categ
         )
       );
+      const productsToPrepareBar = products?.filter(({ category }) =>
+        categoriesToBarPrepare.some(
+          (categ) => category?.toLowerCase() === categ
+        )
+      );
 
-      // const { kitchenOrder: orderSendedToKitchen } =
+      
+      const loggedUser = capitalizeFirstLetter(localStorage.getItem('loggedUser'))
+
       const { kitchenOrder } = await KitchenService.storeKitchenOrder({
         commandId,
         table,
         waiter,
-        products: productsToPrepare,
+        products: productsToPrepareKitchen,
         observation,
+        orderCategory: 'kitchen',
+        orderWaiter: loggedUser
       } as StoreKitchen);
-      setKitchenOrderSended(kitchenOrder);
+
+      const { kitchenOrder: barOrder } = await KitchenService.storeKitchenOrder({
+        commandId,
+        table,
+        waiter,
+        products: productsToPrepareBar,
+        observation,
+        orderCategory: 'bar',
+        orderWaiter: loggedUser
+      } as StoreKitchen);
+      setKitchenOrderSended(kitchenOrder || barOrder);
       handleCloseModal();
 
       setIsOrderActionsModalOpen(true);

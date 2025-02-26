@@ -50,11 +50,21 @@ export const HeaderLayout = ({
   children,
 }: Props) => {
   const { pathname } = useRouter();
+  const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsAdmin(localStorage.getItem('isAdmin') === 'true');
+      const hasLoggedUser = !!localStorage.getItem('loggedUser')
+
+      if(pathname !== '/commands' && !isAdmin){
+        router.push('/commands')
+      }
+
+      if(!hasLoggedUser){
+        router.push('/login')
+      }
     }
   }, []);
 

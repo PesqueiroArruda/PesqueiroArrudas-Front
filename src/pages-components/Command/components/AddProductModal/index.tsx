@@ -20,6 +20,7 @@ import { CommandContext } from 'pages-components/Command';
 import { AddProductModalLayout } from './layout';
 import { SetAmountModal } from './SetAmountModal';
 import { StoreKitchen } from '../SendToKitchenModal';
+import capitalizeFirstLetter from 'utils/capitalizeFirstLetter';
 
 interface AllProductsAction {
   type:
@@ -158,6 +159,14 @@ export const AddProductModal = ({
 
 
   const categoriesToKitchenPrepare = ['pratos', 'porções', 'bebidas-cozinha']
+  const categoriesToBarPrepare = [
+    'pesca',
+    'peixes',
+    'bebidas',
+    'doses',
+    'sobremesas',
+    'misturas congeladas',
+  ]
   const { command: commandContext } = useContext(CommandContext);
   const handleSendToKitchen = useCallback(async () => {
       try {
@@ -167,19 +176,40 @@ export const AddProductModal = ({
 
         const { table, waiter, products } = commandFound
   
-        const productsToPrepare = products?.filter(({ category } : { category: any }) =>
+        const productsToPrepareKitchen = products?.filter(({ category } : { category: any }) =>
           categoriesToKitchenPrepare.some(
             (categ) => category?.toLowerCase() === categ
           )
         );
-  
-        await KitchenService.storeKitchenOrder({
-          commandId,
-          table,
-          waiter,
-          products: productsToPrepare,
-          observation,
-        } as StoreKitchen);
+
+        const productsToPrepareBar = products?.filter(({ category } : { category: any }) =>
+          categoriesToBarPrepare.some(
+            (categ) => category?.toLowerCase() === categ
+          )
+        );
+
+        const loggedUser = capitalizeFirstLetter(localStorage.getItem('loggedUser'))
+
+        Promise.all([
+          await KitchenService.storeKitchenOrder({
+            commandId,
+            table,
+            waiter,
+            products: productsToPrepareKitchen,
+            observation,
+            orderCategory: 'kitchen',
+            orderWaiter: loggedUser
+          } as StoreKitchen),
+          await KitchenService.storeKitchenOrder({
+            commandId,
+            table,
+            waiter,
+            products: productsToPrepareBar,
+            observation,
+            orderCategory: 'bar',
+            orderWaiter: loggedUser
+          } as StoreKitchen)
+        ]) 
 
         toast.closeAll();
         toast({
@@ -273,9 +303,6 @@ export const AddProductModal = ({
         }
       );
 
-      const hasSomeProductToSendToKitchen = selectedProducts.some((product: any) => categoriesToKitchenPrepare.includes(product.category.toLowerCase()))
-
-
       toast.closeAll();
       toast({
         status: 'success',
@@ -284,7 +311,7 @@ export const AddProductModal = ({
         isClosable: true,
       });
       
-      if(sendToKitchen && hasSomeProductToSendToKitchen){
+      if(sendToKitchen){
         await handleSendToKitchen()
       }
       cleanModalValues();
