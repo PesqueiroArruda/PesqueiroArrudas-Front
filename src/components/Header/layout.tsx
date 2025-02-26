@@ -58,10 +58,6 @@ export const HeaderLayout = ({
       setIsAdmin(localStorage.getItem('isAdmin') === 'true');
       const hasLoggedUser = !!localStorage.getItem('loggedUser')
 
-      if ((!/^\/(commands|command)\/[\w\d-]+$/.test(router.asPath) && pathname !== '/commands' && pathname !== '/command') && !isAdmin) {
-        router.push('/commands');
-      }
-
       if(!hasLoggedUser){
         router.push('/login')
       }
