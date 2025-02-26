@@ -144,6 +144,8 @@ export const Stock = () => {
         />
       </StockContext.Provider>
     );
+  } else {
+    return <></>
   }
   
 };

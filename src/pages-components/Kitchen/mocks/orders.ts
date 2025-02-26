@@ -27,6 +27,8 @@ const orders: Order[] = [
         amount: 4,
       },
     ],
+    orderCategory: 'bar',
+    orderWaiter: 'Diego'
   },
   {
     _id: 'fdkddad3',
@@ -53,6 +55,8 @@ const orders: Order[] = [
         amount: 4,
       },
     ],
+    orderCategory: 'bar',
+    orderWaiter: 'Diego'
   },
   {
     _id: 'fdkj3333lddfdfdf3LL3',
@@ -79,6 +83,8 @@ const orders: Order[] = [
         amount: 4,
       },
     ],
+    orderCategory: 'bar',
+    orderWaiter: 'Diego'
   },
 ];
 
