@@ -34,7 +34,7 @@ export const CheckOrderModal = ({
 
   const handleCheckOrder = useCallback(async () => {
     try {
-      if(order.products.some(product => product.isMade === false)){
+      if(order.products.some(product => product.isMade === false) && order.orderCategory !== 'bar'){
         toast.closeAll();
         toast({
           status: 'error',

@@ -64,7 +64,7 @@ export const Kitchen = () => {
           payload: { order: payload },
         });
         animateScroll.scrollToBottom();
-        setPlaySound(true);
+        if(payload.orderCategory === 'kitchen') setPlaySound(true);
       });
 
       socket.on('kitchen-order-updated', (payload: any) => {
@@ -103,7 +103,7 @@ export const Kitchen = () => {
   }, []);
 
   useEffect(() => {
-    if (playSound && isKitchen) {
+    if (playSound) {
       playNotify();
       setPlaySound(false);
     }
