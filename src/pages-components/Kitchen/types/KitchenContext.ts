@@ -7,4 +7,6 @@ export interface KitchenContextProps {
   allOrdersDispatch: Dispatch<Action>;
   setIsCheckOrderModalOpen: Dispatch<SetStateAction<boolean>>;
   setOrderToCheck: Dispatch<SetStateAction<Order>>;
+  isKitchen: boolean;
+  setIsKitchen: Dispatch<SetStateAction<boolean>>;
 }

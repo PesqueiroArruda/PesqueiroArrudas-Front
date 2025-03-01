@@ -33,6 +33,7 @@ export const Kitchen = () => {
   });
 
   const [playSound, setPlaySound] = useState(false);
+  const [isKitchen, setIsKitchen] = useState(true);
 
   const { socket } = useContext(SocketContext);
 
@@ -102,7 +103,7 @@ export const Kitchen = () => {
   }, []);
 
   useEffect(() => {
-    if (playSound) {
+    if (playSound && isKitchen) {
       playNotify();
       setPlaySound(false);
     }
@@ -123,6 +124,8 @@ export const Kitchen = () => {
         allOrdersDispatch,
         setIsCheckOrderModalOpen,
         setOrderToCheck,
+        isKitchen, 
+        setIsKitchen
       }}
     >
       <KitchenLayout orders={allOrders.value} />

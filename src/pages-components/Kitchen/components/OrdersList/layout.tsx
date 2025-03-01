@@ -1,16 +1,19 @@
-import { useState } from 'react';
+import { useContext } from 'react';
 import { Flex, Heading, Icon, Stack, Switch } from '@chakra-ui/react';
 import { RiZzzFill } from 'react-icons/ri';
 
+import { KitchenContext } from 'pages-components/Kitchen';
 import { Order } from '../Order';
 import { Order as OrderProps } from '../../../../types/Order';
+
 
 interface Props {
   orders: OrderProps[];
 }
 
 export const OrdersListLayout = ({ orders }: Props) => {
-  const [isKitchen, setIsKitchen] = useState(true)
+
+  const { isKitchen, setIsKitchen } = useContext(KitchenContext)
 
   return (
     <>
