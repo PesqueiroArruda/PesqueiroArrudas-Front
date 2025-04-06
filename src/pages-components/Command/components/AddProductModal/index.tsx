@@ -17,7 +17,6 @@ import { Command } from 'types/Command';
 import { formatAmount } from 'utils/formatAmount';
 import { Product } from 'types/Product';
 import { CommandContext } from 'pages-components/Command';
-import capitalizeFirstLetter from 'utils/capitalizeFirstLetter';
 import { AddProductModalLayout } from './layout';
 import { SetAmountModal } from './SetAmountModal';
 import { StoreKitchen } from '../SendToKitchenModal';
@@ -188,8 +187,6 @@ export const AddProductModal = ({
           )
         );
 
-        const loggedUser = capitalizeFirstLetter(localStorage.getItem('loggedUser'))
-
         Promise.all([
           await KitchenService.storeKitchenOrder({
             commandId,
@@ -198,7 +195,7 @@ export const AddProductModal = ({
             products: productsToPrepareKitchen,
             observation,
             orderCategory: 'kitchen',
-            orderWaiter: loggedUser
+            orderWaiter: waiter
           } as StoreKitchen),
           await KitchenService.storeKitchenOrder({
             commandId,
@@ -207,7 +204,7 @@ export const AddProductModal = ({
             products: productsToPrepareBar,
             observation,
             orderCategory: 'bar',
-            orderWaiter: loggedUser
+            orderWaiter: waiter
           } as StoreKitchen)
         ]) 
 
