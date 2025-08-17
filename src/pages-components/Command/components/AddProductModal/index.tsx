@@ -234,27 +234,10 @@ export const AddProductModal = ({
       }
       setIsAddingProducts(true);
 
-      // Grab command infos to get the products array and push all of selectedProducts in it.
+      // Buscar a comanda atual
       const { command } = await CommandService.getOneCommand({ commandId });
-      const hasSomeSelectedProductInCommand = command?.products?.find(
-        (product: any) =>
-          selectedProducts.some(
-            (selectedProduct: any) => selectedProduct.name === product.name
-          )
-      );
 
-      if (hasSomeSelectedProductInCommand) {
-        setIsAddingProducts(false);
-        toast.closeAll();
-        toast({
-          title: `O produto: ${hasSomeSelectedProductInCommand?.name} já está na comanda`,
-          status: 'error',
-          duration: 2000,
-        });
-        return;
-      }
-
-      // If one of the product amount is unavailable the promises will fails and falls in catch block
+      // Verificar estoque antes de adicionar/incrementar
       const allAvailable = await Promise.all(
         selectedProducts.map((product: Product) =>
           ProductsService.verifyAmount({
@@ -268,49 +251,68 @@ export const AddProductModal = ({
         return;
       }
 
-      const newProducts = [...command.products, ...selectedProducts];
+      // Copiar produtos da comanda
+      const updatedProducts = [...(command?.products || [])];
 
-      // ADD THIS PRODUCTS IN COMMAND IN MONGODB DATABASE
+      // Para cada produto selecionado, verificar se já existe
+      selectedProducts.forEach((selectedProduct: any) => {
+        const index = updatedProducts.findIndex(
+          (p: any) => p._id === selectedProduct._id
+        );
+
+        if (index !== -1) {
+          // Se já existe, incrementar quantidade
+          updatedProducts[index].amount =
+            Number(updatedProducts[index].amount) + Number(selectedProduct.amount);
+        } else {
+          // Se não existe, adicionar normalmente
+          updatedProducts.push(selectedProduct);
+        }
+      });
+
+      // Atualiza a comanda no banco
       const { command: updatedCommand } = await CommandService.updateCommand({
         _id: commandId,
-        products: newProducts,
+        products: updatedProducts,
       });
-      // SOCKET.IO -> broadcast the command products was updated
 
+      // Atualizar estado local
       setCommand(updatedCommand);
       productsDispatch({
         type: 'add-products',
         payload: updatedCommand.products,
       });
-      selectedProducts.forEach(
-        (selectedProduct: { _id: string; amount: string }) => {
-          (async () => {
-            const { product: stockUpdatedProduct } =
-              await ProductsService.diminishAmount({
-                productId: selectedProduct._id,
-                amount: Number(selectedProduct.amount),
-              });
 
-            // Updating the AddProductModal list of stock products with new updtedProduc amount
-            allProductsDispatch({
-              type: 'UPDATE-ONE-PRODUCT',
-              payload: { product: stockUpdatedProduct },
+      // Atualizar estoque
+      selectedProducts.forEach((selectedProduct: { _id: string; amount: string }) => {
+        (async () => {
+          const { product: stockUpdatedProduct } =
+            await ProductsService.diminishAmount({
+              productId: selectedProduct._id,
+              amount: Number(selectedProduct.amount),
             });
-          })();
-        }
-      );
 
+          allProductsDispatch({
+            type: 'UPDATE-ONE-PRODUCT',
+            payload: { product: stockUpdatedProduct },
+          });
+        })();
+      });
+
+      // Feedback
       toast.closeAll();
       toast({
         status: 'success',
-        title: 'Produtos adicionados',
+        title: 'Produtos adicionados/incrementados na comanda',
         duration: 2000,
         isClosable: true,
       });
-      
-      if(sendToKitchen){
-        await handleSendToKitchen()
+
+      // Envia para cozinha se necessário
+      if (sendToKitchen) {
+        await handleSendToKitchen();
       }
+
       cleanModalValues();
       handleCloseModal();
     } catch (error: any) {

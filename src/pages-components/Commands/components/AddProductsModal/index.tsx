@@ -156,28 +156,11 @@ export const AddProductsModal = ({
         return;
       }
       setIsAddingProducts(true);
-      // Grab command infos to get the products array and push all of selectedProducts in it.
+
+      // Buscar a comanda atual
       const { command } = await CommandsService.getOneCommand({ commandId });
-      const hasSomeSelectedProductInCommand = command?.products?.find(
-        (product: any) =>
-          selectedProducts.some(
-            (selectedProduct: any) => selectedProduct.name === product.name
-          )
-      );
 
-      if (hasSomeSelectedProductInCommand) {
-        setIsAddingProducts(false);
-        toast.closeAll();
-        toast({
-          status: 'error',
-          title: `O produto: ${hasSomeSelectedProductInCommand?.name} já está na comanda`,
-          duration: 2000,
-          isClosable: true,
-        });
-        return;
-      }
-
-      // If one of the product amount is unavailable the promises will fails and falls in catch block
+      // Verifica estoque antes de adicionar/incrementar
       const allAvailable = await Promise.all(
         selectedProducts.map((product: Product) =>
           ProductsService.verifyAmount({
@@ -191,11 +174,29 @@ export const AddProductsModal = ({
         return;
       }
 
-      const newProducts = [...(command?.products as any), ...selectedProducts];
+      // Copiar produtos da comanda
+      const updatedProducts = [...(command?.products || [])];
 
+      // Para cada produto selecionado, verificar se já existe
+      selectedProducts.forEach((selectedProduct: any) => {
+        const index = updatedProducts.findIndex(
+          (p: any) => p._id === selectedProduct._id
+        );
+
+        if (index !== -1) {
+          // Se já existe, incrementar quantidade
+          updatedProducts[index].amount =
+            Number(updatedProducts[index].amount) + Number(selectedProduct.amount);
+        } else {
+          // Se não existe, adicionar normalmente
+          updatedProducts.push(selectedProduct);
+        }
+      });
+
+      // Atualiza a comanda
       const { command: updatedCommand } = await CommandsService.updateCommand({
         _id: commandId,
-        products: newProducts,
+        products: updatedProducts,
       });
 
       allCommandsDispatch({
@@ -203,33 +204,30 @@ export const AddProductsModal = ({
         payload: { command: updatedCommand },
       });
 
-      // Diminish the amount of products selected in stock
-      selectedProducts.forEach(
-        (selectedProduct: { _id: string; amount: string }) => {
-          (async () => {
-            const { product: stockUpdatedProduct } =
-              await ProductsService.diminishAmount({
-                productId: selectedProduct._id,
-                amount: Number(selectedProduct.amount),
-              });
+      // Atualiza estoque
+      selectedProducts.forEach((selectedProduct: { _id: string; amount: string }) => {
+        (async () => {
+          const { product: stockUpdatedProduct } =
+            await ProductsService.diminishAmount({
+              productId: selectedProduct._id,
+              amount: Number(selectedProduct.amount),
+            });
 
-            if (stockUpdatedProduct) {
-              stockProductsDispatch({
-                type: 'UPDATE-ONE-PRODUCT',
-                payload: { product: stockUpdatedProduct },
-              });
-            }
-          })();
-        }
-      );
+          if (stockUpdatedProduct) {
+            stockProductsDispatch({
+              type: 'UPDATE-ONE-PRODUCT',
+              payload: { product: stockUpdatedProduct },
+            });
+          }
+        })();
+      });
 
-      // SOCKET.IO Broadcast to necessary entities the update of command
-
+      // Feedback
       cleanModalValues();
       toast.closeAll();
       toast({
         status: 'success',
-        title: 'Produtos adicionados',
+        title: 'Produtos adicionados/incrementados na comanda',
         duration: 2000,
         isClosable: true,
       });
