@@ -6,6 +6,7 @@ import {
   useEffect,
   useReducer,
   useState,
+  useCallback,
 } from 'react';
 import useSound from 'use-sound';
 import { SocketContext } from 'pages/_app';
@@ -40,11 +41,16 @@ export const Kitchen = () => {
   const toast = useToast();
   const [playNotify] = useSound<any>(NotifySound);
 
+  // << NOVO: função de refetch centralizada
+  const reloadOrders = useCallback(async () => {
+    const orders = await KitchenOrdersService.getAll();
+    allOrdersDispatch({ type: 'ADD-ORDERS', payload: orders });
+  }, []);
+
   useEffect(() => {
     (async () => {
       try {
-        const orders = await KitchenOrdersService.getAll();
-        allOrdersDispatch({ type: 'ADD-ORDERS', payload: orders });
+        await reloadOrders();   // << usa o refetch centralizado
       } catch (error: any) {
         toast({
           status: 'error',
@@ -54,7 +60,7 @@ export const Kitchen = () => {
         });
       }
     })();
-  }, []);
+  }, [reloadOrders, toast]);
 
   useEffect(() => {
     try {
@@ -64,7 +70,7 @@ export const Kitchen = () => {
           payload: { order: payload },
         });
         animateScroll.scrollToBottom();
-        if(payload.orderCategory === 'kitchen') setPlaySound(true);
+        if (payload.orderCategory === 'kitchen') setPlaySound(true);
       });
 
       socket.on('kitchen-order-updated', (payload: any) => {
@@ -87,6 +93,16 @@ export const Kitchen = () => {
           payload: { commandId: payload.commandId },
         });
       });
+
+      // << NOVO: quando o back emitir "reordered", recarrega
+      socket.on('kitchen-orders-reordered', async (_payload: any) => {
+        try {
+          await reloadOrders();
+        } catch {
+          // silencioso
+        }
+      });
+
     } catch (error: any) {
       toast({
         status: 'error',
@@ -99,8 +115,10 @@ export const Kitchen = () => {
     return () => {
       socket.off('kitchen-order-created');
       socket.off('kitchen-order-updated');
+      socket.off('kitchen-order-deleted');
+      socket.off('kitchen-orders-reordered'); // << cleanup
     };
-  }, []);
+  }, [socket, reloadOrders, toast]);
 
   useEffect(() => {
     if (playSound) {
@@ -125,7 +143,8 @@ export const Kitchen = () => {
         setIsCheckOrderModalOpen,
         setOrderToCheck,
         isKitchen, 
-        setIsKitchen
+        setIsKitchen,
+        reloadOrders,              // << expõe no contexto
       }}
     >
       <KitchenLayout orders={allOrders.value} />

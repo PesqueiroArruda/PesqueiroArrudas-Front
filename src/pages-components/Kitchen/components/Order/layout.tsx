@@ -24,6 +24,7 @@ import { BsPatchCheck, BsPatchCheckFill, BsSnow } from 'react-icons/bs';
 import { OrderProduct } from 'types/OrderProduct';
 import { DateTime } from 'luxon';
 import { Order } from '../../../../types/Order';
+import { RxDragHandleDots2 } from 'react-icons/rx';
 
 const productColumns = [
   {
@@ -42,6 +43,8 @@ interface Props {
   handleCheckOneProduct: (product: OrderProduct) => void;
   handleDefrostOneProduct: (product: OrderProduct) => void;
   handleOpenCheckOrderModal: (orderToCheck: Order) => void;
+  listeners: any;
+  isDragging: boolean;
 }
 
 export const OrderLayout = ({
@@ -49,6 +52,8 @@ export const OrderLayout = ({
   handleCheckOneProduct,
   handleDefrostOneProduct,
   handleOpenCheckOrderModal,
+  listeners,
+  isDragging
 }: Props) => {
   const dt = DateTime.fromISO(order?.createdAt as string, {
     zone: 'pt-BR',
@@ -86,6 +91,18 @@ export const OrderLayout = ({
             {createdAtFormatted}
           </Box>
         </Text>
+        <IconButton
+          aria-label="Arrastar para reordenar"
+          icon={<RxDragHandleDots2 />}
+          size="sm"
+          variant="ghost"
+          // listeners APENAS no handle
+          {...listeners}
+          // UX
+          cursor={isDragging ? 'grabbing' : 'grab'}
+          // evita que o handle capture o foco do teclado o tempo todo
+          tabIndex={0}
+        />
       </Flex>
       {order.observation && (
         <div style={{

@@ -8,9 +8,11 @@ import { OrderLayout } from './layout';
 
 interface Props {
   order: OrderProps;
+  listeners: any;
+  isDragging: boolean;
 }
 
-export const Order = ({ order }: Props) => {
+export const Order = ({ order, listeners, isDragging }: Props) => {
   const { allOrdersDispatch, setIsCheckOrderModalOpen, setOrderToCheck } =
     useContext(KitchenContext);
 
@@ -93,6 +95,8 @@ export const Order = ({ order }: Props) => {
       handleCheckOneProduct={handleCheckOneProduct}
       handleDefrostOneProduct={handleDefrostOneProduct}
       handleOpenCheckOrderModal={handleOpenCheckOrderModal}
+      listeners={listeners}
+      isDragging={isDragging}
     />
   );
 };

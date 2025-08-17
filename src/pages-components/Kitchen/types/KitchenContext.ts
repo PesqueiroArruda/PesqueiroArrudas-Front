@@ -9,4 +9,5 @@ export interface KitchenContextProps {
   setOrderToCheck: Dispatch<SetStateAction<Order>>;
   isKitchen: boolean;
   setIsKitchen: Dispatch<SetStateAction<boolean>>;
+  reloadOrders: any;
 }

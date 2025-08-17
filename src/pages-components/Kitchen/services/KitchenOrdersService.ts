@@ -16,6 +16,12 @@ interface CheckOneOrder {
   orderId: string;
   isMade: boolean;
 }
+
+interface ReorderPayload {
+  category: 'kitchen' | 'bar';
+  ids: string[];
+}
+
 class KitchenOrdersService {
   async getAll() {
     const { data } = await serverApi.get('/kitchen/orders');
@@ -50,6 +56,11 @@ class KitchenOrdersService {
     if (typeof isThawed === 'boolean') body.isThawed = isThawed;
 
     const { data } = await serverApi.put(`/kitchen/orders/${orderId}`, body);
+    return data;
+  }
+
+  async reorder(payload: ReorderPayload) {
+    const { data } = await serverApi.post('/kitchen/orders/reorder', payload);
     return data;
   }
 }
