@@ -18,7 +18,7 @@ import {
   Box,
 } from '@chakra-ui/react';
 import { CgOptions } from 'react-icons/cg';
-import { BsPatchCheck, BsPatchCheckFill } from 'react-icons/bs';
+import { BsPatchCheck, BsPatchCheckFill, BsSnow } from 'react-icons/bs';
 
 import { OrderProduct } from 'types/OrderProduct';
 import { DateTime } from 'luxon';
@@ -39,12 +39,14 @@ const productColumns = [
 interface Props {
   order: Order;
   handleCheckOneProduct: (product: OrderProduct) => void;
+  handleDefrostOneProduct: (product: OrderProduct) => void;
   handleOpenCheckOrderModal: (orderToCheck: Order) => void;
 }
 
 export const OrderLayout = ({
   order,
   handleCheckOneProduct,
+  handleDefrostOneProduct,
   handleOpenCheckOrderModal,
 }: Props) => {
   const dt = DateTime.fromISO(order?.createdAt as string, {
@@ -124,7 +126,7 @@ export const OrderLayout = ({
             </Tr>
           </Thead>
           <Tbody>
-            {order.products.map(({ _id, name, amount, isMade }) => (
+            {order.products.map(({ _id, name, amount, isMade, isThawed }) => (
               <Tr key={`${order._id}${_id}`}>
                 <Td w="40%">{amount}</Td>
                 <Td w="50%">{name}</Td>
@@ -145,6 +147,19 @@ export const OrderLayout = ({
                       />
                       <Text fontWeight={600} color="white">
                         Feito
+                      </Text>
+                    </Flex>
+                  )}
+                  {isThawed && (
+                    <Flex bg="blue.300" gap={2} px={2} py={1} rounded={3}>
+                      <Icon
+                        as={BsSnow}
+                        color="white"
+                        mt={0.5}
+                        fontSize={[16, 18]}
+                      />
+                      <Text fontWeight={600} color="white">
+                        Descongelado
                       </Text>
                     </Flex>
                   )}
@@ -170,6 +185,31 @@ export const OrderLayout = ({
                         <Text m={0}>Marcar item como feito</Text>
                       </MenuItem>
                     </MenuList>
+                    <MenuList p={1.5}>
+                    <MenuItem
+                      onClick={() =>
+                        handleCheckOneProduct({ _id, name, amount, isMade, isThawed })
+                      }
+                      display="flex"
+                      icon={<BsPatchCheck fontSize={17} />}
+                      fontWeight="600"
+                      rounded={4}
+                    >
+                      <Text m={0}>Marcar item como feito</Text>
+                    </MenuItem>
+
+                    <MenuItem
+                      onClick={() =>
+                        handleDefrostOneProduct({ _id, name, amount, isMade, isThawed })
+                      }
+                      display="flex"
+                      icon={<BsSnow fontSize={17} />}
+                      fontWeight="600"
+                      rounded={4}
+                    >
+                      <Text m={0}>Marcar item como descongelado</Text>
+                    </MenuItem>
+                  </MenuList>
                   </Menu>
                 </Td>
               </Tr>

@@ -3,5 +3,6 @@ export interface OrderProduct {
   name: string;
   category?: string;
   isMade?: boolean;
+  isThawed?: boolean;
   amount: number;
 }

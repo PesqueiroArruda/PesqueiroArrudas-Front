@@ -43,7 +43,7 @@ export const Kitchen = () => {
   useEffect(() => {
     (async () => {
       try {
-        const orders = await KitchenOrdersService.gelAll();
+        const orders = await KitchenOrdersService.getAll();
         allOrdersDispatch({ type: 'ADD-ORDERS', payload: orders });
       } catch (error: any) {
         toast({

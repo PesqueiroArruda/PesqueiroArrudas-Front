@@ -17,8 +17,9 @@ export const allOrdersReducer = (
       const { orderId, productId } = action.payload;
 
       const orderToUpdate = state.value.find(({ _id }) => _id === orderId);
-      const oldOrderProducts = orderToUpdate?.products;
-      const newOrderProducts = oldOrderProducts?.map((product) => {
+      if (!orderToUpdate || !orderToUpdate.products) return state;
+
+      const newOrderProducts = orderToUpdate.products.map((product) => {
         if (product._id === productId) {
           return { ...product, isMade: true };
         }
@@ -34,6 +35,31 @@ export const allOrdersReducer = (
 
       return { value: updatedOrders as Order[] };
     }
+
+    // NOVO: marca um produto como descongelado (isThawed = true)
+    case 'DEFROST-ONE-PRODUCT': {
+      const { orderId, productId } = action.payload;
+
+      const orderToUpdate = state.value.find(({ _id }) => _id === orderId);
+      if (!orderToUpdate || !orderToUpdate.products) return state;
+
+      const newOrderProducts = orderToUpdate.products.map((product) => {
+        if (product._id === productId) {
+          return { ...product, isThawed: true };
+        }
+        return product;
+      });
+
+      const updatedOrders = state.value.map((order) => {
+        if (order._id === orderId) {
+          return { ...orderToUpdate, products: newOrderProducts };
+        }
+        return order;
+      });
+
+      return { value: updatedOrders as Order[] };
+    }
+
     case 'REMOVE-ONE-ORDER': {
       const orderIdToDelete = action.payload.order._id;
       const newOrders = state.value.filter(
@@ -43,9 +69,7 @@ export const allOrdersReducer = (
     }
     case 'ADD-ONE-ORDER': {
       const newOrder = action.payload.order;
-      const orderExists = state.value.some(
-        ({ _id }: any) => _id === newOrder._id
-      );
+      const orderExists = state.value.some(({ _id }: any) => _id === newOrder._id);
 
       if (orderExists) {
         return state;
@@ -65,9 +89,7 @@ export const allOrdersReducer = (
     }
     case 'REMOVE-COMMAND-ORDERS': {
       const { commandId } = action.payload;
-      const newOrders = state.value.filter(
-        (order) => order.commandId !== commandId
-      );
+      const newOrders = state.value.filter((order) => order.commandId !== commandId);
       return { value: newOrders };
     }
     default: {

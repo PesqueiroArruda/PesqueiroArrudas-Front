@@ -48,6 +48,37 @@ export const Order = ({ order }: Props) => {
     [order, allOrdersDispatch]
   );
 
+  const handleDefrostOneProduct = useCallback(
+    async (product: OrderProduct) => {
+      try {
+        const oldProducts = order.products;
+        const newProducts = oldProducts.map((oldProduct) => {
+          if (oldProduct._id === product._id) {
+            return { ...oldProduct, isThawed: true }; // <-- seta só este item
+          }
+          return oldProduct;
+        });
+
+        await KitchenOrdersService.defrostOneOrderProduct({
+          orderId: order._id,
+          products: newProducts as OrderProduct[],
+        });
+
+        allOrdersDispatch({
+          type: 'DEFROST-ONE-PRODUCT',
+          payload: { orderId: order._id, productId: product._id },
+        });
+      } catch (error: any) {
+        toast.closeAll();
+        toast({
+          status: 'error',
+          title: error?.response?.data?.message,
+        });
+      }
+    },
+    [order, allOrdersDispatch]
+  );
+
   const handleOpenCheckOrderModal = useCallback(
     (orderToCheck: OrderProps) => {
       setIsCheckOrderModalOpen(true);
@@ -60,6 +91,7 @@ export const Order = ({ order }: Props) => {
     <OrderLayout
       order={order}
       handleCheckOneProduct={handleCheckOneProduct}
+      handleDefrostOneProduct={handleDefrostOneProduct}
       handleOpenCheckOrderModal={handleOpenCheckOrderModal}
     />
   );

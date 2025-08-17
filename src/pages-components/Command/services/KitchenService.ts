@@ -15,6 +15,7 @@ interface Store {
   observation: string;
   products: Product[];
   isMade?: boolean;
+  isThawed?: boolean;
   orderCategory: string;
   orderWaiter: string;
 }
@@ -33,6 +34,7 @@ class KitchenService {
     observation,
     products,
     isMade,
+    isThawed,
     orderCategory,
     orderWaiter
   }: Store) {
@@ -43,6 +45,7 @@ class KitchenService {
       observation,
       products,
       isMade,
+      isThawed,
       orderCategory,
       orderWaiter
     });
