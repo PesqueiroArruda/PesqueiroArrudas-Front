@@ -19,36 +19,42 @@ export const Order = ({ order, listeners, isDragging }: Props) => {
   const toast = useToast();
 
   const handleCheckOneProduct = useCallback(
-    async (product: OrderProduct) => {
-      try {
-        const oldProducts = order.products;
-        const newProducts = oldProducts.map((oldProduct) => {
-          if (oldProduct._id === product._id) {
-            return { ...oldProduct, isMade: true };
-          }
-          return oldProduct;
-        });
+  async (product: OrderProduct) => {
+    try {
+      const oldProducts = order.products;
 
-        await KitchenOrdersService.checkOneOrderProduct({
+      // cria um novo array com o produto "toggleado"
+      const newProducts = oldProducts.map((oldProduct) => {
+        if (oldProduct._id === product._id) {
+          return { ...oldProduct, isMade: !oldProduct.isMade }; // 👈 inverte o valor atual
+        }
+        return oldProduct;
+      });
+
+      await KitchenOrdersService.checkOneOrderProduct({
+        orderId: order._id,
+        products: newProducts as OrderProduct[],
+      });
+
+      // passa o novo valor (true ou false) para o reducer
+      allOrdersDispatch({
+        type: 'CHECK-ONE-PRODUCT',
+        payload: {
           orderId: order._id,
-          products: newProducts as OrderProduct[],
-        });
-
-        allOrdersDispatch({
-          type: 'CHECK-ONE-PRODUCT',
-          payload: { orderId: order._id, productId: product._id },
-        });
-      } catch (error: any) {
-        toast.closeAll();
-        toast({
-          status: 'error',
-          title: error?.response?.data?.message,
-        });
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [order, allOrdersDispatch]
-  );
+          productId: product._id,
+          isMade: !product.isMade, // 👈 aqui também informamos o novo estado
+        },
+      });
+    } catch (error: any) {
+      toast.closeAll();
+      toast({
+        status: 'error',
+        title: error?.response?.data?.message,
+      });
+    }
+  },
+  [order, allOrdersDispatch, toast]
+);
 
   const handleDefrostOneProduct = useCallback(
     async (product: OrderProduct) => {
