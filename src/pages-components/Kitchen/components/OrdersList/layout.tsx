@@ -1,32 +1,50 @@
+// OrdersListLayout.tsx
 import { useContext, useMemo } from 'react';
 import { Flex, Heading, Icon, Stack, Switch } from '@chakra-ui/react';
 import { RiZzzFill } from 'react-icons/ri';
-
 import { KitchenContext } from 'pages-components/Kitchen';
-import { Order as OrderProps } from '../../../../types/Order';
 
 // dnd-kit
 import { DndContext, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+
 import { DraggableOrder } from '../DraggableOrder';
-import KitchenOrdersService from 'pages-components/Kitchen/services/KitchenOrdersService';
+import { Order as OrderProps } from '../../../../types/Order';
 
 interface Props {
   orders: OrderProps[];
-  onReorder?: (nextOrders: OrderProps[]) => void;
+  onReorder?: (nextOrders: OrderProps[]) => void; // opcional, se o pai quiser refletir
 }
 
 export const OrdersListLayout = ({ orders, onReorder }: Props) => {
-  const { isKitchen, setIsKitchen, reloadOrders } = useContext(KitchenContext);
+  const {
+    isKitchen, setIsKitchen,
+    frontOrderByCategory, setFrontOrderByCategory,
+  } = useContext(KitchenContext);
+
   const category = isKitchen ? 'kitchen' : 'bar';
 
-  const visibleOrders = useMemo(
-    () => orders.filter((o) => !o.isMade && o.orderCategory === category),
+  const visibleOrdersRaw = useMemo(
+    () => orders.filter(o => !o.isMade && o.orderCategory === category),
     [orders, category]
   );
-  const visibleIds = useMemo(() => visibleOrders.map((o) => o._id), [visibleOrders]);
 
-  const handleDragEnd = async (event: DragEndEvent) => {
+  // 🔹 Ordena pela ordem local (fallback: mantém ordem natural)
+  const orderIds = frontOrderByCategory[category] || [];
+  const indexMap = new Map(orderIds.map((id: any, i: any) => [id, i]));
+  const visibleOrders = useMemo(
+    () =>
+      [...visibleOrdersRaw].sort((a, b) => {
+        const ia = indexMap.has(a._id) ? (indexMap.get(a._id) as number) : Number.MAX_SAFE_INTEGER;
+        const ib = indexMap.has(b._id) ? (indexMap.get(b._id) as number) : Number.MAX_SAFE_INTEGER;
+        return ia - ib;
+      }),
+    [visibleOrdersRaw, orderIds]
+  );
+
+  const visibleIds = useMemo(() => visibleOrders.map(o => o._id), [visibleOrders]);
+
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -34,30 +52,31 @@ export const OrdersListLayout = ({ orders, onReorder }: Props) => {
     const newIndex = visibleIds.indexOf(String(over.id));
     if (oldIndex === -1 || newIndex === -1) return;
 
-    const movedVisible = arrayMove(visibleOrders, oldIndex, newIndex);
-    const nextIds = movedVisible.map((o) => o._id);
+    // Reordena só os visíveis
+    const newVisibleOrder = arrayMove(visibleIds, oldIndex, newIndex);
 
-    // Optimistic UI (opcional)
-    const inVisible = new Set(nextIds);
-    const otherGroup = orders.filter((o) => !inVisible.has(o._id));
-    const nextOrders = [...movedVisible, ...otherGroup];
-    onReorder?.(nextOrders);
+    // Atualiza o array de IDs da categoria:
+    // regra: manter outros IDs (que não estão visíveis — ex.: já feitos ou outra categoria) como estão
+    const setLocal = new Set(newVisibleOrder);
+    const unchanged = orderIds.filter((id:any) => !setLocal.has(id));
+    const nextIds = [...newVisibleOrder, ...unchanged];
 
-    try {
-      await KitchenOrdersService.reorder({ category, ids: nextIds });
-      await reloadOrders(); // << refetch garantido depois de persistir
-    } catch (err) {
-      console.error('Falha ao reordenar:', err);
-      // se quiser, reverter o optimistic aqui
+    setFrontOrderByCategory((prev: any) => ({ ...prev, [category]: nextIds }));
+
+    // Se quiser notificar o pai com a lista completa já “visual-ordenada”:
+    if (onReorder) {
+      const inVisible = new Set(newVisibleOrder);
+      const movedVisible = visibleOrders
+        .slice() // cópia já ordenada pelo newVisibleOrder acima
+        .sort((a, b) => newVisibleOrder.indexOf(a._id) - newVisibleOrder.indexOf(b._id));
+      const otherGroup = orders.filter(o => !inVisible.has(o._id));
+      onReorder([...movedVisible, ...otherGroup]);
     }
   };
 
   return (
     <>
-      <Switch
-        isChecked={isKitchen}
-        onChange={(e) => setIsKitchen(e.target.checked)}
-      >
+      <Switch isChecked={isKitchen} onChange={(e) => setIsKitchen(e.target.checked)}>
         {isKitchen ? 'Cozinha' : 'Bar'}
       </Switch>
 
@@ -65,7 +84,7 @@ export const OrdersListLayout = ({ orders, onReorder }: Props) => {
         <SortableContext items={visibleIds} strategy={verticalListSortingStrategy}>
           <Stack gap={[2, 4]} alignItems={visibleOrders.length === 0 ? 'center' : 'auto'}>
             {visibleOrders.length > 0 &&
-              visibleOrders.map((order) => <DraggableOrder order={order} key={order._id} />)}
+              visibleOrders.map(order => <DraggableOrder order={order} key={order._id} />)}
 
             {visibleOrders.length === 0 && (
               <Flex

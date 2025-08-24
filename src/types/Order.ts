@@ -10,4 +10,5 @@ export interface Order {
   createdAt?: string;
   orderCategory: string;
   orderWaiter: string;
+  isMade?: boolean;
 }

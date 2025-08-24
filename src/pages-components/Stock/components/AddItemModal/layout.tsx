@@ -98,7 +98,7 @@ export const AddItemModalLayout = ({
           defaultValue={1}
           precision={2}
           step={1}
-          placeholder="Quantidade"
+          _placeholder="Quantidade"
           value={amount}
           onChange={(value) => setAmount(Number(value))}
           min={1}

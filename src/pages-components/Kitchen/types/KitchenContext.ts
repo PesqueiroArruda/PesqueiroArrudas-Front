@@ -10,4 +10,6 @@ export interface KitchenContextProps {
   isKitchen: boolean;
   setIsKitchen: Dispatch<SetStateAction<boolean>>;
   reloadOrders: any;
+  frontOrderByCategory: any;
+  setFrontOrderByCategory: any;
 }

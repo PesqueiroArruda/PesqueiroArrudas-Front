@@ -20,11 +20,11 @@ import {
 } from '@chakra-ui/react';
 import { CgOptions } from 'react-icons/cg';
 import { BsPatchCheck, BsPatchCheckFill, BsSnow } from 'react-icons/bs';
+import { RxDragHandleDots2 } from 'react-icons/rx';
 
 import { OrderProduct } from 'types/OrderProduct';
 import { DateTime } from 'luxon';
 import { Order } from '../../../../types/Order';
-import { RxDragHandleDots2 } from 'react-icons/rx';
 
 const productColumns = [
   {
