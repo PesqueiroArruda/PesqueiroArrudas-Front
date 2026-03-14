@@ -22,6 +22,7 @@ import {
   Th,
   Tr,
   Td,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import { BiSad, BiSearchAlt } from 'react-icons/bi';
 import { IoClose } from 'react-icons/io5';
@@ -84,196 +85,294 @@ export const AddProductModalLayout = ({
   isAddingProducts,
   handleFavoriteProduct,
   handleUnfavoriteProduct,
-}: Props) => (
-  <Modal
-    isOpen={isModalOpen}
-    onClose={() => handleCloseModal()}
-    title="Adicionar Produto"
-    size="full"
-    modalBodyOverflow="hidden"
-  >
-    <Stack spacing={[4, 6]} overflowY="scroll">
-      {/* Header */}
-      <Grid gridTemplateColumns={['1fr', '1fr 3fr']} gap={[2, 4]}>
-        <Menu>
-          <MenuButton
-            bg="blue.50"
-            color="blue.800"
-            _active={{
-              bg: 'blue.300',
-              color: 'white',
-            }}
-            as={Button}
-          >
-            <Flex align="center" justify="center" gap={[1, 3]}>
-              Filtrar
-              {filter && <Square />}
-            </Flex>
-          </MenuButton>
-          <MenuList overflow="scroll" bg="blue.50" p={2}>
-            {filterOptions.map((filterText) => (
-              <MenuItem
-                key={`add-product-filter-${filterText}`}
-                onClick={() => handleChangeFilter(filterText)}
-                bg={filter === filterText ? 'blue.300' : 'none'}
-                color={filter === filterText ? 'white' : 'blue.800'}
-                rounded={4}
-                _focus={{
-                  bg: 'blue.100',
-                }}
-              >
-                {filterText}
-              </MenuItem>
-            ))}
-          </MenuList>
-        </Menu>
-        <InputGroup>
-          <InputLeftElement
-            pointerEvents="none"
-            children={<Icon as={BiSearchAlt} />}
-          />
-          <Input
-            placeholder="Pesquise por algum produto"
-            value={searchContent}
-            onChange={(e) => setSearchContent(e.target.value)}
-          />
-        </InputGroup>
-      </Grid>
+}: Props) => {
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
-      {/* Products selected */}
-      <Grid gridTemplateColumns="repeat(3, 1fr)" gap={[2, 4]}>
-        {selectedProducts.map(({ _id, name, amount }) => (
-          <Flex
-            key={`selected-product-${_id}`}
-            // direction="column"
-            align="center"
-            justify="space-between"
-            bg="gray.100"
-            p={2}
-            rounded="md"
-            color="blue.700"
-          >
-            <Flex gap={6} align="center">
-              <Text fontSize={14} fontWeight={600}>
-                {name}
-              </Text>
-              <Text fontSize={14} fontWeight={600}>
-                Qntd: {formatAmount({ num: amount, to: 'comma' })}
-              </Text>
-            </Flex>
-            <Icon
-              as={IoClose}
-              onClick={() => handleRemoveSelectedProduct({ id: _id })}
-              cursor="pointer"
-              fontSize={[16, 18]}
-              _hover={{
-                bg: 'blue.100',
-                rounded: 3,
-              }}
+  return (
+    <Modal
+      isOpen={isModalOpen}
+      onClose={() => handleCloseModal()}
+      title="Adicionar Produto"
+      size="full"
+      modalBodyOverflow="hidden"
+    >
+      <Stack spacing={[4, 6]} overflowY="auto">
+        {/* Header */}
+        <Grid templateColumns={['1fr', '1fr 3fr']} gap={[2, 4]}>
+          <Menu>
+            <MenuButton
+              bg="blue.50"
+              color="blue.800"
               _active={{
-                bg: 'blue.200',
+                bg: 'blue.300',
+                color: 'white',
               }}
-            />
-          </Flex>
-        ))}
-      </Grid>
+              as={Button}
+            >
+              <Flex align="center" justify="center" gap={[1, 3]}>
+                Filtrar
+                {filter && <Square />}
+              </Flex>
+            </MenuButton>
 
-      {/* List of products to add in command */}
-      <TableContainer overflowY="scroll" flex="1">
-        <Table w="100%" mt={[2, 4]} size="sm">
-          <Thead>
-            <Tr>
-              {productsColumns.map((column) => (
-                <Th key={`add-product-table-header-${column}`}>{column}</Th>
+            <MenuList overflow="auto" bg="blue.50" p={2} maxH="280px">
+              {filterOptions.map((filterText) => (
+                <MenuItem
+                  key={`add-product-filter-${filterText}`}
+                  onClick={() => handleChangeFilter(filterText)}
+                  bg={filter === filterText ? 'blue.300' : 'none'}
+                  color={filter === filterText ? 'white' : 'blue.800'}
+                  rounded={4}
+                  _focus={{
+                    bg: 'blue.100',
+                  }}
+                >
+                  {filterText}
+                </MenuItem>
               ))}
-              <Th />
-            </Tr>
-          </Thead>
-          <Tbody>
-            {products?.length > 0 &&
-              products?.map(
-                ({ _id, name, unitPrice, amount, category, isFavorite }) => (
-                  <Tr key={`add-product-modal-product-${_id}`}>
-                    <Td>{name}</Td>
-                    <Td>{amount}</Td>
-                    <Td>{parseToBRL(unitPrice || 0)}</Td>
-                    <Td isNumeric>
-                      <Flex justify="flex-end" align="center" gap={2}>
-                        <Button
-                          bg="blue.50"
-                          color="blue.700"
-                          onClick={() =>
-                            handleOpenAmountModal({
-                              product: { _id, name, unitPrice, category },
-                            })
-                          }
-                        >
-                          Selecionar
-                        </Button>
+            </MenuList>
+          </Menu>
 
-                        {isFavorite ? (
-                          <Icon
-                            onClick={() => handleUnfavoriteProduct(_id)}
-                            as={AiFillStar}
-                            fontSize={[18, 20]}
-                            color="blue.600"
-                            cursor="pointer"
-                            _hover={{
-                              color: 'blue.700',
-                            }}
-                          />
-                        ) : (
-                          <Icon
-                            onClick={() => handleFavoriteProduct(_id)}
-                            as={AiOutlineStar}
-                            fontSize={[18, 20]}
-                            color="blue.600"
-                            cursor="pointer"
-                            _hover={{
-                              color: 'blue.700',
-                            }}
-                          />
-                        )}
+          <InputGroup>
+            <InputLeftElement pointerEvents="none">
+              <Icon as={BiSearchAlt} />
+            </InputLeftElement>
+            <Input
+              placeholder="Pesquise por algum produto"
+              value={searchContent}
+              onChange={(e) => setSearchContent(e.target.value)}
+            />
+          </InputGroup>
+        </Grid>
+
+        {/* Products selected */}
+        <Grid
+          templateColumns={{ base: '1fr', md: '1fr 1fr', lg: 'repeat(3, 1fr)' }}
+          gap={[2, 4]}
+        >
+          {selectedProducts.map(({ _id, name, amount }) => (
+            <Flex
+              key={`selected-product-${_id}`}
+              align="center"
+              justify="space-between"
+              bg="gray.100"
+              p={3}
+              rounded="md"
+              color="blue.700"
+              gap={3}
+            >
+              <Flex direction="column" minW={0}>
+                <Text fontSize={14} fontWeight={600} noOfLines={2}>
+                  {name}
+                </Text>
+                <Text fontSize={13} fontWeight={500}>
+                  Qntd: {formatAmount({ num: amount, to: 'comma' })}
+                </Text>
+              </Flex>
+
+              <Icon
+                as={IoClose}
+                onClick={() => handleRemoveSelectedProduct({ id: _id })}
+                cursor="pointer"
+                fontSize={[18, 20]}
+                flexShrink={0}
+                _hover={{
+                  bg: 'blue.100',
+                  rounded: 3,
+                }}
+                _active={{
+                  bg: 'blue.200',
+                }}
+              />
+            </Flex>
+          ))}
+        </Grid>
+
+        {/* List of products */}
+        {isMobile ? (
+          <Box maxH="50vh" overflowY="auto" pr={1}>
+            <Stack spacing={3}>
+              {products?.length > 0 &&
+                products.map(({ _id, name, unitPrice, amount, category, isFavorite }) => (
+                  <Box
+                    key={`add-product-mobile-${_id}`}
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    rounded="md"
+                    p={3}
+                    bg="white"
+                  >
+                    <Flex justify="space-between" align="flex-start" gap={3}>
+                      <Box minW={0}>
+                        <Text fontWeight={700} color="blue.700" noOfLines={2}>
+                          {name}
+                        </Text>
+
+                        <Text fontSize="sm" color="gray.600">
+                          Quantidade: {amount}
+                        </Text>
+
+                        <Text fontSize="sm" color="gray.600">
+                          Preço: {parseToBRL(unitPrice || 0)}
+                        </Text>
+                      </Box>
+
+                      {isFavorite ? (
+                        <Icon
+                          onClick={() => handleUnfavoriteProduct(_id)}
+                          as={AiFillStar}
+                          fontSize={22}
+                          color="blue.600"
+                          cursor="pointer"
+                          flexShrink={0}
+                          _hover={{
+                            color: 'blue.700',
+                          }}
+                        />
+                      ) : (
+                        <Icon
+                          onClick={() => handleFavoriteProduct(_id)}
+                          as={AiOutlineStar}
+                          fontSize={22}
+                          color="blue.600"
+                          cursor="pointer"
+                          flexShrink={0}
+                          _hover={{
+                            color: 'blue.700',
+                          }}
+                        />
+                      )}
+                    </Flex>
+
+                    <Button
+                      mt={3}
+                      w="100%"
+                      bg="blue.50"
+                      color="blue.700"
+                      onClick={() =>
+                        handleOpenAmountModal({
+                          product: { _id, name, unitPrice, category },
+                        })
+                      }
+                    >
+                      Selecionar
+                    </Button>
+                  </Box>
+                ))}
+
+              {products?.length === 0 && (
+                <Flex align="center" gap={4} mt={4} color="blue.700">
+                  <Icon as={BiSad} fontSize={32} />
+                  <Text fontSize={18} fontWeight={600}>
+                    Nenhum Produto com essa categoria
+                  </Text>
+                </Flex>
+              )}
+            </Stack>
+          </Box>
+        ) : (
+          <TableContainer overflowY="auto" flex="1">
+            <Table w="100%" mt={[2, 4]} size="sm">
+              <Thead>
+                <Tr>
+                  {productsColumns.map((column) => (
+                    <Th key={`add-product-table-header-${column}`}>{column}</Th>
+                  ))}
+                  <Th />
+                </Tr>
+              </Thead>
+              <Tbody>
+                {products?.length > 0 &&
+                  products.map(
+                    ({ _id, name, unitPrice, amount, category, isFavorite }) => (
+                      <Tr key={`add-product-modal-product-${_id}`}>
+                        <Td>{name}</Td>
+                        <Td>{amount}</Td>
+                        <Td>{parseToBRL(unitPrice || 0)}</Td>
+                        <Td isNumeric>
+                          <Flex justify="flex-end" align="center" gap={2}>
+                            <Button
+                              bg="blue.50"
+                              color="blue.700"
+                              onClick={() =>
+                                handleOpenAmountModal({
+                                  product: { _id, name, unitPrice, category },
+                                })
+                              }
+                            >
+                              Selecionar
+                            </Button>
+
+                            {isFavorite ? (
+                              <Icon
+                                onClick={() => handleUnfavoriteProduct(_id)}
+                                as={AiFillStar}
+                                fontSize={[18, 20]}
+                                color="blue.600"
+                                cursor="pointer"
+                                _hover={{
+                                  color: 'blue.700',
+                                }}
+                              />
+                            ) : (
+                              <Icon
+                                onClick={() => handleFavoriteProduct(_id)}
+                                as={AiOutlineStar}
+                                fontSize={[18, 20]}
+                                color="blue.600"
+                                cursor="pointer"
+                                _hover={{
+                                  color: 'blue.700',
+                                }}
+                              />
+                            )}
+                          </Flex>
+                        </Td>
+                      </Tr>
+                    )
+                  )}
+
+                {products?.length === 0 && (
+                  <Tr>
+                    <Td>
+                      <Flex align="center" gap={4} mt={4} color="blue.700">
+                        <Icon as={BiSad} fontSize={32} />
+                        <Text fontSize={20} fontWeight={600}>
+                          Nenhum Produto com essa categoria
+                        </Text>
                       </Flex>
                     </Td>
                   </Tr>
-                )
-              )}
-            {products?.length === 0 && (
-              <Tr>
-                <Td>
-                  <Flex align="center" gap={4} mt={4} color="blue.700">
-                    <Icon as={BiSad} fontSize={32} />
-                    <Text fontSize={20} fontWeight={600}>
-                      Nenhum Produto com essa categoria
-                    </Text>
-                  </Flex>
-                </Td>
-              </Tr>
-            )}
-          </Tbody>
-        </Table>
-      </TableContainer>
-      <Grid gridTemplateColumns={['1fr', '1fr 1fr']} gap={4}>
-        <Button onClick={() => handleCloseModal()}>Cancelar</Button>
-        <Button
-          onClick={() => handleAddProductsInCommand()}
-          colorScheme="blue"
-          display="flex"
-          alignItems="center"
-          gap={2}
-          isLoading={isAddingProducts}
-          loadingText="Adicionando Produtos"
-        >
-          <Icon as={MdPlaylistAdd} fontSize={[20, 24]} />
-          Adicionar Produtos
-        </Button>
-      </Grid>
-    </Stack>
+                )}
+              </Tbody>
+            </Table>
+          </TableContainer>
+        )}
 
-    {/* <h1>Add Product</h1> */}
-  </Modal>
-);
+        <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={4}>
+          <Button onClick={() => handleCloseModal()} w="100%">
+            Cancelar
+          </Button>
+
+          <Button
+            onClick={() => handleAddProductsInCommand()}
+            colorScheme="blue"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={2}
+            isLoading={isAddingProducts}
+            loadingText="Adicionando Produtos"
+            w="100%"
+          >
+            <Icon as={MdPlaylistAdd} fontSize={[20, 24]} />
+            Adicionar Produtos
+          </Button>
+        </Grid>
+      </Stack>
+    </Modal>
+  );
+};
 
 const Square = () => (
   <Box
