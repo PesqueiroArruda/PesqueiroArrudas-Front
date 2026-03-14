@@ -254,7 +254,13 @@ export const AddProductModal = ({
       // Copiar produtos da comanda
       const updatedProducts = [...(command?.products || [])];
 
-      // Para cada produto selecionado, verificar se já existe
+
+      const kitchenCategories = ['Pratos', 'Bebidas-Cozinha', 'Porções'];
+
+      const hasProductWithKitchenCategory = selectedProducts.some(
+        (product: any) => kitchenCategories.includes(product.category)
+      );
+
       selectedProducts.forEach((selectedProduct: any) => {
         const index = updatedProducts.findIndex(
           (p: any) => p._id === selectedProduct._id
@@ -309,7 +315,7 @@ export const AddProductModal = ({
       });
 
       // Envia para cozinha se necessário
-      if (sendToKitchen) {
+      if (sendToKitchen && hasProductWithKitchenCategory) {
         await handleSendToKitchen();
       }
 
