@@ -175,47 +175,122 @@ export const AddProductModalLayout = ({
           />
         </Flex>
 
-        <Grid
-          templateColumns={{ base: '1fr', md: '1fr 1fr', lg: 'repeat(3, 1fr)' }}
-          gap={[2, 4]}
-        >
-          {selectedProducts.map(({ _id, name, amount }) => (
-            <Flex
-              key={`selected-product-${_id}`}
-              align="center"
-              justify="space-between"
-              bg="gray.100"
-              p={3}
-              rounded="md"
-              color="blue.700"
-              gap={3}
-            >
-              <Flex direction="column" minW={0}>
-                <Text fontSize={14} fontWeight={600} noOfLines={2}>
-                  {name}
-                </Text>
-                <Text fontSize={13} fontWeight={500}>
-                  Qntd: {formatAmount({ num: amount, to: 'comma' })}
-                </Text>
-              </Flex>
+        {isMobile ? (
+  <div
+    style={{
+      width: '100%',
+      overflowX: 'auto',
+      overflowY: 'hidden',
+      whiteSpace: 'nowrap',
+      paddingBottom: '8px',
+      minHeight: '96px',
+      WebkitOverflowScrolling: 'touch',
+      border: '1px solid #E2E8F0',
+      borderRadius: '8px',
+      padding: '8px',
+      boxSizing: 'border-box',
+    }}
+  >
+    {selectedProducts?.map((product, index) => (
+      <div
+        key={product?._id || index}
+        style={{
+          display: 'inline-flex',
+          verticalAlign: 'top',
+          width: '260px',
+          minHeight: '78px',
+          marginRight: '12px',
+          background: '#F3F4F6',
+          borderRadius: '8px',
+          padding: '12px',
+          color: '#1E3A8A',
+          boxSizing: 'border-box',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          gap: '12px',
+        }}
+      >
+        <div style={{ minWidth: 0, whiteSpace: 'normal', flex: 1 }}>
+          <p
+            style={{
+              fontSize: '15px',
+              fontWeight: 600,
+              margin: 0,
+              lineHeight: 1.2,
+            }}
+          >
+            {product?.name || 'Sem nome'} {' | '} Qntd:{' '}
+            {formatAmount({ num: product?.amount || 0, to: 'comma' })}
+          </p>
+        </div>
 
-              <Icon
-                as={IoClose}
-                onClick={() => handleRemoveSelectedProduct({ id: _id })}
-                cursor="pointer"
-                fontSize={[18, 20]}
-                flexShrink={0}
-                _hover={{
-                  bg: 'blue.100',
-                  rounded: 3,
-                }}
-                _active={{
-                  bg: 'blue.200',
-                }}
-              />
-            </Flex>
-          ))}
-        </Grid>
+        <button
+          type="button"
+          onClick={() =>
+            product?._id && handleRemoveSelectedProduct({ id: product._id })
+          }
+          style={{
+            cursor: 'pointer',
+            fontSize: '18px',
+            fontWeight: 700,
+            lineHeight: 1,
+            flexShrink: 0,
+            background: 'transparent',
+            border: 'none',
+            padding: 0,
+            margin: 0,
+            color: 'inherit',
+          }}
+          aria-label={`Remover produto ${product?.name || ''}`}
+        >
+          ✕
+        </button>
+      </div>
+    ))}
+  </div>
+) : (
+  <Grid
+    templateColumns={{ base: '1fr', md: '1fr 1fr', lg: 'repeat(3, 1fr)' }}
+    gap={[2, 4]}
+  >
+    {selectedProducts.map(({ _id, name, amount }) => (
+      <Flex
+        key={`selected-product-${_id}`}
+        align="center"
+        justify="space-between"
+        bg="gray.100"
+        p={3}
+        rounded="md"
+        color="blue.700"
+        gap={3}
+      >
+        <Flex direction="column" minW={0}>
+          <Text fontSize={14} fontWeight={600} noOfLines={2}>
+            {name}
+          </Text>
+          <Text fontSize={13} fontWeight={500}>
+            Qntd: {formatAmount({ num: amount, to: 'comma' })}
+          </Text>
+        </Flex>
+
+        <Icon
+          as={IoClose}
+          onClick={() => handleRemoveSelectedProduct({ id: _id })}
+          cursor="pointer"
+          fontSize={[18, 20]}
+          flexShrink={0}
+          _hover={{
+            bg: 'blue.100',
+            rounded: 3,
+          }}
+          _active={{
+            bg: 'blue.200',
+          }}
+        />
+      </Flex>
+    ))}
+  </Grid>
+)}
 
         {isMobile ? (
           <Box
