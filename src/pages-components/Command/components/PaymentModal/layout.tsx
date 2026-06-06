@@ -39,6 +39,7 @@ const paymentOptions = [
   'Cartão de Crédito',
   'Cartão de Débito',
   'Pix',
+  'Ifood'
 ];
 
 export const PaymentModalLayout = ({

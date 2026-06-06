@@ -25,6 +25,7 @@ const paymentOptions = [
   'Cartão de Crédito',
   'Cartão de Débito',
   'Pix',
+  'Ifood'
 ];
 
 interface Props {
