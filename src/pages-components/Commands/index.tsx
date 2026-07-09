@@ -44,6 +44,19 @@ export const Commands = () => {
   const { socket } = useContext(SocketContext);
 
   useEffect(() => {
+    const hasCleanedAuthStorage = localStorage.getItem('hasCleanedAuthStorage_v1');
+
+    if (!hasCleanedAuthStorage) {
+      localStorage.removeItem('isLogged');
+      localStorage.removeItem('isUser');
+
+      localStorage.setItem('hasCleanedAuthStorage_v1', 'true');
+
+      window.location.href = '/login';
+    }
+  }, []);
+
+  useEffect(() => {
     (async () => {
       const commands = await CommandsService.getAllCommands();
       allCommandsDispatch({

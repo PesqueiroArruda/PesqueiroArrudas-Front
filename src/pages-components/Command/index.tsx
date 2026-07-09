@@ -110,6 +110,19 @@ export const Command = ({ commandId }: Props) => {
   const toast = useToast();
 
   useEffect(() => {
+    const hasCleanedAuthStorage = localStorage.getItem('hasCleanedAuthStorage_v1');
+
+    if (!hasCleanedAuthStorage) {
+      localStorage.removeItem('isLogged');
+      localStorage.removeItem('isUser');
+
+      localStorage.setItem('hasCleanedAuthStorage_v1', 'true');
+
+      window.location.href = '/login';
+    }
+  }, []);
+
+  useEffect(() => {
     (async () => {
       try {
         // Grab command informations from database

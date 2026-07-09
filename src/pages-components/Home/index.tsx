@@ -56,6 +56,19 @@ export const Home = () => {
   }
 
   useEffect(() => {
+    const hasCleanedAuthStorage = localStorage.getItem('hasCleanedAuthStorage_v1');
+
+    if (!hasCleanedAuthStorage) {
+      localStorage.removeItem('isLogged');
+      localStorage.removeItem('isUser');
+
+      localStorage.setItem('hasCleanedAuthStorage_v1', 'true');
+
+      window.location.href = '/login';
+    }
+  }, []);
+
+  useEffect(() => {
     const isAdminUse = localStorage.getItem("isAdmin") === "true";
     setIsAdmin(isAdminUse)
 

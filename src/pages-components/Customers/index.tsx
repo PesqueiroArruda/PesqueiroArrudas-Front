@@ -15,15 +15,28 @@ export const Customers = ({ cashierId }: Props) => {
 
   const router = useRouter();
 
-   useEffect(() => {
+  useEffect(() => {
+    const hasCleanedAuthStorage = localStorage.getItem('hasCleanedAuthStorage_v1');
+
+    if (!hasCleanedAuthStorage) {
+      localStorage.removeItem('isLogged');
+      localStorage.removeItem('isUser');
+
+      localStorage.setItem('hasCleanedAuthStorage_v1', 'true');
+
+      window.location.href = '/login';
+    }
+  }, []);
+
+  useEffect(() => {
 
     (async () => {
-       const storedData = localStorage.getItem('cashierByMonthObject');
-        if (storedData !== 'undefined' && storedData !== null) {
-          setCashier(JSON.parse(storedData));
-        }
-        setIsLoading(false);
-      })();
+      const storedData = localStorage.getItem('cashierByMonthObject');
+      if (storedData !== 'undefined' && storedData !== null) {
+        setCashier(JSON.parse(storedData));
+      }
+      setIsLoading(false);
+    })();
    
   }, []);
 
