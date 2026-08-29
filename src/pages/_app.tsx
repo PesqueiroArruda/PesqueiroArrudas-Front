@@ -10,7 +10,8 @@ interface SocketProps {
 
 export const SocketContext = createContext({} as SocketProps);
 
-const prodUrl = 'https://pesqueiroarruda-back.herokuapp.com';
+const prodUrl = 'https://web-production-8cfce.up.railway.app'
+// const prodUrl = 'http://localhost:8080'
 
 const socket = io(prodUrl);
 
