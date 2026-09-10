@@ -53,6 +53,16 @@ function allPayments(cashiers: Cashier[]): CashierPayment[] {
   return cashiers.flatMap((cashier) => cashier.payments || []);
 }
 
+const DIACRITICS_REGEX = /[̀-ͯ]/g;
+
+function normalizeName(name: string) {
+  return name
+    .normalize('NFD')
+    .replace(DIACRITICS_REGEX, '')
+    .toLowerCase()
+    .trim();
+}
+
 function round2(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
@@ -179,14 +189,19 @@ export function buildSalesDashboardStats(cashiers: Cashier[], products: Product[
     .map(([category, quantity]) => ({ category, quantity: round2(quantity) }))
     .sort((a, b) => b.quantity - a.quantity);
 
-  const waiterTotals = new Map<string, number>();
+  // Agrupa por nome normalizado (sem acento, minúsculo) pra juntar duplicatas
+  // como "José"/"jose"/"JOSÉ", mas mantém o primeiro nome visto como rótulo.
+  const waiterTotals = new Map<string, { label: string; total: number }>();
   payments.forEach((payment) => {
-    const waiter = payment.command?.waiter || 'Não informado';
-    waiterTotals.set(waiter, (waiterTotals.get(waiter) || 0) + (payment.totalPayed || 0));
+    const rawWaiter = (payment.command?.waiter || 'Não informado').trim();
+    const key = normalizeName(rawWaiter);
+    const existing = waiterTotals.get(key);
+    waiterTotals.set(key, {
+      label: existing?.label || rawWaiter,
+      total: (existing?.total || 0) + (payment.totalPayed || 0),
+    });
   });
-  const waiterRanking = withPercentages(
-    [...waiterTotals.entries()].map(([label, total]) => ({ label, total }))
-  );
+  const waiterRanking = withPercentages([...waiterTotals.values()]);
 
   return {
     totalRevenue,
