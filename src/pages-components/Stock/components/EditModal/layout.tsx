@@ -1,17 +1,8 @@
-import {
-  FormControl,
-  Button,
-  Input,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  Select,
-  Text,
-} from '@chakra-ui/react';
+import { Loader2 } from 'lucide-react';
 
 import { Modal } from 'components/Modal';
+import { Button } from 'components/ui/button';
+import { Input } from 'components/ui/input';
 import type { Item } from '../../types/Item';
 
 interface Props {
@@ -36,6 +27,9 @@ const categories = [
   'Misturas Congeladas',
 ];
 
+const selectClassName =
+  'h-10 w-full rounded-(--radius) border border-input bg-card px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
+
 export const EditModalLayout = ({
   isEditModalOpen,
   onClose,
@@ -46,62 +40,36 @@ export const EditModalLayout = ({
   isSubmitting,
 }: Props) => (
   <Modal isOpen={isEditModalOpen} onClose={onClose} title={title}>
-    <FormControl
-      as="form"
-      onSubmit={(e) => handleSubmit(e)}
-      display="flex"
-      flexDirection="column"
-      gap={2}
-    >
-      <InputText title="Nome" />
-      <Input
-        placeholder="Nome"
-        value={itemInfos.name}
-        onChange={(e) => itemInfos.setName(e.target.value)}
-        mb={2}
-      />
-      {/* <InputText title="URL da imagem" />
-      <Input
-        placeholder="URL da Imagem"
-        value={itemInfos.image}
-        onChange={(e) => itemInfos.setImage(e.target.value)}
-        mb={2}
-      /> */}
-      <InputText title="Categoria" />
-      <Select
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <span className="text-sm font-semibold text-navy">Nome</span>
+      <Input placeholder="Nome" value={itemInfos.name} onChange={(e) => itemInfos.setName(e.target.value)} />
+
+      <span className="text-sm font-semibold text-navy">Categoria</span>
+      <select
         value={itemInfos.category || ''}
         onChange={(e) => itemInfos.setCategory(e.target.value)}
-        mb={2}
+        className={selectClassName}
       >
         {categories.map((categorie) => (
           <option key={`edit-categorie-${categorie}`}>{categorie}</option>
         ))}
-      </Select>
-      <InputText title="Preço da unidade" />
-      <Input
-        placeholder="Preço da Unidade"
-        value={itemInfos.unitPrice || ''}
-        onChange={(e) => handleChangeUnitPrice(e)}
-        mb={2}
-      />
-      <InputText title="Quantidade" />
-      <NumberInput
-        value={itemInfos.amount || ''}
-        onChange={(e) => itemInfos.setAmount(Number(e))}
-        mb={2}
-      >
-        <NumberInputField placeholder="Quantidade" />
+      </select>
 
-        <NumberInputStepper>
-          <NumberIncrementStepper />
-          <NumberDecrementStepper />
-        </NumberInputStepper>
-      </NumberInput>
-      <Button type="submit" isLoading={isSubmitting} loadingText="Atualizando">
-        Atualizar Item
+      <span className="text-sm font-semibold text-navy">Preço da unidade</span>
+      <Input placeholder="Preço da Unidade" value={itemInfos.unitPrice || ''} onChange={(e) => handleChangeUnitPrice(e)} />
+
+      <span className="text-sm font-semibold text-navy">Quantidade</span>
+      <Input
+        type="number"
+        placeholder="Quantidade"
+        value={itemInfos.amount || ''}
+        onChange={(e) => itemInfos.setAmount(Number(e.target.value))}
+      />
+
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+        {isSubmitting ? 'Atualizando' : 'Atualizar Item'}
       </Button>
-    </FormControl>
+    </form>
   </Modal>
 );
-
-const InputText = ({ title }: { title: string }) => <Text>{title}</Text>;

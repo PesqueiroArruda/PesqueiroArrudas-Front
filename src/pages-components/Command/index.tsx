@@ -17,6 +17,7 @@ import { Product } from 'types/Product';
 import { SocketContext } from 'pages/_app';
 import { useReactToPrint } from 'react-to-print';
 import { DateTimeFormatOptions } from 'luxon';
+import { parseToBRL } from 'utils/parseToBRL';
 import { productsReducer } from './reducers/productsReducer';
 import { AddProductModal } from './components/AddProductModal';
 import { DeleteProductModal } from './components/DeleteProductModal';
@@ -265,197 +266,128 @@ export const Command = ({ commandId }: Props) => {
 
   const handlePrintCommand = useReactToPrint({
     content: () => {
+      // Recibo dimensionado para bobina térmica de 58mm.
       const printContent = document.createElement('div');
-      const printHeader = document.createElement('div');
-      const printFooter = document.createElement('div');
+      printContent.style.width = '58mm';
+      printContent.style.boxSizing = 'border-box';
+      printContent.style.padding = '2mm';
+      printContent.style.fontFamily = 'Monospace';
+      printContent.style.fontSize = '11px';
+      printContent.style.lineHeight = '1.35';
+      printContent.style.color = '#000';
 
-      const element1 = document.getElementById('commandName');
-      const element2 = document.getElementById('commandPrice');
+      const createDivider = () => {
+        const divider = document.createElement('div');
+        divider.style.borderTop = '1px dashed #000';
+        divider.style.margin = '6px 0';
+        return divider;
+      };
 
-      const printInfo = document.createElement('div');
+      const createRow = (
+        label: string,
+        value: string,
+        opts: { bold?: boolean; fontSize?: string } = {}
+      ) => {
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.justifyContent = 'space-between';
+        row.style.gap = '8px';
+        if (opts.bold) row.style.fontWeight = '700';
+        if (opts.fontSize) row.style.fontSize = opts.fontSize;
 
-      const infoTitleName = document.createTextNode(
-        "Pesqueiro e Restaurante Arruda's"
-      );
-      const infoTitleNameElement = document.createElement('span');
-      infoTitleNameElement.appendChild(infoTitleName);
-      infoTitleNameElement.style.alignItems = 'center';
-      infoTitleNameElement.style.display = 'flex';
-      infoTitleNameElement.style.fontSize = '18px';
-      infoTitleNameElement.style.justifyContent = 'center';
+        const labelElement = document.createElement('span');
+        labelElement.textContent = label;
 
-      printInfo.appendChild(infoTitleNameElement);
+        const valueElement = document.createElement('span');
+        valueElement.textContent = value;
+        valueElement.style.whiteSpace = 'nowrap';
 
-      const infoSubtitleName = document.createTextNode(
-        'Lanchonete Arrudas LTDA'
-      );
-      const infoSubtitleNameElement = document.createElement('span');
-      infoSubtitleNameElement.appendChild(infoSubtitleName);
+        row.appendChild(labelElement);
+        row.appendChild(valueElement);
+        return row;
+      };
 
-      infoSubtitleNameElement.style.fontSize = '16px';
+      // Cabeçalho do estabelecimento
+      const header = document.createElement('div');
+      header.style.textAlign = 'center';
+      header.style.marginBottom = '4px';
 
-      printInfo.appendChild(infoSubtitleNameElement);
+      const businessName = document.createElement('div');
+      businessName.textContent = "Pesqueiro e Restaurante Arruda's";
+      businessName.style.fontSize = '13px';
+      businessName.style.fontWeight = '700';
+      header.appendChild(businessName);
 
-      const infoPhone = document.createTextNode('(11) 97231-1736');
-      const infoPhoneElement = document.createElement('span');
-      infoPhoneElement.appendChild(infoPhone);
+      const businessSubtitle = document.createElement('div');
+      businessSubtitle.textContent = 'Lanchonete Arrudas LTDA';
+      header.appendChild(businessSubtitle);
 
-      infoPhoneElement.style.fontSize = '16px';
+      const businessPhone = document.createElement('div');
+      businessPhone.textContent = '(11) 97231-1736';
+      header.appendChild(businessPhone);
 
-      printInfo.appendChild(infoPhoneElement);
+      const businessDocs = document.createElement('div');
+      businessDocs.style.fontSize = '9px';
+      businessDocs.style.marginTop = '2px';
+      businessDocs.textContent = 'CNPJ: 13.521.007/0001-09 | IE: 623.032.562.119';
+      header.appendChild(businessDocs);
 
-      const cnpjContainer = document.createElement('div');
+      printContent.appendChild(header);
+      printContent.appendChild(createDivider());
 
-      const infoCnpj = document.createTextNode('CNPJ: 13.521.007/0001-09');
-      const infoCnpjElement = document.createElement('span');
-      infoCnpjElement.appendChild(infoCnpj);
-
-      cnpjContainer.appendChild(infoCnpjElement);
-
-      const infoIE = document.createTextNode('IE: 623.032.562.119');
-      const infoIEElement = document.createElement('span');
-      infoIEElement.appendChild(infoIE);
-
-      cnpjContainer.appendChild(infoIEElement);
-
-      cnpjContainer.style.display = 'flex';
-      cnpjContainer.style.flexDirection = 'column';
-      cnpjContainer.style.fontSize = '14px';
-      cnpjContainer.style.justifyContent = 'space-between';
-      cnpjContainer.style.marginBottom = '10px';
-      cnpjContainer.style.marginLeft = '20px';
-      cnpjContainer.style.marginRight = '50px';
-      cnpjContainer.style.marginTop = '10px';
-
-      printInfo.appendChild(cnpjContainer);
-
-      printInfo.style.alignItems = 'center';
-      printInfo.style.display = 'flex';
-      printInfo.style.flexDirection = 'column';
-      printInfo.style.justifyContent = 'center';
-      printInfo.style.marginLeft = '20px';
-      printInfo.style.marginRight = '50px';
-
-      printContent.appendChild(printInfo);
-
-      if (element1) {
-        printHeader.appendChild(element1.cloneNode(true));
-      }
+      // Mesa e data/hora
       const currentDate = new Date();
       const opcoesFormatacao: DateTimeFormatOptions = {
         day: 'numeric',
         month: '2-digit',
         year: 'numeric',
       };
-      const dataFormatada = currentDate.toLocaleDateString(
-        'pt-BR',
-        opcoesFormatacao
+      const dataFormatada = currentDate.toLocaleDateString('pt-BR', opcoesFormatacao);
+      const horas = String(currentDate.getHours()).padStart(2, '0');
+      const minutos = String(currentDate.getMinutes()).padStart(2, '0');
+
+      printContent.appendChild(
+        createRow(`Mesa: ${command?.table || ''}`, `${dataFormatada} ${horas}:${minutos}`, { bold: true })
       );
+      printContent.appendChild(createDivider());
 
-      const dayText = document.createTextNode(dataFormatada);
-      const dayElement = document.createElement('span');
-      dayElement.appendChild(dayText);
+      // Produtos
+      products.value.forEach((product) => {
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.justifyContent = 'space-between';
+        row.style.gap = '6px';
+        row.style.marginBottom = '4px';
 
-      const dateElement = document.createElement('div');
-      dateElement.style.display = 'flex';
-      dateElement.style.flexDirection = 'column';
-      dateElement.style.alignItems = 'end';
-      dateElement.style.justifyContent = 'center';
+        const nameElement = document.createElement('span');
+        nameElement.textContent = `${product.amount}x ${product.name}`;
+        nameElement.style.flex = '1';
+        nameElement.style.wordBreak = 'break-word';
 
-      let horas: number | string = currentDate.getHours();
-      let minutos: number | string = currentDate.getMinutes();
+        const priceElement = document.createElement('span');
+        priceElement.textContent = parseToBRL(product.unitPrice || 0);
+        priceElement.style.whiteSpace = 'nowrap';
 
-      // Formatar para garantir que tenham dois dígitos
-      horas = horas < 10 ? `0${horas}` : horas;
-      minutos = minutos < 10 ? `0${minutos}` : minutos;
-      const horaFormatada = `${horas}:${minutos}`;
-
-      const hourText = document.createTextNode(horaFormatada);
-      const hourElement = document.createElement('span');
-      hourElement.appendChild(hourText);
-
-      if (dateElement) {
-        dateElement.appendChild(dayElement);
-        dateElement.appendChild(hourElement);
-      }
-
-      printHeader.appendChild(dateElement.cloneNode(true));
-
-      printHeader.style.display = 'flex';
-      printHeader.style.flexDirection = 'row';
-      printHeader.style.justifyContent = 'space-between';
-      printHeader.style.marginLeft = '20px';
-      printHeader.style.marginRight = '50px';
-      printHeader.style.fontSize = '16px';
-      printHeader.style.fontFamily = 'Monospace';
-      printHeader.style.fontWeight = '700';
-      printContent.appendChild(printHeader.cloneNode(true));
-
-      const productsBody = document.createElement('div');
-
-      const linhas = products.value.map((element) => {
-        const productRow = document.createElement('div');
-
-        // Criando um elemento de célula (td) e adicionando o texto do elemento
-        const productName = document.createTextNode(`${element.name}`);
-        const productNameElement = document.createElement('span');
-        productNameElement.appendChild(productName);
-
-        const productQuantity = document.createTextNode(`${element.amount}x`);
-        const productQuantityElement = document.createElement('span');
-        productQuantityElement.appendChild(productQuantity);
-
-        const productPrice = document.createTextNode(
-          `R$ ${element.unitPrice} |`
-        );
-        const productPriceElement = document.createElement('span');
-        productPriceElement.appendChild(productPrice);
-
-        productNameElement.style.maxWidth = '100px';
-        productNameElement.style.width = '100%';
-
-        productNameElement.style.lineHeight = '1.2';
-
-        // Adicionando a célula à linha
-        productRow.appendChild(productQuantityElement);
-        productRow.appendChild(productNameElement);
-        productRow.appendChild(productPriceElement);
-
-        productRow.style.marginTop = '10px';
-        productRow.style.marginBottom = '10px';
-
-        productRow.style.display = 'flex';
-        productRow.style.justifyContent = 'space-between';
-
-        return productRow;
+        row.appendChild(nameElement);
+        row.appendChild(priceElement);
+        printContent.appendChild(row);
       });
 
-      linhas.forEach((linha) => {
-        productsBody.style.fontSize = '14px';
-        productsBody.style.marginLeft = '20px';
-        productsBody.style.marginRight = '50px';
-        productsBody.appendChild(linha);
-      });
+      printContent.appendChild(createDivider());
 
-      if (productsBody) {
-        printContent.appendChild(productsBody);
-      }
+      // Resumo de valores
+      const totalValue = command?.total || 0;
+      const discountValue = command?.discount || 0;
+      const paidValue = command?.totalPayed || 0;
+      const finalValue = Math.round((totalValue - discountValue + Number.EPSILON) * 100) / 100;
+      const tempAPagar = Math.round((finalValue - paidValue + Number.EPSILON) * 100) / 100;
+      const aPagar = tempAPagar > 0 ? tempAPagar : 0;
 
-      if (element2) {
-        printFooter.appendChild(element2.cloneNode(true));
-        printFooter.style.display = 'flex';
-        printFooter.style.flexDirection = 'column';
-        printFooter.style.alignItems = 'start';
-        printFooter.style.justifyContent = 'end';
-        printFooter.style.marginLeft = '200px';
-        printFooter.style.width = '100px';
-        printFooter.style.marginBottom = '50px';
-        printContent.appendChild(printFooter.cloneNode(true));
-      }
-
-      printContent.style.fontFamily = 'Monospace';
-      printContent.style.paddingBottom = '10px';
-      printContent.style.borderBottom = '1px solid black';
+      printContent.appendChild(createRow('Valor Total:', parseToBRL(totalValue)));
+      printContent.appendChild(createRow('Desconto:', parseToBRL(discountValue)));
+      printContent.appendChild(createRow('Valor Final:', parseToBRL(finalValue)));
+      printContent.appendChild(createDivider());
+      printContent.appendChild(createRow('A Pagar:', parseToBRL(aPagar), { bold: true, fontSize: '13px' }));
 
       return printContent;
     },

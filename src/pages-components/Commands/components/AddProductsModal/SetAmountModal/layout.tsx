@@ -1,18 +1,11 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-return-assign */
-import {
-  Input,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  Stack,
-} from '@chakra-ui/react';
-import { Button } from 'components/Button';
-import { Modal } from 'components/Modal';
 import { useRef } from 'react';
-// import { formatAmount } from 'utils/formatAmount';
+import { Loader2 } from 'lucide-react';
+
+import { Modal } from 'components/Modal';
+import { Button } from 'components/ui/button';
+import { Input } from 'components/ui/input';
 
 type Props = {
   isModalOpen: boolean;
@@ -40,37 +33,24 @@ export const SetAmountModalLayout = ({
       title="Quantidade do produto"
       initialFocusRef={inputRef}
     >
-      <Stack spacing={4} as="form" onSubmit={(e) => handleAddProduct(e)}>
+      <form onSubmit={(e) => handleAddProduct(e)} className="flex flex-col gap-4">
         {isFishesCategory ? (
+          <Input ref={inputRef} type="text" onChange={(e) => (amount.current = e.target.value)} />
+        ) : (
           <Input
-            type="text"
+            ref={inputRef}
+            type="number"
+            min={1}
+            defaultValue="1"
+            className="font-bold"
             onChange={(e) => (amount.current = e.target.value)}
           />
-        ) : (
-          <NumberInput
-            defaultValue="1"
-            min={1}
-            onChange={(numStr) => (amount.current = numStr)}
-            color="blue.800"
-            fontWeight={700}
-            // type="number"
-          >
-            <NumberInputField ref={inputRef} />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </NumberInput>
         )}
-        <Button
-          w="100%"
-          type="submit"
-          isLoading={isSelectingProduct}
-          loadingText="Selecionando"
-        >
-          Selecionar Produto
+        <Button type="submit" className="w-full" disabled={isSelectingProduct}>
+          {isSelectingProduct && <Loader2 className="h-4 w-4 animate-spin" />}
+          {isSelectingProduct ? 'Selecionando' : 'Selecionar Produto'}
         </Button>
-      </Stack>
+      </form>
     </Modal>
   );
 };

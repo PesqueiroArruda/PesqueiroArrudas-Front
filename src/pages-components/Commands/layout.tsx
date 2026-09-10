@@ -1,12 +1,8 @@
-/* eslint-disable import/no-duplicates */
-import { useEffect, useState } from 'react';
-import { Dispatch, SetStateAction } from 'react';
-import { Heading, Icon, Spinner, Flex, Select } from '@chakra-ui/react';
-import { MdPlaylistAdd } from 'react-icons/md';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { ListPlus, Loader2 } from 'lucide-react';
 
-import { Button } from 'components/Button';
-import { Header } from 'components/Header';
-import { Layout } from 'components/Layout';
+import { AppShell } from 'components/AppShell';
+import { Button } from 'components/ui/button';
 import { NavHeader } from './components/NavHeader';
 import { CommandsList } from './components/CommandsList';
 
@@ -34,44 +30,41 @@ export const CommandsLayout = ({
   }, []);
 
   return (
-    <Layout>
-      <Header>
-        {isAdmin && <Button onClick={handleDownload}>Baixar Dados</Button>}
-        <Button isCallAction onClick={handleOpenAddCommandModal}>
-          <Icon as={MdPlaylistAdd} fontSize={[20, 24]} />
-          Adicionar Comanda
-        </Button>
-      </Header>
-      <Flex align="center" mb={6} justify="space-between" gap={2}>
-        <Heading color="blue.800" fontSize={[16, 20, 24, 28]}>
-          Comandas
-        </Heading>
-        <Select
-          w="auto"
-          value={commandStatusFilter}
-          onChange={(e) =>
-            setCommandStatusFilter(e.target.value as 'Ativas' | 'Pagas')
-          }
-          bg="blue.50"
-          color="blue.900"
-          fontWeight="600"
-        >
-          <option>Ativas</option>
-          <option>Pagas</option>
-        </Select>
-      </Flex>
-      <NavHeader />
-      {isLoading ? (
-        <Spinner
-          size="xl"
-          position="absolute"
-          left="50%"
-          top="50%"
-          transform="translate(-50%, -50%)"
-        />
-      ) : (
-        <CommandsList />
-      )}
-    </Layout>
+    <AppShell>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="font-heading text-xl font-extrabold text-navy sm:text-2xl">Comandas</h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              value={commandStatusFilter}
+              onChange={(e) => setCommandStatusFilter(e.target.value as 'Ativas' | 'Pagas')}
+              className="h-10 rounded-(--radius) border border-input bg-card px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <option>Ativas</option>
+              <option>Pagas</option>
+            </select>
+            {isAdmin && (
+              <Button onClick={handleDownload} variant="secondary">
+                Baixar Dados
+              </Button>
+            )}
+            <Button onClick={handleOpenAddCommandModal}>
+              <ListPlus className="h-4 w-4" />
+              Adicionar Comanda
+            </Button>
+          </div>
+        </div>
+
+        <NavHeader />
+
+        {isLoading ? (
+          <div className="flex justify-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-gold" />
+          </div>
+        ) : (
+          <CommandsList />
+        )}
+      </div>
+    </AppShell>
   );
 };

@@ -1,32 +1,16 @@
 /* eslint-disable no-unsafe-optional-chaining */
 import { Dispatch, SetStateAction, useContext } from 'react';
-import {
-  Button,
-  Stack,
-  Text,
-  Flex,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  Select,
-  Input,
-} from '@chakra-ui/react';
+import { Loader2 } from 'lucide-react';
 
 import { Modal } from 'components/Modal';
+import { Button } from 'components/ui/button';
+import { Input } from 'components/ui/input';
+import { CommandContext } from 'pages-components/Command';
 import { Product } from 'types/Product';
 import { formatDecimalNum } from 'utils/formatDecimalNum';
-import { CommandContext } from 'pages-components/Command';
 import { parseToBRL } from 'utils/parseToBRL';
 
-const paymentOptions = [
-  'Dinheiro',
-  'Cartão de Crédito',
-  'Cartão de Débito',
-  'Pix',
-  'Ifood'
-];
+const paymentOptions = ['Dinheiro', 'Cartão de Crédito', 'Cartão de Débito', 'Pix', 'Ifood'];
 
 interface Props {
   isModalOpen: boolean;
@@ -43,6 +27,9 @@ interface Props {
   paymentType: string;
   setPaymentType: Dispatch<SetStateAction<string>>;
 }
+
+const selectClassName =
+  'h-10 cursor-pointer rounded-(--radius) border border-input bg-card px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
 export const PayProductModalLayout = ({
   isModalOpen,
@@ -63,24 +50,16 @@ export const PayProductModalLayout = ({
   const totalOfProduct = productInfos.amount * productInfos.unitPrice;
 
   const tempRestValueToBePayedNum =
-    Math.round(
-      (totalOfProduct - (productInfos.totalPayed as number) + Number.EPSILON) *
-        100
-    ) / 100;
+    Math.round((totalOfProduct - (productInfos.totalPayed as number) + Number.EPSILON) * 100) / 100;
 
   const tempTotalToBePayed =
-    Math.round(
-      ((command?.total || 0) - (command?.totalPayed || 0) + Number.EPSILON) *
-        100
-    ) / 100;
+    Math.round(((command?.total || 0) - (command?.totalPayed || 0) + Number.EPSILON) * 100) / 100;
   const commandValueToBePayed = tempTotalToBePayed > 0 ? tempTotalToBePayed : 0;
 
   // If the value to be payed of some product is greater thant the necesary to be payed of command
   // it means the user made a payment of part of command.
   const restValueToBePayedNum =
-    tempRestValueToBePayedNum > commandValueToBePayed
-      ? commandValueToBePayed
-      : tempRestValueToBePayedNum;
+    tempRestValueToBePayedNum > commandValueToBePayed ? commandValueToBePayed : tempRestValueToBePayedNum;
 
   const totalToBePayed = formatDecimalNum({
     num: restValueToBePayedNum.toString(),
@@ -88,86 +67,71 @@ export const PayProductModalLayout = ({
   });
 
   return (
-    <Modal
-      isOpen={isModalOpen}
-      onClose={() => handleCloseModal()}
-      title="Pagar produto"
-      size="2xl"
-    >
-      <Stack gap={4} as="form" onSubmit={(e) => handlePayProduct(e)}>
-        <Stack>
-          <Flex gap={2}>
-            <Text fontSize={[18, 20]} fontWeight={600} flex="1">
-              {productInfos?.name}
-            </Text>
-            <Select
-              w="auto"
-              cursor="pointer"
+    <Modal isOpen={isModalOpen} onClose={() => handleCloseModal()} title="Pagar produto" size="2xl">
+      <form onSubmit={(e) => handlePayProduct(e)} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-3">
+            <span className="flex-1 text-lg font-bold text-navy">{productInfos?.name}</span>
+            <select
               value={typeOfPayment}
-              onChange={(e) =>
-                setTypeOfPayment(e.target.value as 'unit' | 'free')
-              }
+              onChange={(e) => setTypeOfPayment(e.target.value as 'unit' | 'free')}
+              className={selectClassName}
             >
               <option value="free">Pagar por valor livre</option>
               <option value="unit">Pagar por unidade</option>
-            </Select>
-          </Flex>
+            </select>
+          </div>
 
           {typeOfPayment === 'unit' ? (
             <>
-              <Text fontWeight={500}>Quantidade a Pagar</Text>
-              <NumberInput
-                defaultValue={0}
+              <span className="text-sm font-semibold text-navy">Quantidade a Pagar</span>
+              <Input
+                type="number"
                 min={0}
                 max={productInfos?.amount}
                 value={amountToPay}
-                onChange={(numStr) => setAmountToPay(Number(numStr))}
-              >
-                <NumberInputField />
-                <NumberInputStepper>
-                  <NumberIncrementStepper />
-                  <NumberDecrementStepper />
-                </NumberInputStepper>
-              </NumberInput>
+                onChange={(e) => setAmountToPay(Number(e.target.value))}
+              />
             </>
           ) : (
             <>
-              <Text fontWeight={500}>Valor a pagar</Text>
+              <span className="text-sm font-semibold text-navy">Valor a pagar</span>
               <Input
                 placeholder="Valor a pagar"
                 type="text"
                 max={productInfos?.unitPrice * productInfos?.amount || 0}
-                // value=
                 onChange={(e) => setPaymentValue(e.target.value)}
               />
             </>
           )}
-        </Stack>
+        </div>
+
         {typeOfPayment === 'unit' && (
-          <Text fontWeight={500}>
+          <span className="text-sm font-semibold text-navy">
             Pagar: {parseToBRL(Number(paymentValue) || 0)}
-          </Text>
+          </span>
         )}
-        <Stack>
-          <Text fontWeight={500}>Meio de Pagamento</Text>
-          <Select
+
+        <div className="flex flex-col gap-2">
+          <span className="text-sm font-semibold text-navy">Meio de Pagamento</span>
+          <select
             value={paymentType}
             onChange={(e) => setPaymentType(e.target.value)}
+            className={`${selectClassName} w-full`}
           >
             {paymentOptions.map((payment) => (
               <option key={`payment-option-${payment}`}>{payment}</option>
             ))}
-          </Select>
-        </Stack>
-        <Text fontWeight={500}>Total a ser pago: {totalToBePayed}</Text>
-        <Button
-          type="submit"
-          isLoading={isPaying}
-          loadingText="Pagando Produto"
-        >
-          Pagar Produto
+          </select>
+        </div>
+
+        <span className="text-sm font-semibold text-navy">Total a ser pago: {totalToBePayed}</span>
+
+        <Button type="submit" disabled={isPaying}>
+          {isPaying && <Loader2 className="h-4 w-4 animate-spin" />}
+          {isPaying ? 'Pagando Produto' : 'Pagar Produto'}
         </Button>
-      </Stack>
+      </form>
     </Modal>
   );
 };

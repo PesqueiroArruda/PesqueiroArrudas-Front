@@ -1,22 +1,10 @@
 /* eslint-disable react/destructuring-assignment */
-import {
-  Heading,
-  Select,
-  Stack,
-  Flex,
-  Text,
-  Box,
-  Grid,
-  Divider,
-  Button,
-  Icon,
-  Spinner,
-} from '@chakra-ui/react';
+import { Wallet, Loader2, ArrowRight } from 'lucide-react';
 import { DateTime } from 'luxon';
+
+import { Button } from 'components/ui/button';
 import { Payment } from 'pages-components/Home/types/Payment';
 import { get10PastDays } from 'utils/get10PastDays';
-
-import { BsCashStack } from 'react-icons/bs';
 import { formatPaymentTypes } from 'utils/formatPaymentTypes';
 import { parseToBRL } from 'utils/parseToBRL';
 
@@ -39,179 +27,102 @@ export const PayedCommandsLayout = ({
   handleCloseCashier,
   isGettingPayments,
   total,
-  isAdmin
+  isAdmin,
 }: Props) => {
   const past10Days = get10PastDays();
   return (
-    <Stack gap={[4, 8]}>
-      <Flex justifyContent="space-between">
-        <Heading as="h2" fontSize={[20, 24]} color="blue.900" flex="1">
-          Comandas Pagas
-        </Heading>
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h2 className="font-heading text-xl font-extrabold text-navy sm:text-2xl">Comandas Pagas</h2>
 
-        <Flex align="center" gap={[4, 6]}>
-          <Select
-            onChange={(e) => setPayedCommandsDate(e.target.value)}
-            w="auto"
+        <div className="flex items-center gap-3">
+          <select
             value={payedCommandsDate}
+            onChange={(e) => setPayedCommandsDate(e.target.value)}
+            className="h-10 rounded-(--radius) border border-input bg-card px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             {past10Days.map(({ formatted }) => (
               <option key={`10-days-${formatted}`}>{formatted}</option>
             ))}
-          </Select>
-          <Button
-            onClick={() => handleCloseCashier()}
-            colorScheme="blue"
-            display="flex"
-            alignItems="center"
-            gap={[2, 3]}
-            disabled={!isAdmin}
-          >
+          </select>
+          <Button onClick={handleCloseCashier} disabled={!isAdmin}>
             Fechar Caixa
-            <Icon as={BsCashStack} mt={0.4} />
+            <Wallet className="h-4 w-4" />
           </Button>
-        </Flex>
-      </Flex>
-      <Text color="blue.800" fontWeight={600} fontSize={[16, 20]}>
-        Total: {parseToBRL(total || 0)}
-      </Text>
-      <Grid gridTemplateColumns={['1fr', '1fr', '1fr 1fr']} gap={[2, 4]}>
-        {isGettingPayments ? (
-          <Spinner size="xl" />
-        ) : (
-          payments?.map(
-            ({
-              _id,
-              totalPayed,
-              paymentTypes,
-              createdAt,
-              command,
-              waiterExtra,
-              observation,
-            }) => (
-              <Flex
-                key={`home-payments-${_id}`}
-                bg="blue.50"
-                p={[2, 4]}
-                rounded={4}
-                border="1px solid"
-                borderColor="gray.200"
-                color="blue.800"
-                justify="center"
-                align="flex-start"
-                flexDirection="column"
-                fontWeight={400}
-                fontSize={[14, 16, 18]}
-              >
-                <Text>
-                  Mesa: <BoldText>{command?.table}</BoldText>
-                </Text>
-                <Text>
-                  Total: <BoldText>{parseToBRL(totalPayed || 0)}</BoldText>
-                </Text>
-                <Text>
-                  Meio de Pagamento:{' '}
-                  <BoldText>
-                    {formatPaymentTypes(paymentTypes) || paymentTypes[0]}
-                  </BoldText>
-                </Text>
-                <Text>
-                  Criada em:{' '}
-                  <BoldText>
-                    {DateTime.fromISO(createdAt, {
-                      zone: 'pt-BR',
-                      setZone: true,
-                    })
-                      .setLocale('pt-BR')
-                      .toLocaleString(DateTime.DATETIME_MED)}
-                  </BoldText>
-                </Text>
-                <Text>
-                  Caixinha {command?.waiter}:{' '}
-                  <BoldText>{parseToBRL(waiterExtra || 0)}</BoldText>
-                </Text>
-                {observation && (
-                  <Text fontSize={[12, 14]}>Obs: {observation || ''}</Text>
-                )}
-                <Divider my={2} />
-                <Stack
-                  gap={[1, 2]}
-                  w="100%"
-                  align="flex-start"
-                  fontSize={[14, 16]}
-                  color="blue.600"
-                  fontWeight={600}
+        </div>
+      </div>
+
+      <p className="text-lg font-bold text-navy">Total: {parseToBRL(total || 0)}</p>
+
+      {isGettingPayments ? (
+        <div className="flex justify-center py-10">
+          <Loader2 className="h-8 w-8 animate-spin text-gold" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {payments?.map(
+            ({ _id, totalPayed, paymentTypes, createdAt, command, waiterExtra, observation }) => {
+              const products = command?.products || [];
+              const visibleProducts = products.length > 3 ? products.slice(0, 3) : products;
+
+              return (
+                <div
+                  key={`home-payments-${_id}`}
+                  className="flex flex-col gap-1.5 rounded-card border border-border bg-card p-4 text-sm text-foreground shadow-card"
                 >
-                  <Stack>
-                    {(command?.products?.length as any) > 3
-                      ? command?.products
-                          ?.slice(0, 3)
-                          ?.map(({ _id: productId, name, amount }) => (
-                            <Box key={`pay-${_id}-${productId}`}>
-                              <Text>
-                                {name} - {amount}
-                              </Text>
-                            </Box>
-                          ))
-                      : command?.products?.map(
-                          ({ _id: productId, name, amount }) => (
-                            <Box key={`pay-${_id}-${productId}`}>
-                              <Text>
-                                {name} - {amount}
-                              </Text>
-                            </Box>
-                          )
-                        )}
-                    {(command?.products?.length as any) > 3 && (
-                      <BoldText>...</BoldText>
-                    )}
-                  </Stack>
-                  <Button
-                    onClick={() =>
-                      handleGoToCommandPage(command?._id as string)
-                    }
-                    colorScheme="blue"
-                    fontSize={[14, 16]}
-                    h="auto"
-                    py={2}
-                    alignSelf="flex-end"
-                    bg="none"
-                    color="blue.500"
-                    border="2px solid"
-                    borderColor="blue.500"
-                    _hover={{
-                      bg: 'blue.500',
-                      color: 'white',
-                    }}
-                  >
-                    Ver comanda
-                  </Button>
-                </Stack>
-              </Flex>
-            )
-          )
-        )}
-        {!isGettingPayments && payments.length === 0 && (
-          <Box
-            bg="blue.50"
-            p={3}
-            px={4}
-            border="1px solid"
-            borderColor="gray.300"
-            rounded={4}
-          >
-            <Text fontSize={[16, 20, 22]} fontWeight={600} color="blue.800">
-              Nenhuma comanda paga. :(
-            </Text>
-          </Box>
-        )}
-      </Grid>
-    </Stack>
+                  <p>
+                    Mesa: <span className="font-bold text-navy">{command?.table}</span>
+                  </p>
+                  <p>
+                    Total: <span className="font-bold text-navy">{parseToBRL(totalPayed || 0)}</span>
+                  </p>
+                  <p>
+                    Meio de Pagamento:{' '}
+                    <span className="font-bold text-navy">
+                      {formatPaymentTypes(paymentTypes) || paymentTypes[0]}
+                    </span>
+                  </p>
+                  <p>
+                    Criada em:{' '}
+                    <span className="font-bold text-navy">
+                      {DateTime.fromISO(createdAt, { zone: 'pt-BR', setZone: true })
+                        .setLocale('pt-BR')
+                        .toLocaleString(DateTime.DATETIME_MED)}
+                    </span>
+                  </p>
+                  <p>
+                    Caixinha {command?.waiter}:{' '}
+                    <span className="font-bold text-navy">{parseToBRL(waiterExtra || 0)}</span>
+                  </p>
+                  {observation && <p className="text-xs text-text-muted">Obs: {observation}</p>}
+
+                  <div className="mt-2 flex flex-col gap-2 border-t border-border pt-3 text-sm font-semibold text-text-muted">
+                    {visibleProducts.map(({ _id: productId, name, amount }) => (
+                      <span key={`pay-${_id}-${productId}`}>
+                        {name} - {amount}
+                      </span>
+                    ))}
+                    {products.length > 3 && <span className="font-bold">...</span>}
+                    <button
+                      type="button"
+                      onClick={() => handleGoToCommandPage(command?._id as string)}
+                      className="mt-1 flex items-center gap-1.5 self-end rounded-(--radius) border-2 border-cyan px-3 py-1.5 text-sm font-bold text-cyan transition-colors hover:bg-cyan hover:text-white"
+                    >
+                      Ver comanda
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              );
+            },
+          )}
+          {payments.length === 0 && (
+            <div className="rounded-card border border-border bg-card px-4 py-3">
+              <p className="text-lg font-bold text-navy">Nenhuma comanda paga. :(</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 };
-
-const BoldText = (props: any) => (
-  <Box as="span" color="blue.600" fontWeight={700} {...props}>
-    {props.children}
-  </Box>
-);

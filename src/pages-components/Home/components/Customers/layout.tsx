@@ -1,30 +1,16 @@
-/* eslint-disable */
-import {
-  Button,
-  Stack,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-  Icon,
-  Heading,
-  Switch,
-  Flex,
-} from '@chakra-ui/react';
 import { DateTime } from 'luxon';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { Cashier, CashierByMonth } from 'types/Cashier';
 
-import { MdOutlineReadMore } from 'react-icons/md';
-import { Dispatch, SetStateAction, ChangeEvent } from 'react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'components/ui/table';
+import { Dispatch, SetStateAction } from 'react';
 import { NavHeader } from './NavHeader';
 
 const columns = ['Data', 'Total de comandas', ''];
 interface Props {
   allCashiers: Cashier[];
   handleGoToCustomersPage: (cashierId: string, cashierByMonthObject?: CashierByMonth) => void;
+  // eslint-disable-next-line react/no-unused-prop-types -- kept to match the caller's prop contract
   handleDownloadCashiers: (e: any) => void;
   year: string;
   setYear: Dispatch<SetStateAction<string>>;
@@ -32,114 +18,116 @@ interface Props {
   setMonth: Dispatch<SetStateAction<string>>;
   selectedMonthsFilter: boolean;
   cashiersFilteredByMonth: CashierByMonth[];
+  isLoading: boolean;
 }
 
 export const CustomersLayout = ({
   allCashiers,
   handleGoToCustomersPage,
-  handleDownloadCashiers,
   month,
   setMonth,
   setYear,
   year,
   selectedMonthsFilter,
-  cashiersFilteredByMonth
+  cashiersFilteredByMonth,
+  isLoading,
 }: Props) => {
   function formatDate(date: any) {
-    const dt = DateTime.fromISO(date, {
-      zone: 'pt-BR',
-      setZone: true,
-    }).setLocale('pt-BR');
+    const dt = DateTime.fromISO(date, { zone: 'pt-BR', setZone: true }).setLocale('pt-BR');
     return dt.toLocaleString(DateTime.DATE_FULL);
   }
 
-  return (
-    <Stack>
-      <Flex alignItems="center">
-        <Heading as="h2" fontSize={[20, 24]} color="blue.900" flex="1">
-          Clientes recorrentes
-        </Heading>
-      </Flex>
+  function renderRows() {
+    if (isLoading) {
+      return (
+        <TableRow>
+          <TableCell colSpan={3}>
+            <div className="flex justify-center py-6">
+              <Loader2 className="h-6 w-6 animate-spin text-gold" />
+            </div>
+          </TableCell>
+        </TableRow>
+      );
+    }
 
-      <NavHeader
-        month={month}
-        setMonth={setMonth}
-        setYear={setYear}
-        year={year}
-        selectedMonthsFilter={selectedMonthsFilter}
-      />
-      <TableContainer>
-        <Table size="lg">
-          <Thead>
-            <Tr>
-              {columns.map((column) => (
-                <Th key={`closed-cashier-column-${column}`}>{column}</Th>
-              ))}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {allCashiers?.length > 0 ? (
-              allCashiers?.map(({ _id, date, payments }) => {
-                let productsAmount = 0
-                payments.forEach(item => item.command.products.forEach(product => productsAmount += product.amount))
-                return (
-                  <Tr key={`cashier-oflist-${_id}`}>
-                  <Td>{formatDate(date)}</Td>
-                  <Td>{Math.round(productsAmount * 100) / 100}</Td>
-                  <Td isNumeric>
-                    <Button
-                      onClick={() => handleGoToCustomersPage(_id, undefined)}
-                      colorScheme="blue"
-                      fontSize={[14, 16]}
-                    >
-                      Ver Mais{' '}
-                      <Icon as={MdOutlineReadMore} ml={2} fontSize={[16, 18]} />
-                    </Button>
-                  </Td>
-                </Tr>
-                )
-              })
-            ) : cashiersFilteredByMonth.length > 0  ? (
-                cashiersFilteredByMonth?.map((cashier) => { 
-                  let productsAmount = cashier.payments.length
-                  return (
-                    <Tr key={`cashier-oflist-${cashier._id}`}>
-                    <Td>{cashier.month} de {cashier.year}</Td>
-                    <Td>{Math.round(productsAmount * 100) / 100}</Td>
-                    <Td isNumeric>
-                      <Button
-                        onClick={() => handleGoToCustomersPage(cashier._id, cashier)}
-                        colorScheme="blue"
-                        fontSize={[14, 16]}
-                      >
-                        Ver Mais{' '}
-                        <Icon as={MdOutlineReadMore} ml={2} fontSize={[16, 18]} />
-                      </Button>
-                    </Td>
-                  </Tr>
-                  )
-                }
-                )
-            ) : (
-              <Tr>
-                <Td w="100%">
-                  <Heading
-                    as="span"
-                    fontSize={[18, 20, 24]}
-                    color="blue.700"
-                    bg="blue.50"
-                    rounded={4}
-                    py={2}
-                    px={4}
-                  >
-                    Nenhuma comanda encontrada
-                  </Heading>
-                </Td>
-              </Tr>
-            )}
-          </Tbody>
-        </Table>
-      </TableContainer>
-    </Stack>
+    if (allCashiers?.length > 0) {
+      return allCashiers.map(({ _id, date, payments }) => {
+        let productsAmount = 0;
+        payments.forEach((item) =>
+          item.command.products.forEach((product) => {
+            productsAmount += product.amount;
+          }),
+        );
+        return (
+          <TableRow key={`cashier-oflist-${_id}`}>
+            <TableCell>{formatDate(date)}</TableCell>
+            <TableCell>{Math.round(productsAmount * 100) / 100}</TableCell>
+            <TableCell className="text-right">
+              <button
+                type="button"
+                onClick={() => handleGoToCustomersPage(_id, undefined)}
+                className="inline-flex items-center gap-1.5 rounded-(--radius) bg-primary px-3 py-1.5 text-sm font-bold text-primary-foreground hover:bg-gold-strong"
+              >
+                Ver Mais
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+            </TableCell>
+          </TableRow>
+        );
+      });
+    }
+
+    if (cashiersFilteredByMonth.length > 0) {
+      return cashiersFilteredByMonth.map((cashier) => {
+        const productsAmount = cashier.payments.length;
+        return (
+          <TableRow key={`cashier-oflist-${cashier._id}`}>
+            <TableCell>
+              {cashier.month} de {cashier.year}
+            </TableCell>
+            <TableCell>{Math.round(productsAmount * 100) / 100}</TableCell>
+            <TableCell className="text-right">
+              <button
+                type="button"
+                onClick={() => handleGoToCustomersPage(cashier._id, cashier)}
+                className="inline-flex items-center gap-1.5 rounded-(--radius) bg-primary px-3 py-1.5 text-sm font-bold text-primary-foreground hover:bg-gold-strong"
+              >
+                Ver Mais
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+            </TableCell>
+          </TableRow>
+        );
+      });
+    }
+
+    return (
+      <TableRow>
+        <TableCell colSpan={3}>
+          <span className="inline-block rounded-card bg-secondary px-4 py-2 text-lg font-bold text-navy">
+            Nenhuma comanda encontrada
+          </span>
+        </TableCell>
+      </TableRow>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <h2 className="font-heading text-xl font-extrabold text-navy">Clientes recorrentes</h2>
+
+      <NavHeader month={month} setMonth={setMonth} setYear={setYear} year={year} selectedMonthsFilter={selectedMonthsFilter} />
+
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {columns.map((column) => (
+              <TableHead key={`customers-column-${column}`}>{column}</TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>{renderRows()}</TableBody>
+      </Table>
+    </div>
   );
 };

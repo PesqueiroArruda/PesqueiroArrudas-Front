@@ -11,6 +11,7 @@ import { SoldItemsLayout } from './layout';
 
 export const SoldItems = () => {
   const [allCashiers, setAllCashiers] = useState<Cashier[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedMonthsFilter, setSelectedMonthsFilter] = useState(false);
 
   const [month, setMonth] = useState('Todos');
@@ -21,8 +22,12 @@ export const SoldItems = () => {
 
   useEffect(() => {
     (async () => {
-      const cashiers = await CashierService.getAll();
-      setAllCashiers(cashiers);
+      try {
+        const cashiers = await CashierService.getAll();
+        setAllCashiers(cashiers);
+      } finally {
+        setIsLoading(false);
+      }
     })();
   }, []);
 
@@ -117,6 +122,7 @@ export const SoldItems = () => {
       setMonth={setMonth}
       selectedMonthsFilter={selectedMonthsFilter}
       setSelectedMonthsFilter={setSelectedMonthsFilter}
+      isLoading={isLoading}
     />
   );
 };

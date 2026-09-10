@@ -1,19 +1,9 @@
-/* eslint-disable react/destructuring-assignment */
-import {
-  Button,
-  Checkbox,
-  Divider,
-  Flex,
-  FormControl,
-  Grid,
-  GridItem,
-  Input,
-  Select,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
-import { Modal } from 'components/Modal';
 import { Dispatch, SetStateAction } from 'react';
+import { Loader2 } from 'lucide-react';
+
+import { Modal } from 'components/Modal';
+import { Button } from 'components/ui/button';
+import { Input } from 'components/ui/input';
 import { Command } from 'types/Command';
 import { parseToBRL } from 'utils/parseToBRL';
 
@@ -34,13 +24,10 @@ interface Props {
   isPaying: boolean;
 }
 
-const paymentOptions = [
-  'Dinheiro',
-  'Cartão de Crédito',
-  'Cartão de Débito',
-  'Pix',
-  'Ifood',
-];
+const paymentOptions = ['Dinheiro', 'Cartão de Crédito', 'Cartão de Débito', 'Pix', 'Ifood'];
+
+const summaryBoxClassName =
+  'flex items-center justify-center rounded-card bg-secondary px-4 py-2 text-center text-sm text-navy shadow-sm sm:text-base';
 
 export const PaymentModalLayout = ({
   isModalOpen,
@@ -58,208 +45,94 @@ export const PaymentModalLayout = ({
   totalToBePayed,
   isPaying,
 }: Props) => (
-  <Modal
-    isOpen={isModalOpen}
-    onClose={handleCloseModal}
-    title="Pagamento"
-    size="full"
-  >
-    <Stack gap={[2, 6]} alignItems="space-between">
-      {/* HEADER */}
-      <Grid
-        gridTemplateColumns={[
-          'repeat(2, 1fr)',
-          'repeat(2, 1fr)',
-          'repeat(4, 1fr)',
-        ]}
-        gap={[1, 2, 3, 4]}
-      >
-        <BgBox flex="1">
-          <Text fontSize={[14, 18, 20]}>
-            Mesa:{' '}
-            <Text as="span" fontWeight="700">
-              {command?.table}
-            </Text>
-          </Text>
-        </BgBox>
-        <BgBox
-          flex="1"
-          justifyContent="center"
-          border="2px solid"
-          borderColor="blue.300"
-        >
-          <Text fontSize={[14, 18, 20]}>
-            Total:{' '}
-            <Text as="span" fontWeight="700">
-              {parseToBRL(command?.total || 0)}
-            </Text>
-          </Text>
-        </BgBox>
-        <BgBox flex="1" justifyContent="center">
-          <Text fontSize={[14, 18, 20]}>
-            Pago:{' '}
-            <Text as="span" fontWeight="700">
-              {parseToBRL(command?.totalPayed || 0)}
-            </Text>
-          </Text>
-        </BgBox>
-        <BgBox flex="1" border="2px solid" borderColor="red.300">
-          <Text fontSize={[14, 18, 20]}>
-            A pagar:{' '}
-            <Text as="span" fontWeight="700">
-              {parseToBRL(totalToBePayed || 0)}
-            </Text>
-          </Text>
-        </BgBox>
-      </Grid>
-      <Divider />
-      {/* Payment Form */}
-      <FormControl
-        onSubmit={(e) => handleMakePayment(e)}
-        as="form"
-        display="flex"
-        flexDir="column"
-        gap={[4, 8]}
-      >
-        <Grid gridTemplateColumns="1fr 1fr" gap={[2, 4, 8]}>
-          {/* {paymentType === 'Dinheiro' && ( */}
-          <GridItem gridColumn={['1 / 3', '1 / 3', '1 / 2']}>
-            <InputGroup
-              hasError={isReceivedValueInvalid.value}
-              errorMsg={isReceivedValueInvalid.message}
-            >
-              <TitleText>Valor Recebido</TitleText>
+  <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Pagamento" size="full">
+    <div className="flex flex-col gap-5">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4">
+        <div className={summaryBoxClassName}>
+          Mesa: <span className="ml-1 font-bold">{command?.table}</span>
+        </div>
+        <div className={`${summaryBoxClassName} border-2 border-cyan`}>
+          Total: <span className="ml-1 font-bold">{parseToBRL(command?.total || 0)}</span>
+        </div>
+        <div className={summaryBoxClassName}>
+          Pago: <span className="ml-1 font-bold">{parseToBRL(command?.totalPayed || 0)}</span>
+        </div>
+        <div className={`${summaryBoxClassName} border-2 border-destructive`}>
+          A pagar: <span className="ml-1 font-bold">{parseToBRL(totalToBePayed || 0)}</span>
+        </div>
+      </div>
 
-              <Input
-                placeholder="Ex: R$ 23,90"
-                value={receivedValue}
-                onChange={(e) => setReceivedValue(e.target.value)}
-                disabled={totalValuePayment}
+      <hr className="border-border" />
+
+      <form onSubmit={(e) => handleMakePayment(e)} className="flex flex-col gap-6">
+        <div className="grid gap-4 md:grid-cols-2 md:gap-6">
+          <div className="flex flex-col gap-2">
+            <span className="font-bold text-navy">Valor Recebido</span>
+            <Input
+              placeholder="Ex: R$ 23,90"
+              value={receivedValue}
+              onChange={(e) => setReceivedValue(e.target.value)}
+              disabled={totalValuePayment}
+            />
+            {isReceivedValueInvalid.value && (
+              <span className="text-sm text-destructive">
+                {isReceivedValueInvalid.message || 'Campo obrigatório'}
+              </span>
+            )}
+            <label htmlFor="payment-total-value" className="flex items-center gap-2 text-sm font-semibold text-navy">
+              <input
+                id="payment-total-value"
+                type="checkbox"
+                checked={totalValuePayment}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setTotalValuePayment(true);
+                    setReceivedValue(totalToBePayed.toString());
+                  } else {
+                    setTotalValuePayment(false);
+                    setReceivedValue('');
+                  }
+                }}
+                className="h-4 w-4 rounded border-border accent-gold"
               />
-            </InputGroup>
-            <Checkbox
-              isChecked={totalValuePayment}
-              style={{ display: 'flex', width: '20%' }}
-              onChange={(e) => {
-                if (e.target.checked) {
-                  setTotalValuePayment(true);
-                  setReceivedValue(totalToBePayed.toString());
-                } else {
-                  setTotalValuePayment(false);
-                  setReceivedValue('');
-                }
-              }}
-            >
               Valor total
-            </Checkbox>
-          </GridItem>
-          {/* )} */}
-          <GridItem gridColumn={['1 / 3', '1 / 3', '2 / 3']}>
-            <InputGroup>
-              <TitleText
-                fontWeight="600"
-                fontSize={[16, 18, 22]}
-                color="blue.800"
-              >
-                Método de Pagamento
-              </TitleText>
-              <Select
-                value={paymentType}
-                onChange={(e) => setPaymentType(e.target.value)}
-              >
-                {paymentOptions.map((payment) => (
-                  <option key={`payment-option-${payment}`}>{payment}</option>
-                ))}
-              </Select>
-            </InputGroup>
-          </GridItem>
-        </Grid>
+            </label>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="font-bold text-navy">Método de Pagamento</span>
+            <select
+              value={paymentType}
+              onChange={(e) => setPaymentType(e.target.value)}
+              className="h-10 w-full rounded-(--radius) border border-input bg-card px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {paymentOptions.map((payment) => (
+                <option key={`payment-option-${payment}`}>{payment}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         {paymentType === 'Dinheiro' && exchange && (
-          <BgBox>
-            <TitleText fontSize={[18, 22, 26]}>
-              Troco:{' '}
-              <Text
-                as="span"
-                fontWeight="700"
-                display="inline-block"
-                color="red.400"
-              >
-                {parseToBRL(Number(exchange) || 0)}
-              </Text>
-            </TitleText>
-          </BgBox>
+          <div className="rounded-card bg-secondary px-4 py-3 text-center shadow-sm">
+            <span className="text-lg font-bold text-navy">
+              Troco: <span className="text-destructive">{parseToBRL(Number(exchange) || 0)}</span>
+            </span>
+          </div>
         )}
 
-        <Divider />
-        {/* ACTION BUTTONS */}
-        <Grid gridTemplateColumns="1fr 1fr" gap={[1, 2, 4]}>
-          <GridItem gridColumn={['1 / 3', '1 / 3', '1 / 2']}>
-            <Button
-              onClick={() => handleCloseModal()}
-              w="100%"
-              fontSize={[16, 18, 22]}
-              py={2}
-              h={14}
-              color="blue.900"
-            >
-              Cancelar
-            </Button>
-          </GridItem>
-          <GridItem gridColumn={['1 / 3', '1 / 3', '2 / 3']}>
-            <Button
-              type="submit"
-              w="100%"
-              bg="green.300"
-              color="white"
-              fontSize={[16, 18, 22]}
-              py={2}
-              h={14}
-              _hover={{
-                bg: 'green.100',
-                color: 'green.700',
-              }}
-              isLoading={isPaying}
-              loadingText="Pagando"
-            >
-              Confirmar Pagamento
-            </Button>
-          </GridItem>
-        </Grid>
-      </FormControl>
-    </Stack>
+        <hr className="border-border" />
+
+        <div className="grid gap-3 md:grid-cols-2">
+          <Button type="button" variant="secondary" size="lg" onClick={() => handleCloseModal()}>
+            Cancelar
+          </Button>
+          <Button type="submit" size="lg" disabled={isPaying}>
+            {isPaying && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isPaying ? 'Pagando' : 'Confirmar Pagamento'}
+          </Button>
+        </div>
+      </form>
+    </div>
   </Modal>
-);
-
-const BgBox = (props: any) => (
-  <Flex
-    align="center"
-    boxShadow="sm"
-    bg="blue.50"
-    color="blue.700"
-    px={4}
-    py={2}
-    rounded={4}
-    justifyContent="center"
-    {...props}
-  >
-    {/* eslint-disable-next-line react/destructuring-assignment */}
-    {props.children}
-  </Flex>
-);
-
-const InputGroup = (props: any) => (
-  <Stack {...props}>
-    {props.children}
-    {props.hasError && (
-      <Text fontSize={[12, 14]} color="red.400">
-        {props.errorMsg || 'Campo obrigatório'}
-      </Text>
-    )}
-  </Stack>
-);
-
-const TitleText = (props: any) => (
-  <Text fontWeight="600" fontSize={[16, 18, 22]} color="blue.800" {...props}>
-    {props.children}
-  </Text>
 );

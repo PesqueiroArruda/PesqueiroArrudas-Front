@@ -1,8 +1,8 @@
-/* eslint-disable react/destructuring-assignment */
-import { FormControl, Input, Button, Flex, Text } from '@chakra-ui/react';
-import { Modal } from 'components/Modal';
-import { ReactNode } from 'react';
 import { SubmitHandler } from 'react-hook-form';
+
+import { Modal } from 'components/Modal';
+import { Button } from 'components/ui/button';
+import { Input } from 'components/ui/input';
 
 interface EditCommandInputs {
   table: string;
@@ -27,49 +27,20 @@ export const EditCommandModalLayout = ({
   rhfErrors,
 }: Props) => (
   <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Editar comanda">
-    <FormControl
-      as="form"
-      display="flex"
-      flexDirection="column"
-      gap={4}
-      onSubmit={rhfHandleSubmit(handleEditCommand)}
-    >
-      <InputGroup>
-        <Text>Mesa: </Text>
-        <Input
-          placeholder="João"
-          {...rhfRegister('table', { required: true })}
-        />
-        <ErrorText
-          hasError={rhfErrors?.table}
-          errorMsg="Esse campo é necessário"
-        />
-      </InputGroup>
-      <InputGroup>
-        <Text>Garçom: </Text>
-        <Input
-          placeholder="Fulano..."
-          {...rhfRegister('waiter', { required: true })}
-        />
-        <ErrorText
-          hasError={rhfErrors.waiter}
-          errorMsg="Esse campo é necessário"
-        />
-      </InputGroup>
+    <form onSubmit={rhfHandleSubmit(handleEditCommand)} className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm font-semibold text-navy">Mesa:</span>
+        <Input placeholder="João" {...rhfRegister('table', { required: true })} />
+        {rhfErrors?.table && <span className="text-sm text-destructive">Esse campo é necessário</span>}
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm font-semibold text-navy">Garçom:</span>
+        <Input placeholder="Fulano..." {...rhfRegister('waiter', { required: true })} />
+        {rhfErrors?.waiter && <span className="text-sm text-destructive">Esse campo é necessário</span>}
+      </div>
+
       <Button type="submit">Atualizar</Button>
-    </FormControl>
+    </form>
   </Modal>
 );
-
-const InputGroup = ({ children }: { children: ReactNode }) => (
-  <Flex display="flex" flexDirection="column" gap={1}>
-    {children}
-  </Flex>
-);
-
-const ErrorText = (props: { hasError: boolean; errorMsg: string }) =>
-  props.hasError ? (
-    <Text fontSize={14} color="red.400">
-      {props.errorMsg}
-    </Text>
-  ) : null;

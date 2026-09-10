@@ -1,8 +1,8 @@
 import React from 'react'
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
-import { Box } from '@chakra-ui/react';
 
+import { cn } from 'lib/utils';
 import { Order as OrderProps } from 'types/Order';
 import { Order } from './Order';
 
@@ -26,16 +26,13 @@ export function DraggableOrder({ order }: Props) {
   };
 
   return (
-    <Box
+    <div
       ref={setNodeRef}
-      style={style}
+      style={{ ...style, touchAction: 'none' }}
       {...attributes}
-      position="relative"
-      boxShadow={isDragging ? 'lg' : 'sm'}
-      transformOrigin="center"
-      sx={{ touchAction: 'none' }}
+      className={cn('relative origin-center', isDragging ? 'shadow-lg' : 'shadow-sm')}
     >
       <Order order={order} listeners={listeners} isDragging={isDragging}/>
-    </Box>
+    </div>
   );
 }

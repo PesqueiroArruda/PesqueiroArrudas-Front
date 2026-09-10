@@ -1,15 +1,10 @@
 /* eslint-disable no-param-reassign */
 import { Dispatch, SetStateAction } from 'react';
+import { Loader2 } from 'lucide-react';
+
 import { Modal } from 'components/Modal';
-import {
-  Flex,
-  Text,
-  Select,
-  Input,
-  Stack,
-  Button,
-  Grid,
-} from '@chakra-ui/react';
+import { Button } from 'components/ui/button';
+import { Input } from 'components/ui/input';
 import { Command } from 'types/Command';
 import { parseToBRL } from 'utils/parseToBRL';
 
@@ -26,6 +21,12 @@ interface Props {
   handleCloseCommand: () => void;
 }
 
+const summaryBoxClassName =
+  'flex items-center justify-center rounded-card bg-secondary px-4 py-2 text-center text-sm text-navy shadow-sm sm:text-base';
+
+const selectClassName =
+  'h-10 flex-1 rounded-(--radius) border border-input bg-card px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50';
+
 export const CloseCommandModalLayout = ({
   isModalOpen,
   isClosing,
@@ -38,134 +39,65 @@ export const CloseCommandModalLayout = ({
   observation,
   handleCloseCommand,
 }: Props) => (
-  <Modal
-    isOpen={isModalOpen}
-    onClose={handleCloseModal}
-    title="Fechar Comanda"
-    size="6xl"
-  >
-    <Stack gap={6}>
-      <Grid gridTemplateColumns={['1fr', '1fr 1fr 1fr']} gap={4}>
-        <BgBox>
-          <Text fontSize={[14, 16, 18]}>
-            Mesa: <TitleText as="span">{command?.table}</TitleText>
-          </Text>
-        </BgBox>
-        <BgBox>
-          <Text fontSize={[14, 16, 18]}>
-            Total:{' '}
-            <TitleText as="span">{parseToBRL(command?.total || 0)}</TitleText>
-          </Text>
-        </BgBox>
-        <BgBox>
-          <Text fontSize={[14, 16, 18]}>
-            Total Pago:{' '}
-            <TitleText as="span">
-              {parseToBRL(command?.totalPayed || 0)}
-            </TitleText>
-          </Text>
-        </BgBox>
-      </Grid>
-      {/* <Stack>
-        <Text fontWeight={600}>Desconto</Text>
-        <Flex gap={[2, 4, 6]} w="100%" flexDir={['column', 'row']}>
-          <Stack flex="1.5">
-            <Text fontSize={[12, 14]}>Valor</Text>
-            <Input
-              value={discount}
-              onChange={(e) => setDiscount(e.target.value)}
-              placeholder="Valor do desconto. Ex: 32,90"
-              w="auto"
-            />
-          </Stack>
-          <Stack flex="1">
-            <Text fontSize={[12, 14]}>Porcentagem (%)</Text>
-            <Input
-              value={discountPercent}
-              onChange={(e) => setDiscountPercent(Number(e.target.value))}
-              placeholder="Porcentagem do desconto. Ex: 10 "
-              type="number"
-              w="auto"
-            />
-          </Stack>
-        </Flex>
-      </Stack> */}
-      <Stack>
-        <Text>
-          Caixinha do garçom:{' '}
-          <TitleText as="span" fontSize={[12, 14, 18]}>
-            {command?.waiter}
-          </TitleText>
-        </Text>
-        <Flex gap={[2, 4, 6]} alignItems="center" w="100%">
+  <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Fechar Comanda" size="2xl">
+    <div className="flex flex-col gap-5">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className={summaryBoxClassName}>
+          Mesa: <span className="ml-1 font-bold">{command?.table}</span>
+        </div>
+        <div className={summaryBoxClassName}>
+          Total: <span className="ml-1 font-bold">{parseToBRL(command?.total || 0)}</span>
+        </div>
+        <div className={summaryBoxClassName}>
+          Total Pago: <span className="ml-1 font-bold">{parseToBRL(command?.totalPayed || 0)}</span>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-sm text-navy">
+          Caixinha do garçom: <span className="font-bold">{command?.waiter}</span>
+        </span>
+        <div className="flex items-center gap-3">
           <Input
-            isDisabled={isClosing}
+            disabled={isClosing}
             value={waiterExtra}
             onChange={(e) => setWaiterExtra(e.target.value)}
-            w="auto"
             placeholder="Ex: R$ 23,90"
-            flex="1"
+            className="flex-1"
           />
-          <Select
-            isDisabled={isClosing}
+          <select
+            disabled={isClosing}
             value={waiterExtraPercent}
             onChange={(e) => setWaiterExtraPercent(Number(e.target.value))}
-            w="auto"
-            flex="1"
+            className={selectClassName}
           >
             <option value={0}>0%</option>
             <option value={5}>5%</option>
             <option value={10}>10%</option>
-          </Select>
-        </Flex>
-      </Stack>
-      <Stack>
-        <Text>Observações</Text>
+          </select>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-sm text-navy">Observações</span>
         <Input
-          isDisabled={isClosing}
+          disabled={isClosing}
           placeholder="Ex: Deixou para pagar 50 reais depois"
           onChange={(e) => {
             observation.current = e.target.value;
           }}
         />
-      </Stack>
-      <Flex gap={4}>
-        <Button flex="1" onClick={handleCloseModal} isDisabled={isClosing}>
+      </div>
+
+      <div className="flex gap-3">
+        <Button className="flex-1" variant="secondary" onClick={handleCloseModal} disabled={isClosing}>
           Cancelar
         </Button>
-        <Button
-          onClick={() => handleCloseCommand()}
-          isLoading={isClosing}
-          flex="1"
-          colorScheme="blue"
-        >
+        <Button className="flex-1" onClick={() => handleCloseCommand()} disabled={isClosing}>
+          {isClosing && <Loader2 className="h-4 w-4 animate-spin" />}
           Fechar Comanda
         </Button>
-      </Flex>
-    </Stack>
+      </div>
+    </div>
   </Modal>
-);
-
-const BgBox = (props: any) => (
-  <Flex
-    align="center"
-    boxShadow="sm"
-    bg="blue.50"
-    color="blue.700"
-    px={4}
-    py={2}
-    rounded={4}
-    justifyContent="center"
-    {...props}
-  >
-    {/* eslint-disable-next-line react/destructuring-assignment */}
-    {props.children}
-  </Flex>
-);
-
-const TitleText = (props: any) => (
-  <Text fontWeight="600" fontSize={[16, 18, 22]} color="blue.800" {...props}>
-    {/* eslint-disable-next-line react/destructuring-assignment */}
-    {props.children}
-  </Text>
 );

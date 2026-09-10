@@ -1,14 +1,8 @@
-import {
-  TabList,
-  Tabs,
-  Tab,
-  TabPanels,
-  TabPanel,
-  Button,
-} from '@chakra-ui/react';
-import { Header } from 'components/Header';
-import { Layout } from 'components/Layout';
 import { Dispatch, SetStateAction } from 'react';
+
+import { AppShell } from 'components/AppShell';
+import { Button } from 'components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from 'components/ui/tabs';
 import { ClosedCashiers } from './components/ClosedCashiers';
 import { PayedCommands } from './components/PayedCommands';
 import { SoldItems } from './components/SoldItems';
@@ -25,40 +19,37 @@ export const HomeLayout = ({
   handleAsksPermition,
   isPermittedToSeeClosedCahiers,
   setIsAsksPermitionModalOpen,
-  isAdmin
+  isAdmin,
 }: Props) => (
-  <Layout>
-    <Header />
-    <Tabs>
+  <AppShell>
+    <Tabs defaultValue="payed-commands">
       {isAdmin && (
-        <TabList mb={[2, 4]}>
-          <Tab>Comandas Pagas</Tab>
-          <Tab onClick={handleAsksPermition}>Caixas Fechados</Tab>
-          <Tab>Itens vendidos</Tab>
-          <Tab>Clientes recorrentes</Tab>
-        </TabList>
+        <TabsList className="mb-6">
+          <TabsTrigger value="payed-commands">Comandas Pagas</TabsTrigger>
+          <TabsTrigger value="closed-cashiers" onClick={handleAsksPermition}>
+            Caixas Fechados
+          </TabsTrigger>
+          <TabsTrigger value="sold-items">Itens Vendidos</TabsTrigger>
+          <TabsTrigger value="customers">Clientes Recorrentes</TabsTrigger>
+        </TabsList>
       )}
 
-      <TabPanels>
-        <TabPanel>
-          <PayedCommands isAdmin={isAdmin} />
-        </TabPanel>
-        <TabPanel>
-          {isPermittedToSeeClosedCahiers ? (
-            <ClosedCashiers />
-          ) : (
-            <Button onClick={() => setIsAsksPermitionModalOpen(true)}>
-              Acessar Caixas
-            </Button>
-          )}
-        </TabPanel>
-        <TabPanel>
-          <SoldItems />
-        </TabPanel>
-        <TabPanel>
-          <Customers />
-        </TabPanel>
-      </TabPanels>
+      <TabsContent value="payed-commands">
+        <PayedCommands isAdmin={isAdmin} />
+      </TabsContent>
+      <TabsContent value="closed-cashiers">
+        {isPermittedToSeeClosedCahiers ? (
+          <ClosedCashiers />
+        ) : (
+          <Button onClick={() => setIsAsksPermitionModalOpen(true)}>Acessar Caixas</Button>
+        )}
+      </TabsContent>
+      <TabsContent value="sold-items">
+        <SoldItems />
+      </TabsContent>
+      <TabsContent value="customers">
+        <Customers />
+      </TabsContent>
     </Tabs>
-  </Layout>
+  </AppShell>
 );

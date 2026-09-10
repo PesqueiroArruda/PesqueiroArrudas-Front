@@ -1,5 +1,7 @@
-import { Button, Flex } from '@chakra-ui/react';
+import { Loader2 } from 'lucide-react';
+
 import { Modal } from 'components/Modal';
+import { Button } from 'components/ui/button';
 
 interface Props {
   isModalOpen: boolean;
@@ -14,24 +16,15 @@ export const CheckOrderModalLayout = ({
   handleCheckOrder,
   isSending,
 }: Props) => (
-  <Modal
-    isOpen={isModalOpen}
-    onClose={handleCloseModal}
-    title="Marcar Pedido como Feito"
-  >
-    <Flex gap={3}>
-      <Button flex="1" onClick={() => handleCloseModal()}>
+  <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Marcar Pedido como Feito">
+    <div className="flex gap-3">
+      <Button className="flex-1" variant="secondary" onClick={() => handleCloseModal()}>
         Cancelar
       </Button>
-      <Button
-        onClick={() => handleCheckOrder()}
-        flex="1"
-        colorScheme="blue"
-        isLoading={isSending}
-        loadingText="Enviando"
-      >
-        Confirmar
+      <Button className="flex-1" onClick={() => handleCheckOrder()} disabled={isSending}>
+        {isSending && <Loader2 className="h-4 w-4 animate-spin" />}
+        {isSending ? 'Enviando' : 'Confirmar'}
       </Button>
-    </Flex>
+    </div>
   </Modal>
 );

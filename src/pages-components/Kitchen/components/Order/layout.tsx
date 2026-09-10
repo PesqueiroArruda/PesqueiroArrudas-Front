@@ -1,40 +1,21 @@
-import {
-  Stack,
-  Button,
-  Text,
-  Table,
-  TableContainer,
-  Thead,
-  Tr,
-  Th,
-  Tbody,
-  Td,
-  Menu,
-  MenuButton,
-  Icon,
-  MenuItem,
-  MenuList,
-  Flex,
-  Box,
-  IconButton,
-} from '@chakra-ui/react';
-import { CgOptions } from 'react-icons/cg';
-import { BsPatchCheck, BsPatchCheckFill, BsSnow } from 'react-icons/bs';
-import { RxDragHandleDots2 } from 'react-icons/rx';
-
-import { OrderProduct } from 'types/OrderProduct';
 import { DateTime } from 'luxon';
+import { BadgeCheck, GripVertical, MoreVertical, Snowflake } from 'lucide-react';
+
+import { Button } from 'components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from 'components/ui/dropdown-menu';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'components/ui/table';
+import { cn } from 'lib/utils';
+import { OrderProduct } from 'types/OrderProduct';
 import { Order } from '../../../../types/Order';
 
 const productColumns = [
-  {
-    text: 'Quantidade',
-    prop: 'amount',
-  },
-  {
-    text: 'Nome',
-    prop: 'name',
-  },
+  { text: 'Quantidade', prop: 'amount' },
+  { text: 'Nome', prop: 'name' },
   { text: '', prop: '*' },
 ];
 
@@ -53,7 +34,7 @@ export const OrderLayout = ({
   handleDefrostOneProduct,
   handleOpenCheckOrderModal,
   listeners,
-  isDragging
+  isDragging,
 }: Props) => {
   const dt = DateTime.fromISO(order?.createdAt as string, {
     zone: 'pt-BR',
@@ -63,154 +44,91 @@ export const OrderLayout = ({
   const createdAtFormatted = dt.toLocaleString(DateTime.TIME_24_SIMPLE);
 
   return (
-    <Stack
-      bg="blue.50"
-      p={[2, 4]}
-      rounded={[2, 4]}
-      mt={[4, 6]}
-      border="1px solid"
-      borderColor="gray.300"
-      gap={[1, 2]}
-    >
-      <Flex justifyContent="space-between" align="center">
-        <Text color="blue.800" fontSize={[18, 20]} fontWeight={600}>
-          Mesa:{' '}
-          <Box as="span" display="inline-block" fontWeight={700}>
-            {order?.table}
-          </Box>
-        </Text>
-        <Text color="blue.800" fontSize={[18, 20]} fontWeight={600}>
-          Pedido por:{' '}
-          <Box as="span" display="inline-block" fontWeight={700}>
-            {order?.orderWaiter}
-          </Box>
-        </Text>
-        <Text>
-          Criado:{' '}
-          <Box as="span" fontWeight={600}>
-            {createdAtFormatted}
-          </Box>
-        </Text>
-        <IconButton
+    <div className="flex flex-col gap-2 rounded-card border border-border bg-secondary p-3 sm:p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="text-base font-semibold text-navy sm:text-lg">
+          Mesa: <span className="font-bold">{order?.table}</span>
+        </span>
+        <span className="text-base font-semibold text-navy sm:text-lg">
+          Pedido por: <span className="font-bold">{order?.orderWaiter}</span>
+        </span>
+        <span className="text-sm text-navy">
+          Criado: <span className="font-semibold">{createdAtFormatted}</span>
+        </span>
+        <button
+          type="button"
           aria-label="Arrastar para reordenar"
-          icon={<RxDragHandleDots2 />}
-          size="sm"
-          variant="ghost"
-          // listeners APENAS no handle
           {...listeners}
-          // UX
-          cursor={isDragging ? 'grabbing' : 'grab'}
-          // evita que o handle capture o foco do teclado o tempo todo
           tabIndex={0}
-        />
-      </Flex>
+          className={cn(
+            'rounded-(--radius) p-1.5 text-navy hover:bg-border',
+            isDragging ? 'cursor-grabbing' : 'cursor-grab',
+          )}
+        >
+          <GripVertical className="h-5 w-5" />
+        </button>
+      </div>
+
       {order.observation && (
-        <div style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          // justifyContent: 'center'
-        }}>
-          <text style={{
-            background: 'red',
-            color: 'white',
-            padding: 6
-          }}>
-            {order.observation}
-          </text>
+        <div className="rounded-(--radius) bg-destructive px-2.5 py-1.5 text-sm font-semibold text-white">
+          {order.observation}
         </div>
       )}
-      <TableContainer
-        bg="whiteAlpha.700"
-        // bg="blue.50"
-        color="blue.900"
-        py={[2, 3]}
-        rounded={4}
-        boxShadow="sm"
-        overflow="visible"
-        pb="42px !important"
-      >
-        <Table size="md" textAlign="left">
-          <Thead>
-            <Tr>
-              {productColumns.map((column) => (
-                <Th
-                  key={`kitchen-order-product-column-${column.prop}`}
-                  color="blue.900"
-                >
-                  {column.text}
-                </Th>
-              ))}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {order.products.map(({ _id, name, amount, isMade, isThawed }) => (
-              <Tr key={`${order._id}${_id}`}>
-                <Td w="40%">{amount}</Td>
-                <Td w="50%">{name}</Td>
 
-                <Td isNumeric>
-                  <Flex align="center" justify="flex-end" gap={2}>
-                    {isMade && (
-                      <Flex bg="green.300" gap={2} px={2} py={1} rounded={3}>
-                        <Icon as={BsPatchCheckFill} color="white" mt={0.5} fontSize={[16, 18]} />
-                        <Text fontWeight={600} color="white">Feito</Text>
-                      </Flex>
-                    )}
-
-                    {isThawed && (
-                      <Flex bg="blue.300" gap={2} px={2} py={1} rounded={3}>
-                        <Icon as={BsSnow} color="white" mt={0.5} fontSize={[16, 18]} />
-                        <Text fontWeight={600} color="white">Descongelado</Text>
-                      </Flex>
-                    )}
-
-                    <Menu>
-                      <MenuButton
-                        as={IconButton}
-                        aria-label="Opções"
-                        icon={<CgOptions />}
-                        variant="ghost"
-                        size="sm"
-                        color="blue.800"
-                      />
-                      <MenuList p={1.5}>
-                        <MenuItem
-                          onClick={() =>
-                            handleCheckOneProduct({ _id, name, amount, isMade, isThawed })
-                          }
-                          icon={<BsPatchCheck fontSize={17} />}
-                          fontWeight="600"
-                          rounded={4}
-                        >
-                          Marcar item como feito
-                        </MenuItem>
-
-                        <MenuItem
-                          onClick={() =>
-                            handleDefrostOneProduct({ _id, name, amount, isMade, isThawed })
-                          }
-                          icon={<BsSnow fontSize={17} />}
-                          fontWeight="600"
-                          rounded={4}
-                        >
-                          Marcar item como descongelado
-                        </MenuItem>
-                      </MenuList>
-                    </Menu>
-                  </Flex>
-                </Td>
-              </Tr>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {productColumns.map((column) => (
+              <TableHead key={`kitchen-order-product-column-${column.prop}`}>{column.text}</TableHead>
             ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
-      <Button
-        onClick={() => handleOpenCheckOrderModal(order)}
-        colorScheme="blue"
-      >
-        Baixar pedido
-      </Button>
-    </Stack>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {order.products.map(({ _id, name, amount, isMade, isThawed }) => (
+            <TableRow key={`${order._id}${_id}`}>
+              <TableCell>{amount}</TableCell>
+              <TableCell>{name}</TableCell>
+              <TableCell>
+                <div className="flex items-center justify-end gap-2">
+                  {isMade && (
+                    <span className="flex items-center gap-1.5 rounded-(--radius) bg-success px-2 py-1 text-sm font-bold text-white">
+                      <BadgeCheck className="h-4 w-4" />
+                      Feito
+                    </span>
+                  )}
+
+                  {isThawed && (
+                    <span className="flex items-center gap-1.5 rounded-(--radius) bg-cyan px-2 py-1 text-sm font-bold text-white">
+                      <Snowflake className="h-4 w-4" />
+                      Descongelado
+                    </span>
+                  )}
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="rounded-(--radius) p-1 text-navy hover:bg-card">
+                      <MoreVertical className="h-5 w-5" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => handleCheckOneProduct({ _id, name, amount, isMade, isThawed })}>
+                        <BadgeCheck className="h-4 w-4" />
+                        Marcar item como feito
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={() => handleDefrostOneProduct({ _id, name, amount, isMade, isThawed })}
+                      >
+                        <Snowflake className="h-4 w-4" />
+                        Marcar item como descongelado
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <Button onClick={() => handleOpenCheckOrderModal(order)}>Baixar pedido</Button>
+    </div>
   );
 };

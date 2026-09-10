@@ -1,12 +1,12 @@
+import { ReactNode, useRef } from 'react';
+
 import {
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-} from '@chakra-ui/react';
-import { ReactNode } from 'react';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from 'components/ui/dialog';
+import { cn } from 'lib/utils';
 
 interface Props {
   title: string;
@@ -18,6 +18,16 @@ interface Props {
   modalBodyOverflow?: any;
 }
 
+const SIZE_CLASSNAMES: Record<string, string> = {
+  xs: 'sm:max-w-xs',
+  sm: 'sm:max-w-sm',
+  md: 'sm:max-w-md',
+  lg: 'sm:max-w-lg',
+  xl: 'sm:max-w-xl',
+  '2xl': 'sm:max-w-2xl',
+  full: 'sm:max-w-[95vw] h-[90vh]',
+};
+
 export const ModalLayout = ({
   title,
   isOpen,
@@ -26,30 +36,35 @@ export const ModalLayout = ({
   initialFocusRef,
   children,
   modalBodyOverflow,
-}: Props) => (
-  <Modal
-    isOpen={isOpen}
-    onClose={onClose}
-    isCentered
-    size={size || 'lg'}
-    initialFocusRef={initialFocusRef}
-    scrollBehavior="inside"
-  >
-    <ModalOverlay
-      bg="blackAlpha.500"
-      backdropFilter="blur(3px)"
-      overflowY="scroll"
-    />
-    <ModalContent py={2} mx={2}>
-      <ModalHeader>{title}</ModalHeader>
-      <ModalCloseButton />
-      <ModalBody
-        display="flex"
-        flexDir="column"
-        overflowY={modalBodyOverflow || 'scroll'}
+}: Props) => {
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent
+        ref={contentRef}
+        className={cn(SIZE_CLASSNAMES[size || 'lg'])}
+        onOpenAutoFocus={(event) => {
+          if (initialFocusRef?.current) {
+            event.preventDefault();
+            initialFocusRef.current.focus();
+          }
+        }}
       >
-        {children}
-      </ModalBody>
-    </ModalContent>
-  </Modal>
-);
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <div
+          className={cn(
+            'flex min-h-0 flex-1 flex-col',
+            (modalBodyOverflow || 'scroll') === 'scroll'
+              ? 'max-h-[65vh] overflow-y-auto'
+              : 'overflow-hidden',
+          )}
+        >
+          {children}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};

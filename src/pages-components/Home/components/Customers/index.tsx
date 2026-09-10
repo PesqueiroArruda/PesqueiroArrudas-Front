@@ -11,6 +11,7 @@ import { CustomersLayout } from './layout';
 
 export const Customers = () => {
   const [allCashiers, setAllCashiers] = useState<Cashier[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const selectedMonthsFilter = true;
 
   const [month, setMonth] = useState('Todos');
@@ -21,8 +22,12 @@ export const Customers = () => {
 
   useEffect(() => {
     (async () => {
-      const cashiers = await CashierService.getAll();
-      setAllCashiers(cashiers);
+      try {
+        const cashiers = await CashierService.getAll();
+        setAllCashiers(cashiers);
+      } finally {
+        setIsLoading(false);
+      }
     })();
   }, []);
 
@@ -116,6 +121,7 @@ export const Customers = () => {
       month={month}
       setMonth={setMonth}
       selectedMonthsFilter={selectedMonthsFilter}
+      isLoading={isLoading}
     />
   );
 };

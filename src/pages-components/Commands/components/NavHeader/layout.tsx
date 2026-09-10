@@ -1,37 +1,19 @@
-/* eslint-disable react/no-children-prop */
-import React, { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from 'react';
+import { Filter, ArrowUpDown } from 'lucide-react';
+
 import {
-  Divider,
-  Flex,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Text,
-  Box,
-  Input,
-  Button,
-  Icon,
-} from '@chakra-ui/react';
-import { AiFillFilter } from 'react-icons/ai';
-// import { BiSearchAlt2 } from 'react-icons/bi';
-import { BiSortAlt2 } from 'react-icons/bi';
-// import { CgSortAz } from 'react-icons/cg';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from 'components/ui/dropdown-menu';
+import { cn } from 'lib/utils';
 
 const filterOptions = ['Pesca Esportiva', 'Pesque Pague'];
 const sortOptions = [
-  {
-    text: 'Mesa',
-    prop: 'table',
-  },
-  {
-    text: 'Garçom',
-    prop: 'waiter',
-  },
-  {
-    text: 'Total',
-    prop: 'total',
-  },
+  { text: 'Mesa', prop: 'table' },
+  { text: 'Garçom', prop: 'waiter' },
+  { text: 'Total', prop: 'total' },
 ];
 
 type Props = {
@@ -45,6 +27,9 @@ type Props = {
   setSearchContent: Dispatch<SetStateAction<string>>;
 };
 
+const triggerClassName =
+  'flex h-10 w-full items-center justify-center gap-2 rounded-(--radius) border border-input bg-card px-3 text-sm font-bold text-foreground shadow-sm hover:bg-secondary';
+
 export const NavHeaderLayout = ({
   handleChangeFilter,
   handleChangeOrderBy,
@@ -53,164 +38,73 @@ export const NavHeaderLayout = ({
   searchContent,
   setSearchContent,
 }: Props) => {
-  const isFilterItemSelected = (filterText: string) => {
-    const isSelected =
-      filterText.replace(' ', '').toLowerCase() ===
-      filter.replace(' ', '').toLowerCase();
+  const isFilterItemSelected = (filterText: string) =>
+    filterText.replace(' ', '').toLowerCase() === filter.replace(' ', '').toLowerCase();
 
-    return isSelected;
-  };
+  const isOrderByItemSelected = (orderByText: string) => orderByText.toLowerCase() === orderBy.toLowerCase();
 
-  const isOrderByItemSelected = (orderByText: string) => {
-    const isSelected = orderByText.toLowerCase() === orderBy.toLowerCase();
-
-    return isSelected;
-  };
   return (
-    <Flex direction="column" gap={4} mb={10}>
-      <Box
-        display={['grid', 'grid', 'flex']}
-        gridTemplateColumns="repeat(2, 1fr)"
-        gap={[2, 4]}
-        justifyContent="space-between"
-        flexWrap="wrap"
-      >
-        {/* Filter Menu */}
-        <Menu>
-          <MenuButton
-            as={Button}
-            bg="blue.50"
-            color="blue.800"
-            fontSize={[12, 14, 16]}
-            _hover={{
-              bg: 'blue.100',
-            }}
-            _active={{
-              bg: 'blue.300',
-              color: 'white',
-            }}
-            gridColumnStart={1}
-            gridColumnEnd={2}
-            display="flex"
-            gap={2}
-          >
-            <Flex gap={[1, 1, 2]} alignItems="center" justify="center">
-              <Icon as={AiFillFilter} />
+    <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-nowrap">
+        <div className="sm:w-50 sm:flex-none">
+          <DropdownMenu>
+            <DropdownMenuTrigger className={triggerClassName}>
+              <Filter className="h-4 w-4" />
               Filtrar por
-              {filter && <Square />}
-            </Flex>
-          </MenuButton>
-          <MenuList bg="blue.50" color="blue.900" p={2}>
-            {filterOptions.map((filterText) => (
-              <React.Fragment key={`commandss-filter-${filterText}`}>
-                <MenuItem
-                  onClick={() => handleChangeFilter(filterText)}
-                  display="flex"
-                  flexDir="column"
-                  alignItems="flex-start"
-                  bg={isFilterItemSelected(filterText) ? 'blue.400' : 'blue.50'}
-                  _hover={{
-                    bg: 'blue.100',
-                  }}
-                  rounded={4}
-                  _focus={{
-                    bg: isFilterItemSelected(filterText)
-                      ? 'blue.400'
-                      : 'blue.100',
-                  }}
-                  fontWeight={600}
+              {filter && <Dot />}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-50">
+              {filterOptions.map((filterText) => (
+                <DropdownMenuItem
+                  key={`commands-filter-${filterText}`}
+                  onSelect={() => handleChangeFilter(filterText)}
+                  className={cn(
+                    isFilterItemSelected(filterText) && 'bg-primary text-primary-foreground focus:bg-primary',
+                  )}
                 >
                   {filterText}
-                </MenuItem>
-                <Divider />
-              </React.Fragment>
-            ))}
-          </MenuList>
-        </Menu>
-        {/* Sort Menu */}
-        <Menu>
-          <MenuButton
-            as={Button}
-            bg="blue.50"
-            color="blue.800"
-            fontSize={[12, 14, 16]}
-            _hover={{
-              bg: 'blue.100',
-            }}
-            _active={{
-              bg: 'blue.300',
-              color: 'white',
-            }}
-            gridColumnStart={2}
-            gridColumnEnd={3}
-            display="flex"
-            flexDirection="row"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Flex gap={[1, 1, 2]} align="center" justify="center">
-              <Icon as={BiSortAlt2} fontSize={[16, 18]} />
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        <div className="sm:w-50 sm:flex-none">
+          <DropdownMenu>
+            <DropdownMenuTrigger className={triggerClassName}>
+              <ArrowUpDown className="h-4 w-4" />
               Ordenar por
-              {orderBy && <Square />}
-            </Flex>
-          </MenuButton>
-          <MenuList bg="blue.50" color="blue.900" p={2}>
-            {sortOptions.map(({ text, prop }) => (
-              <React.Fragment key={`commandss-sort-${prop}`}>
-                <MenuItem
-                  onClick={() => handleChangeOrderBy(prop)}
-                  display="flex"
-                  flexDir="column"
-                  alignItems="flex-start"
-                  bg={isOrderByItemSelected(prop) ? 'blue.400' : 'blue.50'}
-                  _hover={{
-                    bg: 'blue.100',
-                  }}
-                  rounded={4}
-                  _focus={{
-                    bg: isOrderByItemSelected(prop) ? 'blue.400' : 'blue.100',
-                  }}
-                  fontWeight={600}
+              {orderBy && <Dot />}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-50">
+              {sortOptions.map(({ text, prop }) => (
+                <DropdownMenuItem
+                  key={`commands-sort-${prop}`}
+                  onSelect={() => handleChangeOrderBy(prop)}
+                  className={cn(isOrderByItemSelected(prop) && 'bg-primary text-primary-foreground focus:bg-primary')}
                 >
                   {text}
-                </MenuItem>
-                <Divider />
-              </React.Fragment>
-            ))}
-          </MenuList>
-        </Menu>
-        {/* Search Bar */}
-        <Input
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        <input
           value={searchContent}
           onChange={(e) => setSearchContent(e.target.value)}
-          flex={3}
           placeholder="Encontrar comanda..."
-          minWidth={64}
-          gridColumnStart={1}
-          gridColumnEnd={3}
-          variant="filled"
-          bg="blue.50"
+          className="col-span-2 h-10 rounded-(--radius) border border-input bg-card px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex-1"
         />
-      </Box>
+      </div>
+
       {filter && (
-        <Text fontSize={[12, 14]} color="blue.700">
-          Filtrando por:{' '}
-          <Text display="inline" fontWeight={600}>
-            {filter}
-          </Text>
-        </Text>
+        <p className="text-sm text-text-muted">
+          Filtrando por: <span className="font-bold text-navy">{filter}</span>
+        </p>
       )}
-    </Flex>
+    </div>
   );
 };
 
-const Square = () => (
-  <Box
-    w={[1, 1, 2]}
-    h={[1, 1, 2]}
-    mt={[0, 0, 1]}
-    ml={[0, 0, 1]}
-    rounded={2}
-    bg="blue.200"
-  />
-);
+const Dot = () => <span className="h-2 w-2 rounded-full bg-gold" />;

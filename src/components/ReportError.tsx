@@ -1,6 +1,7 @@
-import { Alert, AlertIcon, Button, Stack } from '@chakra-ui/react';
-import { Header } from './Header';
-import { Layout } from './Layout';
+import { AlertTriangle } from 'lucide-react';
+
+import { AppShell } from 'components/AppShell';
+import { Button } from 'components/ui/button';
 
 interface Props {
   message: string;
@@ -9,14 +10,13 @@ interface Props {
 }
 
 export const ReportError = ({ message, onRetry, onBack }: Props) => (
-  <Layout>
-    <Header hasBackPageBtn handleBackPage={onBack} />
-    <Stack align="start" spacing={4}>
-      <Alert status="error">
-        <AlertIcon />
+  <AppShell hasBackPageBtn handleBackPage={onBack}>
+    <div className="flex flex-col items-start gap-4">
+      <div className="flex items-center gap-2 rounded-card border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive">
+        <AlertTriangle className="h-4 w-4 shrink-0" />
         {message}
-      </Alert>
-      <Button onClick={onRetry}>Try again</Button>
-    </Stack>
-  </Layout>
+      </div>
+      <Button onClick={onRetry}>Tentar novamente</Button>
+    </div>
+  </AppShell>
 );

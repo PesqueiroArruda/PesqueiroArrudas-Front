@@ -1,8 +1,9 @@
-/* eslint-disable no-return-assign */
-/* eslint-disable no-param-reassign */
-import { Input, Stack, Text, Button, Flex, Select } from '@chakra-ui/react';
-import { Modal } from 'components/Modal';
 import { Dispatch, SetStateAction } from 'react';
+import { Loader2 } from 'lucide-react';
+
+import { Modal } from 'components/Modal';
+import { Button } from 'components/ui/button';
+import { Input } from 'components/ui/input';
 import { parseToBRL } from 'utils/parseToBRL';
 
 interface Props {
@@ -28,46 +29,34 @@ export const DiscountLayout = ({
   percent,
   setPercent,
 }: Props) => (
-  <Modal
-    isOpen={isModalOpen}
-    onClose={handleCloseModal}
-    title="Desconto da comanda"
-  >
-    <Stack gap={[2, 4]}>
-      <Text fontSize={[16, 18, 20]} fontWeight={600} color="blue.800">
-        Desconto da comanda: {parseToBRL(discount || 0)}
-      </Text>
-      <Stack>
-        <Flex gap={[2]}>
-          <Input
-            value={newDiscount}
-            flex="2"
-            placeholder="Novo valor de desconto"
-            onChange={(e) => {
-              setNewDiscount(e.target.value);
-            }}
-          />
-          <Select
-            flex="1"
-            value={percent}
-            onChange={(e) => setPercent(Number(e.target.value))}
-          >
-            <option value={0}>0%</option>
-            <option value={5}>5%</option>
-            <option value={10}>10%</option>
-            <option value={20}>20%</option>
-            <option value={50}>50%</option>
-          </Select>
-        </Flex>
+  <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Desconto da comanda">
+    <div className="flex flex-col gap-4">
+      <p className="text-lg font-bold text-navy">Desconto da comanda: {parseToBRL(discount || 0)}</p>
 
-        <Button
-          onClick={() => handleEditDiscount()}
-          isLoading={isEditing}
-          loadingText="Atualizando desconto"
+      <div className="flex gap-3">
+        <Input
+          value={newDiscount}
+          placeholder="Novo valor de desconto"
+          onChange={(e) => setNewDiscount(e.target.value)}
+          className="flex-2"
+        />
+        <select
+          value={percent}
+          onChange={(e) => setPercent(Number(e.target.value))}
+          className="h-10 flex-1 rounded-(--radius) border border-input bg-card px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          Editar Desconto
-        </Button>
-      </Stack>
-    </Stack>
+          <option value={0}>0%</option>
+          <option value={5}>5%</option>
+          <option value={10}>10%</option>
+          <option value={20}>20%</option>
+          <option value={50}>50%</option>
+        </select>
+      </div>
+
+      <Button onClick={() => handleEditDiscount()} disabled={isEditing}>
+        {isEditing && <Loader2 className="h-4 w-4 animate-spin" />}
+        {isEditing ? 'Atualizando desconto' : 'Editar Desconto'}
+      </Button>
+    </div>
   </Modal>
 );

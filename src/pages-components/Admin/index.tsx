@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { Stack, Text, Flex, Button, useToast, Input } from '@chakra-ui/react';
-import { Layout } from 'components/Layout';
+import { useToast } from '@chakra-ui/react';
+import { Loader2, TriangleAlert } from 'lucide-react';
+import { AppShell } from 'components/AppShell';
 import { Modal } from 'components/Modal';
-import { useRouter } from "next/router";
+import { Button } from 'components/ui/button';
+import { Input } from 'components/ui/input';
+import { useRouter } from 'next/router';
 import AdminService from './services/index';
 
 export const Admin = () => {
@@ -93,63 +96,43 @@ export const Admin = () => {
 
   return (
     <>
-      <Layout>
-        <Stack w="100%" gap={[3, 6]}>
-          <Flex
-            bg="red.50"
-            p={[3, 4, 6]}
-            flexDir="column"
-            align="center"
-            rounded={4}
-            border="1px solid"
-            borderColor="red.100"
-            fontSize={[16, 18, 20]}
-            fontWeight={600}
-            mt={4}
+      <AppShell>
+        <div className="flex flex-col gap-4 sm:gap-6">
+          <div className="flex flex-col items-center gap-2 rounded-card border border-destructive/30 bg-destructive/10 p-4 text-center text-base font-semibold text-destructive sm:p-6 sm:text-lg">
+            <TriangleAlert className="h-6 w-6" />
+            <p>Todas ações executadas nesta página são de grande impacto no sistema</p>
+            <p>Apenas execute estas ações quando todos os dados estiverem salvos localmente</p>
+          </div>
+          <Button
+            onClick={handleOpenConfirmationModal}
+            variant="destructive"
+            disabled={!isAdmin}
+            className="h-auto py-3 text-lg sm:py-4 sm:text-xl"
           >
-            <Text color="red">
-              Todas açoes executadas nesta página são de grande impacto no
-              sistema
-            </Text>
-            <Text color="red">
-              Apenas execute estas açoes quando todos os dados estiverem salvos
-              localmente
-            </Text>
-          </Flex>
-          <Stack>
-            <Button
-              onClick={() => handleOpenConfirmationModal()}
-              colorScheme="red"
-              fontSize={[18, 20]}
-              disabled={!isAdmin}
-              h="auto"
-              py={[3, 4]}
-            >
-              RESTAURAR SISTEMA
-            </Button>
-          </Stack>
-        </Stack>
-      </Layout>
+            RESTAURAR SISTEMA
+          </Button>
+        </div>
+      </AppShell>
       <Modal
         isOpen={isConfirmResetModalOpen}
         title="Deletar todos os dados do sistema?"
         onClose={handleCloseConfirmationModal}
       >
-        <Flex gap={[2, 4]}>
-          <Button flex="1" onClick={() => handleCloseConfirmationModal()}>
+        <div className="flex gap-3">
+          <Button className="flex-1" variant="secondary" onClick={handleCloseConfirmationModal}>
             Cancelar
           </Button>
-          <Button onClick={handleOpenResetModal} colorScheme="red" flex="1">
+          <Button className="flex-1" variant="destructive" onClick={handleOpenResetModal}>
             Confirmar
           </Button>
-        </Flex>
+        </div>
       </Modal>
       <Modal
         isOpen={isResetModalOpen}
         onClose={handleCloseResetModal}
         title="Insira a chave de acesso para resetar o sistema"
       >
-        <Stack gap={[2, 4]}>
+        <div className="flex flex-col gap-3">
           <Input
             onChange={(e) => {
               accessKey.current = e.target.value;
@@ -157,14 +140,11 @@ export const Admin = () => {
             placeholder="Chave de acesso"
             type="password"
           />
-          <Button
-            onClick={handleResetSystem}
-            isLoading={isReseting}
-            loadingText="Restaurando"
-          >
-            Confirmar
+          <Button onClick={handleResetSystem} disabled={isReseting}>
+            {isReseting && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isReseting ? 'Restaurando' : 'Confirmar'}
           </Button>
-        </Stack>
+        </div>
       </Modal>
     </>
   );

@@ -1,36 +1,17 @@
-/* eslint-disable react/no-children-prop */
 import { Dispatch, SetStateAction } from 'react';
-import {
-  InputGroup,
-  InputLeftElement,
-  Stack,
-  Icon,
-  Input,
-  Grid,
-  Box,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Button,
-  Flex,
-  Text,
-  Table,
-  TableContainer,
-  Thead,
-  Tbody,
-  Th,
-  Tr,
-  Td,
-  useBreakpointValue,
-} from '@chakra-ui/react';
-import { BiSad, BiSearchAlt } from 'react-icons/bi';
-import { IoClose } from 'react-icons/io5';
+import { Frown, ListPlus, Loader2, Search, Star, X } from 'lucide-react';
 
 import { Modal } from 'components/Modal';
-import { MdPlaylistAdd } from 'react-icons/md';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from 'components/ui/dropdown-menu';
+import { Button } from 'components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'components/ui/table';
+import { cn } from 'lib/utils';
 import { formatAmount } from 'utils/formatAmount';
-import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
 import { parseToBRL } from 'utils/parseToBRL';
 
 const filterOptions = [
@@ -70,6 +51,29 @@ interface Props {
   handleUnfavoriteProduct: (_id: string) => void;
 }
 
+const FavoriteToggle = ({
+  isFavorite,
+  onToggle,
+}: {
+  isFavorite: boolean;
+  onToggle: () => void;
+}) => (
+  <Star
+    onClick={onToggle}
+    className={cn(
+      'h-5 w-5 shrink-0 cursor-pointer',
+      isFavorite ? 'fill-gold text-gold' : 'text-navy/60 hover:text-gold',
+    )}
+  />
+);
+
+const EmptyState = () => (
+  <div className="flex items-center gap-3 py-4 text-navy">
+    <Frown className="h-7 w-7" />
+    <span className="text-lg font-bold">Nenhum Produto com essa categoria</span>
+  </div>
+);
+
 export const AddProductModalLayout = ({
   isModalOpen,
   handleCloseModal,
@@ -85,302 +89,149 @@ export const AddProductModalLayout = ({
   isAddingProducts,
   handleFavoriteProduct,
   handleUnfavoriteProduct,
-}: Props) => {
-  const isMobile = useBreakpointValue({ base: true, md: false });
+}: Props) => (
+  <Modal
+    isOpen={isModalOpen}
+    onClose={() => handleCloseModal()}
+    title="Adicionar Produto"
+    size="full"
+    modalBodyOverflow="hidden"
+  >
+    <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
+      <div className="grid gap-3 sm:grid-cols-[1fr_3fr]">
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex h-10 items-center justify-center gap-2 rounded-(--radius) border border-input bg-card px-3 text-sm font-bold text-foreground shadow-sm hover:bg-secondary">
+            Filtrar
+            {filter && <span className="h-2 w-2 rounded-full bg-gold" />}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="max-h-70 overflow-y-auto">
+            {filterOptions.map((filterText) => (
+              <DropdownMenuItem
+                key={`add-product-filter-${filterText}`}
+                onSelect={() => handleChangeFilter(filterText)}
+                className={cn(filter === filterText && 'bg-primary text-primary-foreground focus:bg-primary')}
+              >
+                {filterText}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-  return (
-    <Modal
-      isOpen={isModalOpen}
-      onClose={() => handleCloseModal()}
-      title="Adicionar Produto"
-      size="full"
-      modalBodyOverflow="hidden"
-    >
-      <Stack spacing={[4, 6]} overflowY="auto">
-        {/* Header */}
-        <Grid templateColumns={['1fr', '1fr 3fr']} gap={[2, 4]}>
-          <Menu>
-            <MenuButton
-              bg="blue.50"
-              color="blue.800"
-              _active={{
-                bg: 'blue.300',
-                color: 'white',
-              }}
-              as={Button}
-            >
-              <Flex align="center" justify="center" gap={[1, 3]}>
-                Filtrar
-                {filter && <Square />}
-              </Flex>
-            </MenuButton>
+        <div className="relative h-10">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+          <input
+            placeholder="Pesquise por algum produto"
+            value={searchContent}
+            onChange={(e) => setSearchContent(e.target.value)}
+            className="h-10 w-full rounded-(--radius) border border-input bg-card pl-10 pr-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          />
+        </div>
+      </div>
 
-            <MenuList overflow="auto" bg="blue.50" p={2} maxH="280px">
-              {filterOptions.map((filterText) => (
-                <MenuItem
-                  key={`add-product-filter-${filterText}`}
-                  onClick={() => handleChangeFilter(filterText)}
-                  bg={filter === filterText ? 'blue.300' : 'none'}
-                  color={filter === filterText ? 'white' : 'blue.800'}
-                  rounded={4}
-                  _focus={{
-                    bg: 'blue.100',
-                  }}
-                >
-                  {filterText}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
-
-          <InputGroup>
-            <InputLeftElement pointerEvents="none">
-              <Icon as={BiSearchAlt} />
-            </InputLeftElement>
-            <Input
-              placeholder="Pesquise por algum produto"
-              value={searchContent}
-              onChange={(e) => setSearchContent(e.target.value)}
-            />
-          </InputGroup>
-        </Grid>
-
-        {/* Products selected */}
-        <Grid
-          templateColumns={{ base: '1fr', md: '1fr 1fr', lg: 'repeat(3, 1fr)' }}
-          gap={[2, 4]}
-        >
+      {selectedProducts.length > 0 && (
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {selectedProducts.map(({ _id, name, amount }) => (
-            <Flex
+            <div
               key={`selected-product-${_id}`}
-              align="center"
-              justify="space-between"
-              bg="gray.100"
-              p={3}
-              rounded="md"
-              color="blue.700"
-              gap={3}
+              className="flex items-center justify-between gap-3 rounded-(--radius) bg-secondary p-3 text-navy"
             >
-              <Flex direction="column" minW={0}>
-                <Text fontSize={14} fontWeight={600} noOfLines={2}>
-                  {name}
-                </Text>
-                <Text fontSize={13} fontWeight={500}>
+              <div className="flex min-w-0 flex-col">
+                <span className="truncate text-sm font-bold">{name}</span>
+                <span className="text-sm text-text-muted">
                   Qntd: {formatAmount({ num: amount, to: 'comma' })}
-                </Text>
-              </Flex>
-
-              <Icon
-                as={IoClose}
+                </span>
+              </div>
+              <X
                 onClick={() => handleRemoveSelectedProduct({ id: _id })}
-                cursor="pointer"
-                fontSize={[18, 20]}
-                flexShrink={0}
-                _hover={{
-                  bg: 'blue.100',
-                  rounded: 3,
-                }}
-                _active={{
-                  bg: 'blue.200',
-                }}
+                className="h-5 w-5 shrink-0 cursor-pointer rounded-sm hover:bg-border"
               />
-            </Flex>
+            </div>
           ))}
-        </Grid>
+        </div>
+      )}
 
-        {/* List of products */}
-        {isMobile ? (
-          <Box maxH="50vh" overflowY="auto" pr={1}>
-            <Stack spacing={3}>
-              {products?.length > 0 &&
-                products.map(({ _id, name, unitPrice, amount, category, isFavorite }) => (
-                  <Box
-                    key={`add-product-mobile-${_id}`}
-                    borderWidth="1px"
-                    borderColor="gray.200"
-                    rounded="md"
-                    p={3}
-                    bg="white"
-                  >
-                    <Flex justify="space-between" align="flex-start" gap={3}>
-                      <Box minW={0}>
-                        <Text fontWeight={700} color="blue.700" noOfLines={2}>
-                          {name}
-                        </Text>
+      {/* Mobile: cards */}
+      <div className="flex flex-col gap-3 md:hidden">
+        {products?.map(({ _id, name, unitPrice, amount, category, isFavorite }) => (
+          <div key={`add-product-mobile-${_id}`} className="rounded-(--radius) border border-border bg-card p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-bold text-navy">{name}</p>
+                <p className="text-sm text-text-muted">Quantidade: {amount}</p>
+                <p className="text-sm text-text-muted">Preço: {parseToBRL(unitPrice || 0)}</p>
+              </div>
+              <FavoriteToggle
+                isFavorite={isFavorite}
+                onToggle={() => (isFavorite ? handleUnfavoriteProduct(_id) : handleFavoriteProduct(_id))}
+              />
+            </div>
+            <Button
+              variant="secondary"
+              className="mt-3 w-full"
+              onClick={() => handleOpenAmountModal({ product: { _id, name, unitPrice, category } })}
+            >
+              Selecionar
+            </Button>
+          </div>
+        ))}
+        {products?.length === 0 && <EmptyState />}
+      </div>
 
-                        <Text fontSize="sm" color="gray.600">
-                          Quantidade: {amount}
-                        </Text>
+      {/* Desktop: table */}
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {productsColumns.map((column) => (
+                <TableHead key={`add-product-table-header-${column}`}>{column}</TableHead>
+              ))}
+              <TableHead />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {products?.length > 0 ? (
+              products.map(({ _id, name, unitPrice, amount, category, isFavorite }) => (
+                <TableRow key={`add-product-modal-product-${_id}`}>
+                  <TableCell>{name}</TableCell>
+                  <TableCell>{amount}</TableCell>
+                  <TableCell>{parseToBRL(unitPrice || 0)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-end gap-3">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleOpenAmountModal({ product: { _id, name, unitPrice, category } })}
+                      >
+                        Selecionar
+                      </Button>
+                      <FavoriteToggle
+                        isFavorite={isFavorite}
+                        onToggle={() => (isFavorite ? handleUnfavoriteProduct(_id) : handleFavoriteProduct(_id))}
+                      />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={4}>
+                  <EmptyState />
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-                        <Text fontSize="sm" color="gray.600">
-                          Preço: {parseToBRL(unitPrice || 0)}
-                        </Text>
-                      </Box>
-
-                      {isFavorite ? (
-                        <Icon
-                          onClick={() => handleUnfavoriteProduct(_id)}
-                          as={AiFillStar}
-                          fontSize={22}
-                          color="blue.600"
-                          cursor="pointer"
-                          flexShrink={0}
-                          _hover={{
-                            color: 'blue.700',
-                          }}
-                        />
-                      ) : (
-                        <Icon
-                          onClick={() => handleFavoriteProduct(_id)}
-                          as={AiOutlineStar}
-                          fontSize={22}
-                          color="blue.600"
-                          cursor="pointer"
-                          flexShrink={0}
-                          _hover={{
-                            color: 'blue.700',
-                          }}
-                        />
-                      )}
-                    </Flex>
-
-                    <Button
-                      mt={3}
-                      w="100%"
-                      bg="blue.50"
-                      color="blue.700"
-                      onClick={() =>
-                        handleOpenAmountModal({
-                          product: { _id, name, unitPrice, category },
-                        })
-                      }
-                    >
-                      Selecionar
-                    </Button>
-                  </Box>
-                ))}
-
-              {products?.length === 0 && (
-                <Flex align="center" gap={4} mt={4} color="blue.700">
-                  <Icon as={BiSad} fontSize={32} />
-                  <Text fontSize={18} fontWeight={600}>
-                    Nenhum Produto com essa categoria
-                  </Text>
-                </Flex>
-              )}
-            </Stack>
-          </Box>
-        ) : (
-          <TableContainer overflowY="auto" flex="1">
-            <Table w="100%" mt={[2, 4]} size="sm">
-              <Thead>
-                <Tr>
-                  {productsColumns.map((column) => (
-                    <Th key={`add-product-table-header-${column}`}>{column}</Th>
-                  ))}
-                  <Th />
-                </Tr>
-              </Thead>
-              <Tbody>
-                {products?.length > 0 &&
-                  products.map(
-                    ({ _id, name, unitPrice, amount, category, isFavorite }) => (
-                      <Tr key={`add-product-modal-product-${_id}`}>
-                        <Td>{name}</Td>
-                        <Td>{amount}</Td>
-                        <Td>{parseToBRL(unitPrice || 0)}</Td>
-                        <Td isNumeric>
-                          <Flex justify="flex-end" align="center" gap={2}>
-                            <Button
-                              bg="blue.50"
-                              color="blue.700"
-                              onClick={() =>
-                                handleOpenAmountModal({
-                                  product: { _id, name, unitPrice, category },
-                                })
-                              }
-                            >
-                              Selecionar
-                            </Button>
-
-                            {isFavorite ? (
-                              <Icon
-                                onClick={() => handleUnfavoriteProduct(_id)}
-                                as={AiFillStar}
-                                fontSize={[18, 20]}
-                                color="blue.600"
-                                cursor="pointer"
-                                _hover={{
-                                  color: 'blue.700',
-                                }}
-                              />
-                            ) : (
-                              <Icon
-                                onClick={() => handleFavoriteProduct(_id)}
-                                as={AiOutlineStar}
-                                fontSize={[18, 20]}
-                                color="blue.600"
-                                cursor="pointer"
-                                _hover={{
-                                  color: 'blue.700',
-                                }}
-                              />
-                            )}
-                          </Flex>
-                        </Td>
-                      </Tr>
-                    )
-                  )}
-
-                {products?.length === 0 && (
-                  <Tr>
-                    <Td>
-                      <Flex align="center" gap={4} mt={4} color="blue.700">
-                        <Icon as={BiSad} fontSize={32} />
-                        <Text fontSize={20} fontWeight={600}>
-                          Nenhum Produto com essa categoria
-                        </Text>
-                      </Flex>
-                    </Td>
-                  </Tr>
-                )}
-              </Tbody>
-            </Table>
-          </TableContainer>
-        )}
-
-        <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={4}>
-          <Button onClick={() => handleCloseModal()} w="100%">
-            Cancelar
-          </Button>
-
-          <Button
-            onClick={() => handleAddProductsInCommand()}
-            colorScheme="blue"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            gap={2}
-            isLoading={isAddingProducts}
-            loadingText="Adicionando Produtos"
-            w="100%"
-          >
-            <Icon as={MdPlaylistAdd} fontSize={[20, 24]} />
-            Adicionar Produtos
-          </Button>
-        </Grid>
-      </Stack>
-    </Modal>
-  );
-};
-
-const Square = () => (
-  <Box
-    w={[1, 1, 2]}
-    h={[1, 1, 2]}
-    mt={[0, 0, 1]}
-    ml={[0, 0, 1]}
-    rounded={2}
-    bg="blue.200"
-  />
+      <div className="grid gap-3 md:grid-cols-2">
+        <Button variant="secondary" onClick={() => handleCloseModal()}>
+          Cancelar
+        </Button>
+        <Button onClick={() => handleAddProductsInCommand()} disabled={isAddingProducts}>
+          {isAddingProducts ? <Loader2 className="h-4 w-4 animate-spin" /> : <ListPlus className="h-4 w-4" />}
+          {isAddingProducts ? 'Adicionando Produtos' : 'Adicionar Produtos'}
+        </Button>
+      </div>
+    </div>
+  </Modal>
 );

@@ -1,34 +1,28 @@
-/* eslint-disable react/display-name */
-/* eslint-disable react/destructuring-assignment */
-
-import { Button as ChakraButton } from '@chakra-ui/react';
 import { forwardRef } from 'react';
 
-export const Button = forwardRef((props: any, ref: any) => (
-  <ChakraButton
-    {...props}
-    ref={ref}
-    alignItems="center"
-    gap={[1, 1, 2]}
-    bg={props.isCallAction ? 'blue.400' : 'blue.50'}
-    color={props.isCallAction ? 'blue.50' : 'blue.800'}
-    boxShadow="base"
-    fontSize={['sm', 'md', 'lg']}
-    fontWeight={600}
-    p={[2, 4, 6]}
-    _hover={{
-      bg: props.isCallAction ? 'blue.500' : 'blue.200',
-      color: props.isCallAction ? 'blue.50' : 'blue.700',
-    }}
-    _active={{
-      bg: props.isCallAction ? 'blue.400' : 'blue.50',
-      color: props.isCallAction ? 'blue.50' : 'blue.700',
-    }}
-  >
-    {props.children}
-  </ChakraButton>
-));
+import { Button as ShadcnButton, type ButtonProps } from 'components/ui/button';
+import { cn } from 'lib/utils';
 
-// export const Button = (props: any) => (
+interface LegacyButtonProps extends Omit<ButtonProps, 'variant'> {
+  isCallAction?: boolean;
+  isDisabled?: boolean;
+  // Screens not yet migrated off Chakra still pass Chakra style props
+  // (w, h, isLoading, loadingText, ...) into this shared Button. Once every
+  // call site is migrated to Tailwind classes, this index signature — and the
+  // ChakraButton compatibility it exists for — can be removed.
+  [key: string]: any;
+}
 
-// );
+export const Button = forwardRef<HTMLButtonElement, LegacyButtonProps>(
+  ({ isCallAction, isDisabled, disabled, className, ...props }, ref) => (
+    <ShadcnButton
+      {...props}
+      ref={ref}
+      disabled={disabled ?? isDisabled}
+      variant={isCallAction ? 'primary' : 'secondary'}
+      className={cn(className)}
+    />
+  ),
+);
+
+Button.displayName = 'Button';

@@ -1,7 +1,6 @@
 // OrdersListLayout.tsx
 import { useContext, useMemo } from 'react';
-import { Flex, Heading, Icon, Stack, Switch } from '@chakra-ui/react';
-import { RiZzzFill } from 'react-icons/ri';
+import { Moon } from 'lucide-react';
 import { KitchenContext } from 'pages-components/Kitchen';
 
 // dnd-kit
@@ -75,37 +74,40 @@ export const OrdersListLayout = ({ orders, onReorder }: Props) => {
   };
 
   return (
-    <>
-      <Switch isChecked={isKitchen} onChange={(e) => setIsKitchen(e.target.checked)}>
+    <div className="flex flex-col gap-4">
+      <label htmlFor="kitchen-bar-toggle" className="flex items-center gap-2.5 text-sm font-bold text-navy">
+        <span className="relative inline-flex h-5 w-9 items-center">
+          <input
+            id="kitchen-bar-toggle"
+            type="checkbox"
+            checked={isKitchen}
+            onChange={(e) => setIsKitchen(e.target.checked)}
+            className="peer sr-only"
+          />
+          <span className="absolute inset-0 rounded-full bg-secondary transition-colors peer-checked:bg-gold" />
+          <span className="absolute left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4" />
+        </span>
         {isKitchen ? 'Cozinha' : 'Bar'}
-      </Switch>
+      </label>
 
       <DndContext onDragEnd={handleDragEnd}>
         <SortableContext items={visibleIds} strategy={verticalListSortingStrategy}>
-          <Stack gap={[2, 4]} alignItems={visibleOrders.length === 0 ? 'center' : 'auto'}>
-            {visibleOrders.length > 0 &&
-              visibleOrders.map(order => <DraggableOrder order={order} key={order._id} />)}
+          <div className="flex flex-col gap-3">
+            {visibleOrders.map((order) => (
+              <DraggableOrder order={order} key={order._id} />
+            ))}
 
             {visibleOrders.length === 0 && (
-              <Flex
-                gap={2}
-                mt={4}
-                align="center"
-                justify="center"
-                bg="blue.50"
-                p={[2, 4]}
-                boxShadow="sm"
-                rounded={4}
-              >
-                <Icon as={RiZzzFill} fontSize={[20, 24]} color="blue.800" />
-                <Heading color="blue.800" fontSize={[20, 24]} textAlign="center">
+              <div className="mt-2 flex items-center justify-center gap-2 rounded-card bg-secondary p-4 shadow-sm">
+                <Moon className="h-6 w-6 text-navy" />
+                <span className="text-center font-heading text-lg font-extrabold text-navy sm:text-xl">
                   Nenhum pedido a ser preparado
-                </Heading>
-              </Flex>
+                </span>
+              </div>
             )}
-          </Stack>
+          </div>
         </SortableContext>
       </DndContext>
-    </>
+    </div>
   );
 };

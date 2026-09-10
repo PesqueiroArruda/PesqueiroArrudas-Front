@@ -1,5 +1,7 @@
-import { Button, FormControl, Input, Text, useToast } from '@chakra-ui/react';
+import { useToast } from '@chakra-ui/react';
 import { Modal } from 'components/Modal';
+import { Button } from 'components/ui/button';
+import { Input } from 'components/ui/input';
 import { useState, useRef, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { HomeLayout } from './layout';
@@ -91,23 +93,20 @@ export const Home = () => {
       <Modal
         isOpen={isAsksPermitionModalOpen}
         onClose={handleCloseAsksPermitionModal}
-        title=""
+        title="Senha de acesso"
       >
-        <FormControl as="form" onSubmit={handleAccessClosedCashiers}>
-          <Text>Senha de acesso</Text>
+        <form onSubmit={handleAccessClosedCashiers} className="flex flex-col gap-3">
           <Input
             onChange={(e) => {
               password.current = e.target.value;
             }}
-            backgroundColor="transparent"
             autoFocus
-            mt={1}
             type="password"
           />
-          <Button type="submit" w="100%" mt={3}>
+          <Button type="submit" className="w-full">
             Acessar
           </Button>
-        </FormControl>
+        </form>
       </Modal>
     </>
   );

@@ -1,59 +1,27 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import { Dispatch, SetStateAction, useContext } from 'react';
+import { ArrowUp, Frown, MinusCircle, MoreVertical, PlusCircle, Trash2, Wallet } from 'lucide-react';
+
 import {
-  Flex,
-  Icon,
-  Table,
-  TableContainer,
-  Thead,
-  Tr,
-  Th,
-  Tbody,
-  Td,
-  Text,
-  FormControl,
-  Input,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-} from '@chakra-ui/react';
-import { motion } from 'framer-motion';
-
-import { BsFillTrashFill } from 'react-icons/bs';
-import { FaArrowUp } from 'react-icons/fa';
-import { CgOptions } from 'react-icons/cg';
-import { IoCashOutline } from 'react-icons/io5';
-import { BiSad } from 'react-icons/bi';
-import { AiOutlineMinusCircle, AiOutlinePlusCircle } from 'react-icons/ai';
-
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from 'components/ui/dropdown-menu';
+import { Input } from 'components/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'components/ui/table';
+import { cn } from 'lib/utils';
+import { CommandContext } from 'pages-components/Command';
 import { Product } from 'types/Product';
 import { formatAmount } from 'utils/formatAmount';
-import { useClickOutsideToClose } from 'hooks/useClickOutsideToClose';
-import { CommandContext } from 'pages-components/Command';
 import { parseToBRL } from 'utils/parseToBRL';
+import { useClickOutsideToClose } from 'hooks/useClickOutsideToClose';
 
 const columns = [
-  {
-    text: 'Nome',
-    prop: 'name',
-  },
-  {
-    text: 'Quantidade',
-    prop: 'amount',
-  },
-  {
-    text: 'Preço Unid',
-    prop: 'unitPrice',
-  },
-  {
-    text: 'Total',
-    prop: 'total',
-  },
-  {
-    text: 'Pago',
-    prop: 'totalPayed',
-  },
+  { text: 'Nome', prop: 'name' },
+  { text: 'Quantidade', prop: 'amount' },
+  { text: 'Preço Unid', prop: 'unitPrice' },
+  { text: 'Total', prop: 'total' },
+  { text: 'Pago', prop: 'totalPayed' },
 ];
 
 interface ActiveEditFish {
@@ -82,13 +50,7 @@ interface Props {
   setFishIdToEditAmount: Dispatch<SetStateAction<string>>;
   handleOpenPayProductModal: (product: Product) => void;
   handleDecrementProductAmount: (product: AmountProduct) => void;
-  handleIncrementProductAmount: ({
-    productId,
-    amount,
-  }: {
-    productId: string;
-    amount: number;
-  }) => void;
+  handleIncrementProductAmount: ({ productId, amount }: { productId: string; amount: number }) => void;
   isAdmin: boolean;
 }
 
@@ -107,161 +69,125 @@ export const ProductsListLayout = ({
   handleOpenPayProductModal,
   handleIncrementProductAmount,
   handleDecrementProductAmount,
-  isAdmin
+  isAdmin,
 }: Props) => {
   const { command } = useContext(CommandContext);
   const commandIsPayed = command?.isActive === false;
 
   const isFishingCategory = (category?: string) =>
-    category?.toLowerCase() === 'peixes' ||
-    category?.toLowerCase() === 'misturas congeladas';
+    category?.toLowerCase() === 'peixes' || category?.toLowerCase() === 'misturas congeladas';
 
   const editAmountInputRef = useClickOutsideToClose(() => {
     setFishIdToEditAmount('');
   });
 
+  const visibleColumns = columns.slice(0, commandIsPayed ? 4 : 5);
+
   return (
-    <TableContainer mt={16} minHeight={400} pb={32} id='commandProducts'>
-      <Table overflow="visible" minHeight={100}>
-        <Thead>
-          <Tr>
-            {columns.slice(0, commandIsPayed ? 4 : 5).map(({ text, prop }) => (
-              <Th key={`products-list-header${prop}`}>
-                <Flex align="center" gap={2}>
+    <div id="commandProducts">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {visibleColumns.map(({ text, prop }) => (
+              <TableHead key={`products-list-header${prop}`}>
+                <div className="flex items-center gap-2">
                   {text}
                   {orderBy.toLowerCase() === prop.toLowerCase() && (
-                    <motion.div
-                      onClick={() => handleToggleOrderByDir()}
-                      style={{
-                        transform:
-                          orderByDir === 'asc'
-                            ? 'rotate(0deg)'
-                            : 'rotate(180deg)',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <Icon as={FaArrowUp} fontSize={14} />
-                    </motion.div>
+                    <ArrowUp
+                      onClick={handleToggleOrderByDir}
+                      className={cn(
+                        'h-4 w-4 cursor-pointer text-navy transition-transform',
+                        orderByDir === 'desc' && 'rotate-180',
+                      )}
+                    />
                   )}
-                </Flex>
-              </Th>
+                </div>
+              </TableHead>
             ))}
-          </Tr>
-        </Thead>
-        <Tbody>
-          {products?.length > 0 &&
-            products?.map(
-              ({
-                _id,
-                name,
-                amount,
-                unitPrice,
-                category,
-                totalPayed,
-              }: Product) => (
-                <Tr key={`product-list${name}`} h={20}>
-                  <Td>{name}</Td>
-                  <Td>
-                    <Flex gap={[2, 4]} align="center">
-                      {/* Form to edit tha amount of fish products */}
-                      {fishIdToEditAmount === _id ? (
-                        <FormControl
-                          as="form"
-                          onSubmit={(e) =>
-                            handleUpdateProductAmount(e, {
-                              productId: _id,
-                              isFish: isFishingCategory(category),
-                            })
-                          }
-                          w="auto"
-                        >
-                          <Input
-                            value={newProductAmount}
-                            onChange={(e) =>
-                              setNewProductAmount(e.target.value)
-                            }
-                            ref={editAmountInputRef}
-                            autoFocus
-                          />
-                        </FormControl>
-                      ) : (
-                        <>
-                          {!commandIsPayed && !isFishingCategory(category) && (
-                            <Icon
-                              as={AiOutlineMinusCircle}
-                              onClick={() =>{
-                                  if(isAdmin){
-                                    handleDecrementProductAmount({
-                                      _id,
-                                      amount,
-                                      unitPrice,
-                                      totalPayed: Number(totalPayed) as number,
-                                    })
-                                  }
-                                  
-                                }
-                              }
-                              cursor="pointer"
-                            />
-                          )}
-                          <Text
+            {isAdmin && <TableHead />}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {products?.length > 0 ? (
+            products.map(({ _id, name, amount, unitPrice, category, totalPayed }: Product) => (
+              <TableRow key={`product-list${name}`}>
+                <TableCell>{name}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    {fishIdToEditAmount === _id ? (
+                      <form
+                        onSubmit={(e) =>
+                          handleUpdateProductAmount(e, {
+                            productId: _id,
+                            isFish: isFishingCategory(category),
+                          })
+                        }
+                      >
+                        <Input
+                          value={newProductAmount}
+                          onChange={(e) => setNewProductAmount(e.target.value)}
+                          ref={editAmountInputRef}
+                          autoFocus
+                          className="w-28"
+                        />
+                      </form>
+                    ) : (
+                      <>
+                        {!commandIsPayed && !isFishingCategory(category) && (
+                          <MinusCircle
                             onClick={() => {
-                              if (!commandIsPayed) {
-                                handleActiveEditFishAmount({
-                                  productId: _id,
-                                  amount: amount.toString(),
+                              if (isAdmin) {
+                                handleDecrementProductAmount({
+                                  _id,
+                                  amount,
+                                  unitPrice,
+                                  totalPayed: Number(totalPayed) as number,
                                 });
                               }
                             }}
-                          >
-                            {isFishingCategory(category)
-                              ? `${formatAmount({
-                                  num: amount.toString(),
-                                  to: 'comma',
-                                })} Kg`
-                              : amount}
-                          </Text>
-                          {!commandIsPayed && !isFishingCategory(category) && (
-                            <Icon
-                              as={AiOutlinePlusCircle}
-                              onClick={() =>
-                                handleIncrementProductAmount({
-                                  productId: _id,
-                                  amount,
-                                })
-                              }
-                              cursor="pointer"
-                            />
-                          )}
-                        </>
-                      )}
-                    </Flex>
-                  </Td>
-                  <Td>{parseToBRL(unitPrice || 0)}</Td>
-                  <Td>{parseToBRL(Number((amount * unitPrice).toFixed(2)))}</Td>
-                  {!commandIsPayed && <Td>{parseToBRL(totalPayed || 0)}</Td>}
+                            className="h-5 w-5 cursor-pointer text-navy hover:text-cyan"
+                          />
+                        )}
+                        <button
+                          type="button"
+                          disabled={commandIsPayed}
+                          onClick={() =>
+                            handleActiveEditFishAmount({
+                              productId: _id,
+                              amount: amount.toString(),
+                            })
+                          }
+                          className={cn('text-left', !commandIsPayed && 'cursor-pointer')}
+                        >
+                          {isFishingCategory(category)
+                            ? `${formatAmount({ num: amount.toString(), to: 'comma' })} Kg`
+                            : amount}
+                        </button>
+                        {!commandIsPayed && !isFishingCategory(category) && (
+                          <PlusCircle
+                            onClick={() => handleIncrementProductAmount({ productId: _id, amount })}
+                            className="h-5 w-5 cursor-pointer text-navy hover:text-cyan"
+                          />
+                        )}
+                      </>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>{parseToBRL(unitPrice || 0)}</TableCell>
+                <TableCell>{parseToBRL(Number((amount * unitPrice).toFixed(2)))}</TableCell>
+                {!commandIsPayed && <TableCell>{parseToBRL(totalPayed || 0)}</TableCell>}
 
-                  {isAdmin && (
-                    <Td isNumeric>
-                      {(!commandIsPayed) && (
-                        <Menu>
-                          <MenuButton
-                            p={1}
-                            rounded={4}
-                            _hover={{
-                              bg: 'blue.50',
-                            }}
-                          >
-                            <Icon
-                              as={CgOptions}
-                              fontSize={[16, 22]}
-                              color="blue.800"
-                            />
-                          </MenuButton>
-                          <MenuList>
-                            <MenuItem
-                              icon={<IoCashOutline fontSize={14} />}
-                              onClick={() =>
+                {isAdmin && (
+                  <TableCell>
+                    {!commandIsPayed && (
+                      <div className="flex justify-end">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger className="rounded-(--radius) p-1 text-navy hover:bg-secondary">
+                            <MoreVertical className="h-5 w-5" />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onSelect={() =>
                                 handleOpenPayProductModal({
                                   _id,
                                   name,
@@ -271,45 +197,34 @@ export const ProductsListLayout = ({
                                   totalPayed,
                                 })
                               }
-                              display="flex"
-                              alignItems="center"
                             >
-                              <Text>Pagar Produto</Text>
-                            </MenuItem>
-                            <MenuItem
-                              icon={<BsFillTrashFill fontSize={14} />}
-                              onClick={() =>
-                                handleOpenDeleteModal({ productId: _id })
-                              }
-                              color="red.500"
-                              display="flex"
-                              alignItems="center"
-                            >
-                              <Text>Deletar</Text>
-                            </MenuItem>
-                          </MenuList>
-                        </Menu>
-                      )}
-                    </Td>
-                  )}
-                  
-                </Tr>
-              )
-            )}
-          {products?.length === 0 && (
-            <Tr>
-              <Td>
-                <Flex align="center" gap={4} mt={4} color="blue.700">
-                  <Icon as={BiSad} fontSize={32} />
-                  <Text fontSize={20} fontWeight={600}>
-                    Nenhum produto encontrado
-                  </Text>
-                </Flex>
-              </Td>
-            </Tr>
+                              <Wallet className="h-4 w-4" />
+                              Pagar Produto
+                            </DropdownMenuItem>
+                            <DropdownMenuItem destructive onSelect={() => handleOpenDeleteModal({ productId: _id })}>
+                              <Trash2 className="h-4 w-4" />
+                              Deletar
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    )}
+                  </TableCell>
+                )}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={visibleColumns.length + (isAdmin ? 1 : 0)}>
+                <div className="flex items-center gap-3 py-4 text-navy">
+                  <Frown className="h-7 w-7" />
+                  <span className="text-lg font-bold">Nenhum produto encontrado</span>
+                </div>
+              </TableCell>
+            </TableRow>
           )}
-        </Tbody>
+        </TableBody>
       </Table>
-    </TableContainer>
+    </div>
   );
 };

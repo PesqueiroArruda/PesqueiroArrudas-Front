@@ -1,10 +1,8 @@
 import { SetStateAction, Dispatch } from 'react';
-import { Heading, Icon } from '@chakra-ui/react';
-import { MdOutlineAddBox } from 'react-icons/md';
+import { PackagePlus } from 'lucide-react';
 
-import { Button } from 'components/Button';
-import { Header } from 'components/Header';
-import { Layout } from 'components/Layout';
+import { AppShell } from 'components/AppShell';
+import { Button } from 'components/ui/button';
 import { NavHeader } from './components/NavHeader';
 import { ItemsTable } from './components/ItemsTable';
 
@@ -27,25 +25,22 @@ export const StockLayout = ({
   handleGoToHome,
   handleDownload,
 }: Props) => (
-  <Layout>
-    <Header hasBackPageBtn handleBackPage={() => handleGoToHome()}>
-      <Button onClick={handleDownload} w="auto">
-        Baixar Dados
-      </Button>
-      <Button onClick={() => setIsAddItemModalOpen(true)} isCallAction h="100%">
-        <Icon as={MdOutlineAddBox} />
-        Adicionar Item
-      </Button>
-    </Header>
-    <Heading mb={8} color="blue.800" fontSize={[16, 20, 24, 32]}>
-      Estoque
-    </Heading>
-    <NavHeader
-      filters={filters}
-      setFilters={setFilters}
-      orderBy={orderBy}
-      setOrderBy={setOrderBy}
-    />
-    <ItemsTable />
-  </Layout>
+  <AppShell hasBackPageBtn handleBackPage={handleGoToHome}>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="font-heading text-xl font-extrabold text-navy sm:text-2xl">Estoque</h1>
+        <div className="flex gap-3">
+          <Button onClick={handleDownload} variant="secondary">
+            Baixar Dados
+          </Button>
+          <Button onClick={() => setIsAddItemModalOpen(true)}>
+            <PackagePlus className="h-4 w-4" />
+            Adicionar Item
+          </Button>
+        </div>
+      </div>
+      <NavHeader filters={filters} setFilters={setFilters} orderBy={orderBy} setOrderBy={setOrderBy} />
+      <ItemsTable />
+    </div>
+  </AppShell>
 );

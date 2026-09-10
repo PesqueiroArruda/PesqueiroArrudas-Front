@@ -1,36 +1,19 @@
-import {
-  Flex,
-  Icon,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Stack,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-  Text,
-  Box,
-} from '@chakra-ui/react';
+import { BadgeCheck, MoreVertical, PackageCheck } from 'lucide-react';
+
 import { Modal } from 'components/Modal';
-import { BsPatchCheckFill, BsPatchCheck } from 'react-icons/bs';
-import { CgOptions } from 'react-icons/cg';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from 'components/ui/dropdown-menu';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'components/ui/table';
 import { Order as OrderProps } from 'types/Order';
 import { OrderProduct } from 'types/OrderProduct';
 
 const productColumns = [
-  {
-    text: 'Nome',
-    prop: 'name',
-  },
-  {
-    text: 'Quantidade',
-    prop: 'amount',
-  },
+  { text: 'Nome', prop: 'name' },
+  { text: 'Quantidade', prop: 'amount' },
   { text: '', prop: '*' },
 ];
 
@@ -50,114 +33,60 @@ export const OrderActionsLayout = ({
   productsToShipNow,
 }: Props) => (
   <Modal title="" isOpen={isModalOpen} onClose={handleCloseModal}>
-    <Stack>
-      <Text fontWeight={600} fontSize={[16, 18]} color="blue.800">
-        Produtos enviados à cozinha
-      </Text>
-      <TableContainer
-        bg="whiteAlpha.700"
-        // bg="blue.50"
-        color="blue.900"
-        py={[2, 3]}
-        rounded={4}
-        boxShadow="sm"
-        overflow="visible"
-        pb="42px !important"
-      >
-        <Table size="md" textAlign="left">
-          <Thead>
-            <Tr>
-              {productColumns.map((column) => (
-                <Th
-                  key={`kitchen-order-product-column-${column.prop}`}
-                  color="blue.900"
-                >
-                  {column.text}
-                </Th>
-              ))}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {kitchenOrderSended?.products?.map(
-              ({ _id, name, amount, isMade }) => (
-                <Tr key={`${kitchenOrderSended?._id}${_id}`}>
-                  <Td w="50%">{name}</Td>
-                  <Td w="40%">{amount}</Td>
-                  <Td
-                    isNumeric
-                    display="flex"
-                    gap={2}
-                    align="center"
-                    justifyContent="flex-end"
-                  >
-                    {isMade && (
-                      <Flex bg="green.300" gap={2} px={2} py={1} rounded={3}>
-                        <Icon
-                          as={BsPatchCheckFill}
-                          color="white"
-                          mt={0.5}
-                          fontSize={[16, 18]}
-                        />
-                        <Text fontWeight={600} color="white">
-                          Feito
-                        </Text>
-                      </Flex>
-                    )}
-                    <Menu>
-                      <MenuButton>
-                        <Icon
-                          as={CgOptions}
-                          fontSize={[16, 22]}
-                          display="block"
-                          color="blue.800"
-                        />
-                      </MenuButton>
-                      <MenuList p={1.5}>
-                        <MenuItem
-                          onClick={() =>
-                            handleSelectAmountToShip({
-                              _id,
-                              name,
-                              amount,
-                              isMade,
-                            })
-                          }
-                          display="flex"
-                          icon={<BsPatchCheck fontSize={17} />}
-                          fontWeight="600"
-                          rounded={4}
-                        >
-                          <Text m={0}>Entregar agora</Text>
-                        </MenuItem>
-                      </MenuList>
-                    </Menu>
-                  </Td>
-                </Tr>
-              )
-            )}
-          </Tbody>
-        </Table>
-      </TableContainer>
-    </Stack>
+    <div className="flex flex-col gap-3">
+      <p className="text-base font-bold text-navy sm:text-lg">Produtos enviados à cozinha</p>
+
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {productColumns.map((column) => (
+              <TableHead key={`kitchen-order-product-column-${column.prop}`}>{column.text}</TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {kitchenOrderSended?.products?.map(({ _id, name, amount, isMade }) => (
+            <TableRow key={`${kitchenOrderSended?._id}${_id}`}>
+              <TableCell>{name}</TableCell>
+              <TableCell>{amount}</TableCell>
+              <TableCell>
+                <div className="flex items-center justify-end gap-2">
+                  {isMade && (
+                    <span className="flex items-center gap-1.5 rounded-(--radius) bg-success px-2 py-1 text-sm font-bold text-white">
+                      <BadgeCheck className="h-4 w-4" />
+                      Feito
+                    </span>
+                  )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="rounded-(--radius) p-1 text-navy hover:bg-secondary">
+                      <MoreVertical className="h-5 w-5" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => handleSelectAmountToShip({ _id, name, amount, isMade })}>
+                        <PackageCheck className="h-4 w-4" />
+                        Entregar agora
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+
     {productsToShipNow.length > 0 && (
-      <Stack mt={2}>
-        <Text fontWeight={600} color="blue.800">
-          Produtos para entregar agora
-        </Text>
+      <div className="mt-3 flex flex-col gap-2">
+        <p className="font-bold text-navy">Produtos para entregar agora</p>
         {productsToShipNow.map(({ _id, name, amount }) => (
-          <Box
-            key={`list-ship-now-${_id}`}
-            bg="blue.50"
-            p={2}
-            rounded={4}
-            boxShadow="sm"
-          >
-            <Text textAlign="center" fontWeight={600} color="blue.800">
+          <div key={`list-ship-now-${_id}`} className="rounded-(--radius) bg-secondary p-2 text-center shadow-sm">
+            <span className="font-bold text-navy">
               {name}, {amount}
-            </Text>
-          </Box>
+            </span>
+          </div>
         ))}
-      </Stack>
+      </div>
     )}
   </Modal>
 );

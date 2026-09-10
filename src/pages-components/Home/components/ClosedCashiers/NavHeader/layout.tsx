@@ -1,5 +1,7 @@
-import { Button, Grid, Stack, Text, Flex, Select } from '@chakra-ui/react';
 import { Dispatch, SetStateAction } from 'react';
+import { Download } from 'lucide-react';
+
+import { Button } from 'components/ui/button';
 import { parseToBRL } from 'utils/parseToBRL';
 
 interface Props {
@@ -13,32 +15,14 @@ interface Props {
 }
 
 const cashiersMonthOptions = [
-  'Todos',
-  'Janeiro',
-  'Fevereiro',
-  'Março',
-  'Abril',
-  'Maio',
-  'Junho',
-  'Julho',
-  'Agosto',
-  'Setembro',
-  'Outubro',
-  'Novembro',
-  'Dezembro',
+  'Todos', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
 ];
 
-const cashiersYearOptions = [
-  'Todos',
-  '2022',
-  '2023',
-  '2024',
-  '2025',
-  '2026',
-  '2027',
-  '2028',
-  '2030',
-];
+const cashiersYearOptions = ['Todos', '2022', '2023', '2024', '2025', '2026', '2027', '2028', '2030'];
+
+const selectClassName =
+  'h-10 rounded-(--radius) border border-input bg-card px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
 export const NavHeaderLayout = ({
   handleDownloadCashiers,
@@ -49,61 +33,36 @@ export const NavHeaderLayout = ({
   totalCommands,
   totalValue,
 }: Props) => (
-  <Stack gap={2}>
-    <Grid gridTemplateColumns={['1fr 1fr']} gap={4}>
-      <Stack color="blue.800">
-        <Text fontWeight={600}>Mês</Text>
-        <Select
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          fontWeight={600}
-        >
+  <div className="flex flex-col gap-3">
+    <div className="grid grid-cols-2 gap-4">
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm font-semibold text-navy">Mês</span>
+        <select value={month} onChange={(e) => setMonth(e.target.value)} className={selectClassName}>
           {cashiersMonthOptions.map((m) => (
             <option key={`cashiers-month-${m}`}>{m}</option>
           ))}
-        </Select>
-      </Stack>
-      <Stack color="blue.800">
-        <Text fontWeight={600}>Ano</Text>
-        <Select
-          value={year}
-          onChange={(e) => setYear(e.target.value)}
-          fontWeight={600}
-        >
+        </select>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm font-semibold text-navy">Ano</span>
+        <select value={year} onChange={(e) => setYear(e.target.value)} className={selectClassName}>
           {cashiersYearOptions.map((y) => (
             <option key={`cashiers-year-${y}`}>{y}</option>
           ))}
-        </Select>
-      </Stack>
-    </Grid>
-    <Flex w="100%" justify="space-between" gap={4}>
-      <Text
-        fontWeight={600}
-        fontSize={[14, 16, 18]}
-        color="blue.700"
-        bg="blue.50"
-        padding={2}
-        px={4}
-        rounded={4}
-        flex="1"
-        textAlign="center"
-      >
+        </select>
+      </div>
+    </div>
+    <div className="flex w-full gap-4">
+      <p className="flex-1 rounded-card bg-secondary px-4 py-2 text-center text-sm font-bold text-navy">
         Valor Total: {parseToBRL(totalValue || 0)}
-      </Text>
-      <Text
-        fontWeight={600}
-        fontSize={[14, 16, 18]}
-        color="blue.700"
-        bg="blue.50"
-        padding={2}
-        px={4}
-        rounded={4}
-        flex="1"
-        textAlign="center"
-      >
+      </p>
+      <p className="flex-1 rounded-card bg-secondary px-4 py-2 text-center text-sm font-bold text-navy">
         Comandas: {totalCommands}
-      </Text>
-    </Flex>
-    <Button onClick={handleDownloadCashiers}>Baixar Caixas</Button>
-  </Stack>
+      </p>
+    </div>
+    <Button onClick={handleDownloadCashiers} variant="secondary">
+      Baixar Caixas
+      <Download className="h-4 w-4" />
+    </Button>
+  </div>
 );

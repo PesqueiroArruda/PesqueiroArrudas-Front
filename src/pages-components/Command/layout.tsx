@@ -1,33 +1,15 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
-/* eslint-disable react/destructuring-assignment */
-import {
-  Heading,
-  Spinner,
-  Flex,
-  Icon,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Text,
-  Grid,
-  GridItem,
-  Stack,
-  Button,
-} from '@chakra-ui/react';
 import { DateTime } from 'luxon';
+import { BadgeCheck, ChefHat, Loader2, MoreVertical, Percent, Printer, Trash2, Wallet } from 'lucide-react';
 
-import { CgOptions } from 'react-icons/cg';
-import { MdVerified } from 'react-icons/md';
-import { BsFillTrashFill } from 'react-icons/bs';
-import { IoCashOutline } from 'react-icons/io5';
-import { FaPercentage } from 'react-icons/fa';
-import { FiPrinter } from "react-icons/fi";
-
-import { Header } from 'components/Header';
-import { Layout } from 'components/Layout';
+import { AppShell } from 'components/AppShell';
+import { Button } from 'components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from 'components/ui/dropdown-menu';
 import { Command } from 'types/Command';
-import { GiCook } from 'react-icons/gi';
 import { parseToBRL } from 'utils/parseToBRL';
 import { NavHeader } from './components/NavHeader';
 import { ProductsList } from './components/ProductsList';
@@ -57,7 +39,7 @@ export const CommandLayout = ({
   totalToBePayed,
   handleEditDiscount,
   handlePrintCommand,
-  isAdmin
+  isAdmin,
 }: Props) => {
   const dt = DateTime.fromISO(command?.createdAt as string, {
     zone: 'pt-BR',
@@ -66,269 +48,95 @@ export const CommandLayout = ({
   const createdAtFormatted = dt.toLocaleString(DateTime.DATETIME_MED);
 
   return (
-    <Layout>
-      <Header hasBackPageBtn handleBackPage={handleGoToCommands}>
-        {command?.isActive === false ? (
-          <BgBox
-            bg="green.300"
-            gap={3}
-            display="flex"
-            align="center"
-            justify="center"
-          >
-            <Heading fontSize={[18, 22, 26]} color="green.50">
-              COMANDA PAGA
-            </Heading>
-            <Icon
-              as={MdVerified}
-              fontSize={[18, 22, 26]}
-              m={0}
-              color="green.50"
-            />
-          </BgBox>
-        ) : (
-          <Button
-            onClick={() => {
-              handleOpenSentToKitchenModal()
-            }}
-            display="flex"
-            alignItems="center"
-            gap={3}
-            bg="blue.50"
-            border="1px solid"
-            borderColor="gray.300"
-            h="100%"
-            as="button"
-            _hover={{
-              bg: 'blue.200',
-            }}
-            _active={{
-              bg: 'blue.200',
-            }}
-            color="blue.800"
-            // disabled={!command.hasPendingOrders}
-          >
-            <Heading
-              fontSize={[14, 16, 18]}
-              textAlign="center"
-              color="blue.800"
-            >
-              Mandar para Cozinha
-            </Heading>
-            <Icon as={GiCook} />
-          </Button>
-        )}
-      </Header>
+    <AppShell hasBackPageBtn handleBackPage={handleGoToCommands}>
       {isLoading ? (
-        <Spinner
-          size="xl"
-          position="absolute"
-          left="50%"
-          top="50%"
-          transform="translate(-50%, -50%)"
-        />
+        <div className="flex justify-center py-16">
+          <Loader2 className="h-8 w-8 animate-spin text-gold" />
+        </div>
       ) : (
-        <>
-          <Grid
-            gridTemplateColumns={['1fr', '1fr', '1fr', '1fr auto']}
-            mb={4}
-            gap={2}
-          >
-            <GridItem
-              display="flex"
-              justifyContent={['center', 'center', 'center', 'flex-start']}
-            >
-              <Stack align={['center', 'center', 'center', 'flex-start']}>
-                <BgBox w={['100%', '100%', '100%', 'auto']} justify="center">
-                  <Heading fontSize={[16, 20, 22]} textAlign="center" >
-                    <div>
-                      Comanda: <span id='commandName'>{command?.table}</span>
-                    </div>
-                  </Heading>
-                </BgBox>
-                <Text fontSize={[14, 16]} color="blue.700">
-                  {createdAtFormatted}
-                </Text>
-              </Stack>
-            </GridItem>
-            <GridItem>
-              <Flex
-                gap={2}
-                flexDir={['column', 'column', 'row', 'row']}
-                justify={['center', 'center', 'center', 'flex-end']}
-                align="stretch"
-              >
-                <BgBox w={['100%', 'auto']} justify="center">
-                  <Heading fontSize={[14, 16, 20, 22]} >
-                    <div >
-                      Total: <span>{parseToBRL(command?.total || 0)}</span>
-                    </div>
-                  </Heading>
-                </BgBox>
-                <BgBox w={['100%', 'auto']} justify="center">
-                  <Heading fontSize={[14, 16, 20, 22]}>
-                    <div id='commandPrice'>
-                      A Pagar: {parseToBRL(totalToBePayed || 0)}
-                    </div>
-                  </Heading>
-                </BgBox>
+        <div className="flex flex-col gap-5">
+          <div className="flex justify-center xl:justify-end">
+            {command?.isActive === false ? (
+              <span className="inline-flex items-center gap-2 rounded-card bg-success px-4 py-2 font-heading text-lg font-extrabold text-white">
+                COMANDA PAGA
+                <BadgeCheck className="h-5 w-5" />
+              </span>
+            ) : (
+              <Button variant="secondary" onClick={handleOpenSentToKitchenModal}>
+                Mandar para Cozinha
+                <ChefHat className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
 
-                {isAdmin && (
-                  <>
-                    <Button
-                      onClick={() => handleOpenPaymentModal()}
-                      isDisabled={command.isActive === false}
-                      bg="blue.50"
-                      color="blue.500"
-                      fontWeight="700"
-                      display="flex"
-                      justifyItems="center"
-                      alignItems="center"
-                      rounded={4}
-                      gap={2}
-                      _focus={{
-                        bg: 'green.100',
-                        color: 'green.500',
-                      }}
-                      _hover={{
-                        bg: 'green.100',
-                        color: 'green.500',
-                      }}
-                      fontSize={[14, 16, 20]}
-                    >
-                      <Icon as={IoCashOutline} mt={0.8} />
-                      <Text>Pagar</Text>
-                    </Button>
-                    <Menu>
-                      <MenuButton
-                        bg="blue.50"
-                        rounded={4}
-                        _hover={{
-                          bg: 'blue.50',
-                        }}
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        px={3}
+          <div className="flex flex-col items-center gap-3 xl:flex-row xl:items-start xl:justify-between">
+            <div className="flex flex-col items-center gap-1.5 xl:items-start">
+              <div className="w-full rounded-card bg-secondary px-4 py-2 text-center shadow-sm xl:w-auto">
+                <h1 className="font-heading text-lg font-extrabold text-navy sm:text-xl">
+                  Comanda: <span id="commandName">{command?.table}</span>
+                </h1>
+              </div>
+              <span className="text-sm text-text-muted">{createdAtFormatted}</span>
+            </div>
+
+            <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto md:flex-row md:items-center">
+              <div className="rounded-card bg-secondary px-4 py-2 text-center shadow-sm">
+                <span className="font-heading text-base font-extrabold text-navy sm:text-lg">
+                  Total: {parseToBRL(command?.total || 0)}
+                </span>
+              </div>
+              <div className="rounded-card bg-secondary px-4 py-2 text-center shadow-sm">
+                <span id="commandPrice" className="font-heading text-base font-extrabold text-navy sm:text-lg">
+                  A Pagar: {parseToBRL(totalToBePayed || 0)}
+                </span>
+              </div>
+
+              {isAdmin && (
+                <>
+                  <Button
+                    onClick={handleOpenPaymentModal}
+                    disabled={command.isActive === false}
+                    variant="secondary"
+                  >
+                    <Wallet className="h-4 w-4" />
+                    Pagar
+                  </Button>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="flex h-10 items-center justify-center rounded-(--radius) border border-border bg-card px-3 text-navy shadow-sm hover:bg-secondary">
+                      <MoreVertical className="h-5 w-5" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onSelect={handleOpenCloseCommandModal}
+                        disabled={command.isActive === false}
                       >
-                        <Icon
-                          as={CgOptions}
-                          fontSize={[16, 22]}
-                          display="inline-block"
-                          m={0}
-                          p={0}
-                          mt={1.5}
-                          color="blue.800"
-                        />
-                      </MenuButton>
+                        <Wallet className="h-4 w-4" />
+                        Fechar Comanda
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={handleEditDiscount} disabled={command.isActive === false}>
+                        <Percent className="h-4 w-4" />
+                        Editar Desconto
+                      </DropdownMenuItem>
+                      <DropdownMenuItem destructive onSelect={handleDeleteCommand}>
+                        <Trash2 className="h-4 w-4" />
+                        Deletar Comanda
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
 
-                      <MenuList bg="blue.50" p={2}>
-                        <MenuItem
-                          icon={<IoCashOutline fontSize={14} />}
-                          onClick={() => handleOpenCloseCommandModal()}
-                          isDisabled={command.isActive === false}
-                          color="blue.400"
-                          fontWeight="700"
-                          display="flex"
-                          alignItems="center"
-                          rounded={4}
-                          _focus={{
-                            bg: 'blue.100',
-                            color: 'blue.500',
-                          }}
-                          _hover={{
-                            bg: 'blue.100',
-                            color: 'blue.500',
-                          }}
-                        >
-                          <Text>Fechar Comanda</Text>
-                        </MenuItem>
-                        <MenuItem
-                          icon={<FaPercentage fontSize={14} />}
-                          onClick={() => handleEditDiscount()}
-                          isDisabled={command.isActive === false}
-                          color="blue.900"
-                          display="flex"
-                          alignItems="center"
-                          rounded={4}
-                          _focus={{
-                            bg: 'blue.100',
-                            color: 'blue.500',
-                          }}
-                          _hover={{
-                            bg: 'blue.100',
-                            color: 'blue.500',
-                          }}
-                        >
-                          <Text>Editar Desconto</Text>
-                        </MenuItem>
-                        <MenuItem
-                          icon={<BsFillTrashFill fontSize={14} />}
-                          onClick={() => handleDeleteCommand()}
-                          color="blue.900"
-                          display="flex"
-                          alignItems="center"
-                          rounded={4}
-                          _focus={{
-                            bg: 'red.100',
-                            color: 'red.500',
-                          }}
-                          _hover={{
-                            bg: 'red.100',
-                            color: 'red.500',
-                          }}
-                        >
-                          <Text>Deletar Comanda</Text>
-                        </MenuItem>
-                      </MenuList>
-                    </Menu>
-                    <Button
-                      onClick={() => handlePrintCommand()}
-                      bg="blue.50"
-                      color="blue.500"
-                      fontWeight="700"
-                      display="flex"
-                      justifyItems="center"
-                      alignItems="center"
-                      rounded={4}
-                      gap={2}
-                      _focus={{
-                        bg: 'green.100',
-                        color: 'green.500',
-                      }}
-                      _hover={{
-                        bg: 'green.100',
-                        color: 'green.500',
-                      }}
-                      fontSize={[14, 16, 20]}
-                    >
-                      <Icon as={FiPrinter} mt={0.8} />
-                    </Button>
-                  </>
-                )}
-                
-              </Flex>
-            </GridItem>
-          </Grid>
+                  <Button onClick={handlePrintCommand} variant="secondary" size="icon" aria-label="Imprimir comanda">
+                    <Printer className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+
           {command?.isActive && <NavHeader />}
           <ProductsList isAdmin={isAdmin} />
-        </>
+        </div>
       )}
-    </Layout>
+    </AppShell>
   );
 };
-
-const BgBox = (props: any) => (
-  <Flex
-    align="center"
-    boxShadow="sm"
-    bg="blue.50"
-    color="blue.700"
-    px={4}
-    py={2}
-    rounded={4}
-    {...props}
-  >
-    {props.children}
-  </Flex>
-);

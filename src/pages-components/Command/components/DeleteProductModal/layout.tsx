@@ -1,5 +1,7 @@
-import { Flex, Button } from '@chakra-ui/react';
+import { Loader2 } from 'lucide-react';
+
 import { Modal } from 'components/Modal';
+import { Button } from 'components/ui/button';
 
 type Props = {
   isModalOpen: boolean;
@@ -15,19 +17,14 @@ export const DeleteProductModalLayout = ({
   isDeleting,
 }: Props) => (
   <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Deletar Item?">
-    <Flex gap={2}>
-      <Button flex="1" onClick={() => handleCloseModal()}>
+    <div className="flex gap-3">
+      <Button className="flex-1" variant="secondary" onClick={() => handleCloseModal()}>
         Cancelar
       </Button>
-      <Button
-        flex="1"
-        colorScheme="red"
-        onClick={() => handleDeleteProduct()}
-        isLoading={isDeleting}
-        loadingText="Removendo"
-      >
-        Remover
+      <Button className="flex-1" variant="destructive" onClick={() => handleDeleteProduct()} disabled={isDeleting}>
+        {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
+        {isDeleting ? 'Removendo' : 'Remover'}
       </Button>
-    </Flex>
+    </div>
   </Modal>
 );

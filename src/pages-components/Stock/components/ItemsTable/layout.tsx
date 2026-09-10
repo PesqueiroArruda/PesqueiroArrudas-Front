@@ -1,25 +1,13 @@
-/* eslint-disable react/jsx-no-useless-fragment */
-import { motion } from 'framer-motion';
-import {
-  Flex,
-  TableContainer,
-  Table,
-  Th,
-  Thead,
-  Tr,
-  Td,
-  Tbody,
-  Icon,
-  Spinner,
-} from '@chakra-ui/react';
-import { FaArrowUp, FaGlassWhiskey } from 'react-icons/fa';
-import { AiFillStar, AiOutlineStar, AiOutlineDelete } from 'react-icons/ai';
-import { FiEdit2 } from 'react-icons/fi';
-import { PiForkKnife, PiBowlFood } from "react-icons/pi";
-import { TbBottle } from "react-icons/tb";
-import { BiDrink } from "react-icons/bi";
-import { GiFishingHook, GiFishing, GiChocolateBar, GiIceCube } from "react-icons/gi";
+import { ReactElement } from 'react';
+import { ArrowUp, Loader2, Pencil, Star, Trash2 } from 'lucide-react';
+import { FaGlassWhiskey } from 'react-icons/fa';
+import { PiForkKnife, PiBowlFood } from 'react-icons/pi';
+import { TbBottle } from 'react-icons/tb';
+import { BiDrink } from 'react-icons/bi';
+import { GiFishingHook, GiFishing, GiChocolateBar, GiIceCube } from 'react-icons/gi';
 
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'components/ui/table';
+import { cn } from 'lib/utils';
 import { Product } from 'pages-components/Stock/types/Product';
 import { parseToBRL } from 'utils/parseToBRL';
 
@@ -30,6 +18,18 @@ const stockColumns = [
   { text: 'Qntd', prop: 'amount' },
   { text: 'Preço unid.', prop: 'unitPrice' },
 ];
+
+const categoryIcons: Record<string, ReactElement> = {
+  Bebidas: <TbBottle size={22} className="text-cyan" />,
+  Pratos: <PiForkKnife size={22} className="text-gold-strong" />,
+  Porções: <PiBowlFood size={22} className="text-gold" />,
+  'Bebidas-Cozinha': <BiDrink size={22} className="text-cyan" />,
+  Pesca: <GiFishingHook size={22} className="text-text-muted" />,
+  Peixes: <GiFishing size={22} className="text-cyan" />,
+  Sobremesas: <GiChocolateBar size={22} className="text-gold-strong" />,
+  Doses: <FaGlassWhiskey size={22} className="text-destructive" />,
+  'Misturas Congeladas': <GiIceCube size={22} className="text-cyan" />,
+};
 
 type LayoutProps = {
   isLoading: boolean;
@@ -58,162 +58,80 @@ export const ItemsTableLayout = ({
     return column.toLocaleLowerCase() === orderBy.toLocaleLowerCase();
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-16">
+        <Loader2 className="h-8 w-8 animate-spin text-gold" />
+      </div>
+    );
+  }
+
   return (
-    <>
-      {isLoading ? (
-        <Spinner 
-          size="xl" 
-          position="absolute"
-          left="50%"
-          top="50%"
-          transform="translate(-50%, -50%)"
-        />
-      ) : (
-        <TableContainer>
-          <Table variant="simple">
-            <Thead>
-              <Tr>
-                {stockColumns.map(({ text, prop }) => (
-                  <Th key={`header-${prop}`}>
-                    <Flex align="center" gap={2}>
-                      {text}{' '}
-                      {isColumnSelectedToOrder(prop) === true && (
-                        <motion.div
-                          style={{
-                            transform:
-                              orderByDir === 'asc'
-                                ? 'rotate(0deg)'
-                                : 'rotate(180deg)',
-                          }}
-                        >
-                          <Icon
-                            as={FaArrowUp}
-                            fontSize={16}
-                            color="blue.800"
-                            onClick={() => handleToggleOrderByDir()}
-                            cursor="pointer"
-                          />
-                        </motion.div>
-                      )}
-                    </Flex>
-                  </Th>
-                ))}
-                <Th />
-              </Tr>
-            </Thead>
-            <Tbody>
-              {items.map(
-                ({
-                  _id,
-                  imageURL,
-                  amount,
-                  category,
-                  unitPrice,
-                  name,
-                  isFavorite,
-                }) => (
-                  <Tr
-                    key={`stock-product-_id${_id}`}
-                    cursor="pointer"
-                    _hover={{
-                      bg: 'blue.50',
-                    }}
-                  >
-                    <Td>
-                      {category === "Bebidas" && (
-                        <TbBottle size={28} color='blue'/>
-                      )}
-                      {category === "Pratos" && (
-                        <PiForkKnife size={28} color='orange'/>
-                      )}
-                      {category === "Porções" && (
-                        <PiBowlFood size={28} color='yellow'/>
-                      )}
-                      {category === "Bebidas-Cozinha" && (
-                        <BiDrink size={28} color='purple'/>
-                      )}
-                      {category === "Pesca" && (
-                        <GiFishingHook size={28} color='gray'/>
-                      )}
-                      {category === "Peixes" && (
-                        <GiFishing size={28} color="lightblue"/>
-                      )}
-                      {category === "Sobremesas" && (
-                        <GiChocolateBar size={28} color="brown"/>
-                      )}
-                      {category === "Doses" && (
-                        <FaGlassWhiskey size={28} color="red"/>
-                      )}
-                      {category === "Misturas Congeladas" && (
-                        <GiIceCube size={28} color="lightblue"/>
-                      )}
-                    </Td>
-                    <Td>{name}</Td>
-                    <Td>{category}</Td>
-                    <Td>{amount}</Td>
-                    <Td>{parseToBRL(unitPrice || 0)}</Td>
-                    <Td>
-                      {/* <Button></Button> */}
-                      <Flex gap={2} align="center" color="blue.800">
-                        <Icon
-                          onClick={() =>
-                            handleOpenEditModal({
-                              name,
-                              image: imageURL,
-                              id: _id,
-                              amount,
-                              unitPrice,
-                              category,
-                            })
-                          }
-                          as={FiEdit2}
-                          fontSize={[16, 18]}
-                          _hover={{ color: 'blue.500' }}
-                        />
-                        <Icon
-                          onClick={() =>
-                            handleOpenDeleteItemModal({ itemId: _id })
-                          }
-                          as={AiOutlineDelete}
-                          fontSize={[20, 22]}
-                          _hover={{ color: 'red.400' }}
-                        />
-                        {isFavorite ? (
-                          <Icon
-                            onClick={() =>
-                              handleUnfavoriteProduct((_id as string) || '')
-                            }
-                            as={AiFillStar}
-                            fontSize={[18, 20]}
-                            color="blue.600"
-                            cursor="pointer"
-                            _hover={{
-                              color: 'blue.700',
-                            }}
-                          />
-                        ) : (
-                          <Icon
-                            onClick={() =>
-                              handleFavoriteProduct((_id as string) || '')
-                            }
-                            as={AiOutlineStar}
-                            fontSize={[18, 20]}
-                            color="blue.600"
-                            cursor="pointer"
-                            _hover={{
-                              color: 'blue.700',
-                            }}
-                          />
-                        )}
-                      </Flex>
-                    </Td>
-                  </Tr>
-                )
-              )}
-            </Tbody>
-          </Table>
-        </TableContainer>
-      )}
-    </>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          {stockColumns.map(({ text, prop }) => (
+            <TableHead key={`header-${prop}`}>
+              <div className="flex items-center gap-2">
+                {text}
+                {isColumnSelectedToOrder(prop) && (
+                  <ArrowUp
+                    onClick={handleToggleOrderByDir}
+                    className={cn(
+                      'h-4 w-4 cursor-pointer text-navy transition-transform',
+                      orderByDir === 'desc' && 'rotate-180',
+                    )}
+                  />
+                )}
+              </div>
+            </TableHead>
+          ))}
+          <TableHead />
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {items.map(({ _id, imageURL, amount, category, unitPrice, name, isFavorite }) => (
+          <TableRow key={`stock-product-_id${_id}`}>
+            <TableCell>{categoryIcons[category]}</TableCell>
+            <TableCell>{name}</TableCell>
+            <TableCell>{category}</TableCell>
+            <TableCell>{amount}</TableCell>
+            <TableCell>{parseToBRL(unitPrice || 0)}</TableCell>
+            <TableCell>
+              <div className="flex items-center gap-3 text-navy">
+                <Pencil
+                  onClick={() =>
+                    handleOpenEditModal({
+                      name,
+                      image: imageURL,
+                      id: _id,
+                      amount,
+                      unitPrice,
+                      category,
+                    })
+                  }
+                  className="h-4 w-4 cursor-pointer hover:text-cyan"
+                />
+                <Trash2
+                  onClick={() => handleOpenDeleteItemModal({ itemId: _id })}
+                  className="h-5 w-5 cursor-pointer hover:text-destructive"
+                />
+                {isFavorite ? (
+                  <Star
+                    onClick={() => handleUnfavoriteProduct((_id as string) || '')}
+                    className="h-4.5 w-4.5 cursor-pointer fill-gold text-gold"
+                  />
+                ) : (
+                  <Star
+                    onClick={() => handleFavoriteProduct((_id as string) || '')}
+                    className="h-4.5 w-4.5 cursor-pointer text-navy/60 hover:text-gold"
+                  />
+                )}
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 };

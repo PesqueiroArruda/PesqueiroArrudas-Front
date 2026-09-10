@@ -1,23 +1,8 @@
-/* eslint-disable */
-import {
-  Button,
-  Stack,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-  Icon,
-  Heading,
-  Switch,
-  Flex,
-} from '@chakra-ui/react';
 import { DateTime } from 'luxon';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { Cashier, CashierByMonth } from 'types/Cashier';
 
-import { MdOutlineReadMore } from 'react-icons/md';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'components/ui/table';
 import { Dispatch, SetStateAction, ChangeEvent } from 'react';
 import { NavHeader } from './NavHeader';
 
@@ -25,6 +10,7 @@ const columns = ['Data', 'Total itens vendidos', ''];
 interface Props {
   allCashiers: Cashier[];
   handleGoToSoldItemsPage: (cashierId: string, cashierByMonthObject?: CashierByMonth) => void;
+  // eslint-disable-next-line react/no-unused-prop-types -- kept to match the caller's prop contract
   handleDownloadCashiers: (e: any) => void;
   year: string;
   setYear: Dispatch<SetStateAction<string>>;
@@ -33,129 +19,143 @@ interface Props {
   selectedMonthsFilter: boolean;
   setSelectedMonthsFilter: any;
   cashiersFilteredByMonth: CashierByMonth[];
+  isLoading: boolean;
 }
 
 export const SoldItemsLayout = ({
   allCashiers,
   handleGoToSoldItemsPage,
-  handleDownloadCashiers,
   month,
   setMonth,
   setYear,
   year,
   selectedMonthsFilter,
   setSelectedMonthsFilter,
-  cashiersFilteredByMonth
+  cashiersFilteredByMonth,
+  isLoading,
 }: Props) => {
   function formatDate(date: any) {
-    const dt = DateTime.fromISO(date, {
-      zone: 'pt-BR',
-      setZone: true,
-    }).setLocale('pt-BR');
+    const dt = DateTime.fromISO(date, { zone: 'pt-BR', setZone: true }).setLocale('pt-BR');
     return dt.toLocaleString(DateTime.DATE_FULL);
   }
 
   const handleSelectDaysOrMonths = (event: ChangeEvent<HTMLInputElement>) => {
-    setSelectedMonthsFilter(event.target.checked)
+    setSelectedMonthsFilter(event.target.checked);
+  };
+
+  function renderRows() {
+    if (isLoading) {
+      return (
+        <TableRow>
+          <TableCell colSpan={3}>
+            <div className="flex justify-center py-6">
+              <Loader2 className="h-6 w-6 animate-spin text-gold" />
+            </div>
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    if (allCashiers?.length > 0) {
+      return allCashiers.map(({ _id, date, payments }) => {
+        let productsAmount = 0;
+        payments.forEach((item) =>
+          item.command.products.forEach((product) => {
+            productsAmount += product.amount;
+          }),
+        );
+        return (
+          <TableRow key={`cashier-oflist-${_id}`}>
+            <TableCell>{formatDate(date)}</TableCell>
+            <TableCell>{Math.round(productsAmount * 100) / 100}</TableCell>
+            <TableCell className="text-right">
+              <button
+                type="button"
+                onClick={() => handleGoToSoldItemsPage(_id, undefined)}
+                className="inline-flex items-center gap-1.5 rounded-(--radius) bg-primary px-3 py-1.5 text-sm font-bold text-primary-foreground hover:bg-gold-strong"
+              >
+                Ver Mais
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+            </TableCell>
+          </TableRow>
+        );
+      });
+    }
+
+    if (cashiersFilteredByMonth.length > 0) {
+      return cashiersFilteredByMonth.map((cashier) => {
+        let productsAmount = 0;
+        cashier.payments.forEach((item) =>
+          item.command.products.forEach((product) => {
+            productsAmount += product.amount;
+          }),
+        );
+        return (
+          <TableRow key={`cashier-oflist-${cashier._id}`}>
+            <TableCell>
+              {cashier.month} de {cashier.year}
+            </TableCell>
+            <TableCell>{Math.round(productsAmount * 100) / 100}</TableCell>
+            <TableCell className="text-right">
+              <button
+                type="button"
+                onClick={() => handleGoToSoldItemsPage(cashier._id, cashier)}
+                className="inline-flex items-center gap-1.5 rounded-(--radius) bg-primary px-3 py-1.5 text-sm font-bold text-primary-foreground hover:bg-gold-strong"
+              >
+                Ver Mais
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+            </TableCell>
+          </TableRow>
+        );
+      });
+    }
+
+    return (
+      <TableRow>
+        <TableCell colSpan={3}>
+          <span className="inline-block rounded-card bg-secondary px-4 py-2 text-lg font-bold text-navy">
+            Nenhum item encontrado
+          </span>
+        </TableCell>
+      </TableRow>
+    );
   }
 
   return (
-    <Stack>
-      <Flex alignItems="center">
-        <Heading as="h2" fontSize={[20, 24]} color="blue.900" flex="1">
-          Itens Vendidos
-        </Heading>
-        <Flex alignItems="center" gap={2}>
-          <Heading as="h2" fontSize={[20, 24]} color="blue.900" flex="1">
-            Dias
-          </Heading>
-          <Switch id='days-or-months' isChecked={selectedMonthsFilter}  onChange={handleSelectDaysOrMonths}/>
-          <Heading as="h2" fontSize={[20, 24]} color="blue.900" flex="1">
-            Meses
-          </Heading>
-        </Flex>
-      </Flex>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-heading text-xl font-extrabold text-navy">Itens Vendidos</h2>
+        <label htmlFor="sold-items-months-toggle" className="flex items-center gap-2.5 text-sm font-bold text-navy">
+          Dias
+          <span className="relative inline-flex h-5 w-9 items-center">
+            <input
+              id="sold-items-months-toggle"
+              type="checkbox"
+              checked={selectedMonthsFilter}
+              onChange={handleSelectDaysOrMonths}
+              className="peer sr-only"
+            />
+            <span className="absolute inset-0 rounded-full bg-secondary transition-colors peer-checked:bg-gold" />
+            <span className="absolute left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4" />
+          </span>
+          Meses
+        </label>
+      </div>
 
-      <NavHeader
-        month={month}
-        setMonth={setMonth}
-        setYear={setYear}
-        year={year}
-        selectedMonthsFilter={selectedMonthsFilter}
-      />
-      <TableContainer>
-        <Table size="lg">
-          <Thead>
-            <Tr>
-              {columns.map((column) => (
-                <Th key={`closed-cashier-column-${column}`}>{column}</Th>
-              ))}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {allCashiers?.length > 0 ? (
-              allCashiers?.map(({ _id, date, payments }) => {
-                let productsAmount = 0
-                payments.forEach(item => item.command.products.forEach(product => productsAmount += product.amount))
-                return (
-                  <Tr key={`cashier-oflist-${_id}`}>
-                  <Td>{formatDate(date)}</Td>
-                  <Td>{Math.round(productsAmount * 100) / 100}</Td>
-                  <Td isNumeric>
-                    <Button
-                      onClick={() => handleGoToSoldItemsPage(_id, undefined)}
-                      colorScheme="blue"
-                      fontSize={[14, 16]}
-                    >
-                      Ver Mais{' '}
-                      <Icon as={MdOutlineReadMore} ml={2} fontSize={[16, 18]} />
-                    </Button>
-                  </Td>
-                </Tr>
-                )
-              })
-            ) : cashiersFilteredByMonth.length > 0  ? (
-                cashiersFilteredByMonth?.map((cashier) => { 
-                  let productsAmount = 0
-                  cashier.payments.forEach(item => item.command.products.forEach(product => productsAmount += product.amount))
-                  return (
-                    <Tr key={`cashier-oflist-${cashier._id}`}>
-                    <Td>{cashier.month} de {cashier.year}</Td>
-                    <Td>{Math.round(productsAmount * 100) / 100}</Td>
-                    <Td isNumeric>
-                      <Button
-                        onClick={() => handleGoToSoldItemsPage(cashier._id, cashier)}
-                        colorScheme="blue"
-                        fontSize={[14, 16]}
-                      >
-                        Ver Mais{' '}
-                        <Icon as={MdOutlineReadMore} ml={2} fontSize={[16, 18]} />
-                      </Button>
-                    </Td>
-                  </Tr>
-                  )
-                }
-                )
-            ) : (
-              <Tr>
-                <Td w="100%">
-                  <Heading
-                    as="span"
-                    fontSize={[18, 20, 24]}
-                    color="blue.700"
-                    bg="blue.50"
-                    rounded={4}
-                    py={2}
-                    px={4}
-                  >
-                    Nenhum item encontrado
-                  </Heading>
-                </Td>
-              </Tr>
-            )}
-          </Tbody>
-        </Table>
-      </TableContainer>
-    </Stack>
+      <NavHeader month={month} setMonth={setMonth} setYear={setYear} year={year} selectedMonthsFilter={selectedMonthsFilter} />
+
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {columns.map((column) => (
+              <TableHead key={`sold-items-column-${column}`}>{column}</TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>{renderRows()}</TableBody>
+      </Table>
+    </div>
   );
 };

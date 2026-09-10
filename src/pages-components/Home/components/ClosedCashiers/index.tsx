@@ -10,6 +10,7 @@ import { ClosedCashiersLayout } from './layout';
 
 export const ClosedCashiers = () => {
   const [allCashiers, setAllCashiers] = useState<Cashier[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [month, setMonth] = useState('Todos');
   const [year, setYear] = useState('Todos');
@@ -19,8 +20,12 @@ export const ClosedCashiers = () => {
 
   useEffect(() => {
     (async () => {
-      const cashiers = await CashierService.getAll();
-      setAllCashiers(cashiers);
+      try {
+        const cashiers = await CashierService.getAll();
+        setAllCashiers(cashiers);
+      } finally {
+        setIsLoading(false);
+      }
     })();
   }, []);
 
@@ -121,6 +126,7 @@ export const ClosedCashiers = () => {
       setYear={setYear}
       month={month}
       setMonth={setMonth}
+      isLoading={isLoading}
     />
   );
 };

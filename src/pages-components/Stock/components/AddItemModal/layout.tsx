@@ -1,19 +1,9 @@
-/* eslint-disable react/destructuring-assignment */
-import {
-  FormControl,
-  Input,
-  Button,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  Flex,
-  Text,
-  Select,
-} from '@chakra-ui/react';
-import { Modal } from 'components/Modal';
 import { Dispatch, SetStateAction } from 'react';
+import { Loader2 } from 'lucide-react';
+
+import { Modal } from 'components/Modal';
+import { Button } from 'components/ui/button';
+import { Input } from 'components/ui/input';
 
 const categories = [
   'Pesca',
@@ -42,6 +32,9 @@ type Props = {
   isSubmitting: boolean;
 };
 
+const selectClassName =
+  'h-10 w-full rounded-(--radius) border border-input bg-card px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
+
 export const AddItemModalLayout = ({
   isModalOpen,
   handleSubmit,
@@ -56,85 +49,44 @@ export const AddItemModalLayout = ({
   setAmount,
   isSubmitting,
 }: Props) => (
-  <Modal
-    isOpen={isModalOpen}
-    title="Adicionar Item"
-    onClose={handleCloseModal}
-    size="2xl"
-  >
-    <FormControl
-      as="form"
-      onSubmit={(e) => handleSubmit(e)}
-      display="flex"
-      flexDirection="column"
-      gap={4}
-    >
-      <InputGroup>
-        <Text>Nome do produto *</Text>
-        <Input
-          placeholder="Coca-Cola"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-      </InputGroup>
+  <Modal isOpen={isModalOpen} title="Adicionar Item" onClose={handleCloseModal} size="2xl">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-semibold text-navy">Nome do produto *</span>
+        <Input placeholder="Coca-Cola" value={name} onChange={(e) => setName(e.target.value)} />
+      </div>
 
-      <InputGroup>
-        <Text>Categoria *</Text>
-        <Select
-          placeholder="Selecione uma categoria"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-semibold text-navy">Categoria *</span>
+        <select value={category} onChange={(e) => setCategory(e.target.value)} className={selectClassName}>
+          <option value="">Selecione uma categoria</option>
           {categories.map((categorie) => (
-            <option key={`categorie-select-list-${categorie}`}>
-              {categorie}
-            </option>
+            <option key={`categorie-select-list-${categorie}`}>{categorie}</option>
           ))}
-        </Select>
-      </InputGroup>
-      <InputGroup>
-        <Text>Quantidade *</Text>
-        <NumberInput
-          defaultValue={1}
-          precision={2}
-          step={1}
-          _placeholder="Quantidade"
-          value={amount}
-          onChange={(value) => setAmount(Number(value))}
-          min={1}
-        >
-          <NumberInputField />
-          <NumberInputStepper>
-            <NumberIncrementStepper />
-            <NumberDecrementStepper />
-          </NumberInputStepper>
-        </NumberInput>
-      </InputGroup>
-      <InputGroup>
-        <Text>Preço da unidade *</Text>
-        <Input
-          placeholder="R$ Preço da Unidade *"
-          value={unitPrice}
-          onChange={(e) => handleChangeUnitPrice(e)}
-        />
-      </InputGroup>
-      <Button
-        type="submit"
-        bg="blue.400"
-        color="white"
-        _hover={{ bg: 'blue.500' }}
-        _active={{ bg: 'blue.300' }}
-        isLoading={isSubmitting}
-        loadingText="Adicionando"
-      >
-        Adicionar
-      </Button>
-    </FormControl>
-  </Modal>
-);
+        </select>
+      </div>
 
-const InputGroup = (props: any) => (
-  <Flex direction="column" gap={2} {...props}>
-    {props.children}
-  </Flex>
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-semibold text-navy">Quantidade *</span>
+        <Input
+          type="number"
+          min={1}
+          step={1}
+          placeholder="Quantidade"
+          value={amount}
+          onChange={(e) => setAmount(Number(e.target.value))}
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-semibold text-navy">Preço da unidade *</span>
+        <Input placeholder="R$ Preço da Unidade *" value={unitPrice} onChange={(e) => handleChangeUnitPrice(e)} />
+      </div>
+
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+        {isSubmitting ? 'Adicionando' : 'Adicionar'}
+      </Button>
+    </form>
+  </Modal>
 );
