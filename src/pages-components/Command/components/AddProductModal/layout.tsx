@@ -99,7 +99,8 @@ export const AddProductModalLayout = ({
     size="full"
     modalBodyOverflow="hidden"
   >
-    <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="flex shrink-0 flex-col gap-4">
       <div className="grid gap-3 sm:grid-cols-[1fr_3fr]">
         <DropdownMenu>
           <DropdownMenuTrigger className="flex h-10 items-center justify-center gap-2 rounded-(--radius) border border-input bg-card px-3 text-sm font-bold text-foreground shadow-sm hover:bg-secondary">
@@ -200,81 +201,84 @@ export const AddProductModalLayout = ({
           </div>
         </>
       )}
-
-      {/* Mobile: product cards */}
-      <div className="flex flex-col gap-3 md:hidden">
-        {products?.map(({ _id, name, unitPrice, amount, category, isFavorite }) => (
-          <div key={`add-product-mobile-${_id}`} className="rounded-(--radius) border border-border bg-card p-3">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="font-bold text-navy">{name}</p>
-                <p className="text-sm text-text-muted">Quantidade: {amount}</p>
-                <p className="text-sm text-text-muted">Preço: {parseToBRL(unitPrice || 0)}</p>
-              </div>
-              <FavoriteToggle
-                isFavorite={isFavorite}
-                onToggle={() => (isFavorite ? handleUnfavoriteProduct(_id) : handleFavoriteProduct(_id))}
-              />
-            </div>
-            <Button
-              variant="secondary"
-              className="mt-3 w-full"
-              onClick={() => handleOpenAmountModal({ product: { _id, name, unitPrice, category } })}
-            >
-              Selecionar
-            </Button>
-          </div>
-        ))}
-        {products?.length === 0 && <EmptyState />}
       </div>
 
-      {/* Desktop: table */}
-      <div className="hidden md:block">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {productsColumns.map((column) => (
-                <TableHead key={`add-product-table-header-${column}`}>{column}</TableHead>
-              ))}
-              <TableHead />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {products?.length > 0 ? (
-              products.map(({ _id, name, unitPrice, amount, category, isFavorite }) => (
-                <TableRow key={`add-product-modal-product-${_id}`}>
-                  <TableCell>{name}</TableCell>
-                  <TableCell>{amount}</TableCell>
-                  <TableCell>{parseToBRL(unitPrice || 0)}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center justify-end gap-3">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handleOpenAmountModal({ product: { _id, name, unitPrice, category } })}
-                      >
-                        Selecionar
-                      </Button>
-                      <FavoriteToggle
-                        isFavorite={isFavorite}
-                        onToggle={() => (isFavorite ? handleUnfavoriteProduct(_id) : handleFavoriteProduct(_id))}
-                      />
-                    </div>
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
+        {/* Mobile: product cards */}
+        <div className="flex flex-col gap-3 md:hidden">
+          {products?.map(({ _id, name, unitPrice, amount, category, isFavorite }) => (
+            <div key={`add-product-mobile-${_id}`} className="rounded-(--radius) border border-border bg-card p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-bold text-navy">{name}</p>
+                  <p className="text-sm text-text-muted">Quantidade: {amount}</p>
+                  <p className="text-sm text-text-muted">Preço: {parseToBRL(unitPrice || 0)}</p>
+                </div>
+                <FavoriteToggle
+                  isFavorite={isFavorite}
+                  onToggle={() => (isFavorite ? handleUnfavoriteProduct(_id) : handleFavoriteProduct(_id))}
+                />
+              </div>
+              <Button
+                variant="secondary"
+                className="mt-3 w-full"
+                onClick={() => handleOpenAmountModal({ product: { _id, name, unitPrice, category } })}
+              >
+                Selecionar
+              </Button>
+            </div>
+          ))}
+          {products?.length === 0 && <EmptyState />}
+        </div>
+
+        {/* Desktop: table */}
+        <div className="hidden md:block">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {productsColumns.map((column) => (
+                  <TableHead key={`add-product-table-header-${column}`}>{column}</TableHead>
+                ))}
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products?.length > 0 ? (
+                products.map(({ _id, name, unitPrice, amount, category, isFavorite }) => (
+                  <TableRow key={`add-product-modal-product-${_id}`}>
+                    <TableCell>{name}</TableCell>
+                    <TableCell>{amount}</TableCell>
+                    <TableCell>{parseToBRL(unitPrice || 0)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-3">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleOpenAmountModal({ product: { _id, name, unitPrice, category } })}
+                        >
+                          Selecionar
+                        </Button>
+                        <FavoriteToggle
+                          isFavorite={isFavorite}
+                          onToggle={() => (isFavorite ? handleUnfavoriteProduct(_id) : handleFavoriteProduct(_id))}
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4}>
+                    <EmptyState />
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={4}>
-                  <EmptyState />
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid shrink-0 gap-3 pt-1 md:grid-cols-2">
         <Button variant="secondary" onClick={() => handleCloseModal()}>
           Cancelar
         </Button>
