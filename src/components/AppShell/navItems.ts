@@ -1,8 +1,9 @@
-import { ChefHat, Home, Package, ReceiptText } from 'lucide-react';
+import { ChefHat, Home, Package, ReceiptText, ShoppingBag } from 'lucide-react';
 
 export const navItems = [
   { text: 'Home', icon: Home, path: '/' },
   { text: 'Comandas', icon: ReceiptText, path: '/commands' },
   { text: 'Cozinha', icon: ChefHat, path: '/kitchen' },
+  { text: 'iFood', icon: ShoppingBag, path: '/ifood-orders' },
   { text: 'Estoque', icon: Package, path: '/stock' },
 ];

@@ -6,12 +6,17 @@ import {
   useEffect,
   useContext,
 } from 'react';
+import { Box, Text, useToast } from '@chakra-ui/react';
+import { useRouter } from 'next/router';
+import useSound from 'use-sound';
 
 import { Product } from 'types/Product';
 import { SocketContext } from 'pages/_app';
 import { Command } from 'types/Command';
+import { IfoodOrder } from 'types/IfoodOrder';
 import { downloadFile } from 'utils/downloadFile';
 import { DateTime } from 'luxon';
+import NotifySound from '../../../public/kitchenalarm.mp3';
 import { ContextProps } from './types/ContextProps';
 import { AddCommandModal } from './components/AddCommandModal';
 import { CommandsLayout } from './layout';
@@ -42,6 +47,9 @@ export const Commands = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const { socket } = useContext(SocketContext);
+  const router = useRouter();
+  const toast = useToast();
+  const [playNotify] = useSound<any>(NotifySound);
 
   useEffect(() => {
     const hasCleanedAuthStorage = localStorage.getItem(
@@ -102,13 +110,40 @@ export const Commands = () => {
     };
     socket.on('product-updated', onProductUpdated);
 
+    const onIfoodOrderReceived = (ifoodOrder: IfoodOrder) => {
+      playNotify();
+      toast({
+        status: 'info',
+        duration: 8000,
+        isClosable: true,
+        render: () => (
+          <Box
+            onClick={() => router.push('/ifood-orders')}
+            bg="#1c2b4a"
+            color="white"
+            borderRadius="md"
+            px={4}
+            py={3}
+            cursor="pointer"
+          >
+            <Text fontWeight="bold">Novo pedido do iFood!</Text>
+            <Text fontSize="sm">
+              Pedido {ifoodOrder.ifoodOrderId} — clique para ver e aceitar
+            </Text>
+          </Box>
+        ),
+      });
+    };
+    socket.on('ifood-order-received', onIfoodOrderReceived);
+
     return () => {
       socket.off('command-created', onCommandCreated);
       socket.off('command-updated', onCommandUpdated);
       socket.off('command-deleted', onCommandDeleted);
       socket.off('product-updated', onProductUpdated);
+      socket.off('ifood-order-received', onIfoodOrderReceived);
     };
-  }, [socket]);
+  }, [socket, playNotify, toast, router]);
 
   function handleOpenAddCommandModal() {
     setIsAddCommandModalOpen(true);
