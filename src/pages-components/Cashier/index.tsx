@@ -1,22 +1,23 @@
-import { Cashier as CashierProps } from 'types/Cashier';
+import { useCashierReport } from 'hooks/useCashierReport';
+import { ReportError } from 'components/ReportError';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { CashierLayout } from './layout';
-import CashierService from './services/CashierService';
 
 interface Props {
   cashierId: string;
 }
 
 export const Cashier = ({ cashierId }: Props) => {
-  const [cashier, setCashier] = useState<CashierProps>({} as CashierProps);
-  const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
 
   const router = useRouter();
+  const { cashier, isLoading, error, retry } = useCashierReport(cashierId);
 
   useEffect(() => {
-    const hasCleanedAuthStorage = localStorage.getItem('hasCleanedAuthStorage_v1');
+    const hasCleanedAuthStorage = localStorage.getItem(
+      'hasCleanedAuthStorage_v1'
+    );
 
     if (!hasCleanedAuthStorage) {
       localStorage.removeItem('isLogged');
@@ -28,17 +29,14 @@ export const Cashier = ({ cashierId }: Props) => {
     }
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      const { cashier: cashierFound } = await CashierService.getOne(cashierId);
-      setCashier(cashierFound);
-      setIsLoading(false);
-    })();
-  }, [cashierId]);
-
   function handleBackPage() {
     router.back();
   }
+
+  if (error)
+    return (
+      <ReportError message={error} onRetry={retry} onBack={handleBackPage} />
+    );
 
   const { payments } = cashier;
 

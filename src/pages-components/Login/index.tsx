@@ -33,15 +33,16 @@ export const Login = () => {
         return;
       }
 
-      const splitedValues = accessKey.split('@')
+      const splitedValues = accessKey.split('@');
 
-      const user = splitedValues[0]
-      const userValidation = splitedValues[1]
+      const user = splitedValues[0];
+      const userValidation = splitedValues[1];
 
-      const isUser = splitedValues[1] === 'usuario'
+      const isUser = splitedValues[1] === 'usuario';
 
-
-      const { isAuthorized, message, isAdmin } = await LoginService.login(isUser ? `@${userValidation}` : accessKey);
+      const { isAuthorized, message, isAdmin } = await LoginService.login(
+        isUser ? `@${userValidation}` : accessKey
+      );
 
       if (!isAuthorized) {
         toast.closeAll();
@@ -55,8 +56,8 @@ export const Login = () => {
         return;
       }
 
-      localStorage.setItem('loggedUser', !isAdmin ? user : "Bar")
-      localStorage.setItem('isAdmin', isAdmin)
+      localStorage.setItem('loggedUser', !isAdmin ? user : 'Bar');
+      localStorage.setItem('isAdmin', isAdmin);
 
       toast.closeAll();
       toast({
@@ -69,14 +70,15 @@ export const Login = () => {
         maxAge: 60 * 60 * 24 * 20,
       });
 
-      if(isAdmin) router.push('/');
-      else router.push('/commands')
+      if (isAdmin) router.push('/');
+      else router.push('/commands');
     } catch (error: any) {
       setSendedLoginRequest(false);
       toast.closeAll();
       toast({
         status: 'error',
-        title: error?.response.data.message,
+        title:
+          error?.response?.data?.message || 'Request failed. Please try again.',
       });
     }
   }

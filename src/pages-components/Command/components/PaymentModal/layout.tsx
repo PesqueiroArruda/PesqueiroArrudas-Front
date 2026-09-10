@@ -39,7 +39,7 @@ const paymentOptions = [
   'Cartão de Crédito',
   'Cartão de Débito',
   'Pix',
-  'Ifood'
+  'Ifood',
 ];
 
 export const PaymentModalLayout = ({
@@ -68,8 +68,8 @@ export const PaymentModalLayout = ({
       {/* HEADER */}
       <Grid
         gridTemplateColumns={[
-          'repeact(2, 1fr)',
-          'repeact(2, 1fr)',
+          'repeat(2, 1fr)',
+          'repeat(2, 1fr)',
           'repeat(4, 1fr)',
         ]}
         gap={[1, 2, 3, 4]}
@@ -129,7 +129,7 @@ export const PaymentModalLayout = ({
               errorMsg={isReceivedValueInvalid.message}
             >
               <TitleText>Valor Recebido</TitleText>
-              
+
               <Input
                 placeholder="Ex: R$ 23,90"
                 value={receivedValue}
@@ -137,15 +137,19 @@ export const PaymentModalLayout = ({
                 disabled={totalValuePayment}
               />
             </InputGroup>
-            <Checkbox style={{display: 'flex', width: '20%'}} onChange={(e) => {
-              if(e.target.checked){
-                setTotalValuePayment(true)
-                setReceivedValue(totalToBePayed.toString())
-              } else {
-                setTotalValuePayment(false)
-                setReceivedValue('')
-              }
-            }}>
+            <Checkbox
+              isChecked={totalValuePayment}
+              style={{ display: 'flex', width: '20%' }}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setTotalValuePayment(true);
+                  setReceivedValue(totalToBePayed.toString());
+                } else {
+                  setTotalValuePayment(false);
+                  setReceivedValue('');
+                }
+              }}
+            >
               Valor total
             </Checkbox>
           </GridItem>

@@ -44,7 +44,8 @@ export const DeleteItemModal = ({ id, isModalOpen, setIsModalOpen }: Props) => {
       toast.closeAll();
       toast({
         status: 'error',
-        title: error?.response.data.message,
+        title:
+          error?.response?.data?.message || 'Request failed. Please try again.',
         duration: 2000,
       });
     }

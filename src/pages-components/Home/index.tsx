@@ -1,7 +1,7 @@
 import { Button, FormControl, Input, Text, useToast } from '@chakra-ui/react';
 import { Modal } from 'components/Modal';
 import { useState, useRef, FormEvent, useEffect } from 'react';
-import { useRouter } from "next/router";
+import { useRouter } from 'next/router';
 import { HomeLayout } from './layout';
 import AuthService from './services/AuthService';
 
@@ -11,7 +11,7 @@ export const Home = () => {
   const [isAsksPermitionModalOpen, setIsAsksPermitionModalOpen] =
     useState(false);
   const password = useRef('');
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const toast = useToast();
   const router = useRouter();
@@ -42,7 +42,8 @@ export const Home = () => {
       }
     } catch (err: any) {
       toast({
-        title: err?.response?.data.message,
+        title:
+          err?.response?.data?.message || 'Request failed. Please try again.',
         status: 'error',
         duration: 1000,
       });
@@ -56,7 +57,9 @@ export const Home = () => {
   }
 
   useEffect(() => {
-    const hasCleanedAuthStorage = localStorage.getItem('hasCleanedAuthStorage_v1');
+    const hasCleanedAuthStorage = localStorage.getItem(
+      'hasCleanedAuthStorage_v1'
+    );
 
     if (!hasCleanedAuthStorage) {
       localStorage.removeItem('isLogged');
@@ -69,11 +72,11 @@ export const Home = () => {
   }, []);
 
   useEffect(() => {
-    const isAdminUse = localStorage.getItem("isAdmin") === "true";
-    setIsAdmin(isAdminUse)
+    const isAdminUse = localStorage.getItem('isAdmin') === 'true';
+    setIsAdmin(isAdminUse);
 
     if (!isAdminUse) {
-      router.push("/commands");
+      router.push('/commands');
     }
   }, [router]);
 

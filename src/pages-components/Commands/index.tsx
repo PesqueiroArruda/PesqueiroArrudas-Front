@@ -44,7 +44,9 @@ export const Commands = () => {
   const { socket } = useContext(SocketContext);
 
   useEffect(() => {
-    const hasCleanedAuthStorage = localStorage.getItem('hasCleanedAuthStorage_v1');
+    const hasCleanedAuthStorage = localStorage.getItem(
+      'hasCleanedAuthStorage_v1'
+    );
 
     if (!hasCleanedAuthStorage) {
       localStorage.removeItem('isLogged');
@@ -68,42 +70,45 @@ export const Commands = () => {
   }, []);
 
   useEffect(() => {
-    socket.on('command-created', (newCommand: Command) => {
+    const onCommandCreated = (newCommand: Command) => {
       allCommandsDispatch({
         type: 'ADD-ONE-COMMAND',
         payload: { command: newCommand },
       });
-    });
+    };
+    socket.on('command-created', onCommandCreated);
 
-    socket.on('command-updated', (commandUpdated: Command) => {
+    const onCommandUpdated = (commandUpdated: Command) => {
       allCommandsDispatch({
         type: 'UPDATE-ONE-COMMAND',
         payload: { command: commandUpdated },
       });
-    });
+    };
+    socket.on('command-updated', onCommandUpdated);
 
-    socket.on('command-deleted', (commandId: string) => {
+    const onCommandDeleted = (commandId: string) => {
       allCommandsDispatch({
         type: 'REMOVE-ONE-COMMAND',
         payload: { commandId },
       });
-    });
+    };
+    socket.on('command-deleted', onCommandDeleted);
 
-    socket.on('product-updated', (updatedProduct: Product) => {
+    const onProductUpdated = (updatedProduct: Product) => {
       stockProductsDispatch({
         type: 'UPDATE-ONE-PRODUCT',
         payload: { product: updatedProduct },
       });
-    });
+    };
+    socket.on('product-updated', onProductUpdated);
 
     return () => {
-      socket.off('command-created');
-      socket.off('command-updated');
-      socket.off('command-deleted');
-      socket.off('product-updated');
+      socket.off('command-created', onCommandCreated);
+      socket.off('command-updated', onCommandUpdated);
+      socket.off('command-deleted', onCommandDeleted);
+      socket.off('product-updated', onProductUpdated);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [socket]);
 
   function handleOpenAddCommandModal() {
     setIsAddCommandModalOpen(true);

@@ -1,6 +1,8 @@
 import { useToast } from '@chakra-ui/react';
 import { CommandContext } from 'pages-components/Command';
 import PaymentsService from 'pages-components/Command/services/PaymentsService';
+import CommandService from 'pages-components/Command/services/CommandService';
+import { getCommandBalance } from 'utils/getCommandBalance';
 import {
   Dispatch,
   SetStateAction,
@@ -21,20 +23,11 @@ export const CloseCommandModal = ({ isModalOpen, setIsModalOpen }: Props) => {
   const [waiterExtra, setWaiterExtra] = useState('');
   const [waiterExtraPercent, setWaiterExtraPercent] = useState(0);
   const [isClosing, setIsClosing] = useState(false);
+  const closingRequest = useRef(false);
   const observation = useRef('');
 
   const { command, setCommand } = useContext(CommandContext);
   const toast = useToast();
-
-  const tempTotalToBePayed =
-    Math.round(
-      ((command?.total || 0) -
-        (command?.totalPayed || 0) -
-        (command?.discount || 0) +
-        Number.EPSILON) *
-        100
-    ) / 100;
-  const totalToBePayed = tempTotalToBePayed > 0 ? tempTotalToBePayed : 0;
 
   useEffect(() => {
     const percentageValue =
@@ -49,37 +42,26 @@ export const CloseCommandModal = ({ isModalOpen, setIsModalOpen }: Props) => {
         to: 'comma',
       })
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [waiterExtraPercent]);
+  }, [waiterExtraPercent, command.total]);
 
   function handleCloseModal() {
+    if (closingRequest.current) return;
     setIsModalOpen(false);
-    setIsClosing(false);
   }
 
   async function handleCloseCommand() {
+    if (closingRequest.current) return;
+    closingRequest.current = true;
+    setIsClosing(true);
     try {
-      if (isClosing) {
-        return;
-      }
-      setIsClosing(true);
-
-      if (totalToBePayed > 0) {
-        toast.closeAll();
-        toast({
-          status: 'warning',
-          title: 'Comanda ainda não foi paga!',
-          duration: 2000,
-        });
-        setIsClosing(false);
-        return;
-      }
+      if (!command._id)
+        throw new Error('Command not loaded. Refresh the page.');
 
       const waiterExtraFormatted = Number(
         formatDecimalNum({ num: waiterExtra, to: 'point' })
       );
 
-      if (Number.isNaN(waiterExtraFormatted) || waiterExtraFormatted < 0) {
+      if (!Number.isFinite(waiterExtraFormatted) || waiterExtraFormatted < 0) {
         toast({
           status: 'error',
           title: 'Valor da caixinha inválido.',
@@ -90,12 +72,25 @@ export const CloseCommandModal = ({ isModalOpen, setIsModalOpen }: Props) => {
         return;
       }
 
+      const { command: latestCommand } = await CommandService.getOneCommand({
+        commandId: command._id,
+      });
+      if (!latestCommand) throw new Error('Command not found.');
+      setCommand(latestCommand);
+      if (latestCommand.isActive !== true) {
+        throw new Error('This command is already closed.');
+      }
+      const balance = getCommandBalance(latestCommand);
+      if (balance === null || balance > 0) {
+        throw new Error('The command has an outstanding or invalid balance.');
+      }
+
       const { paymentInfos } = await PaymentsService.pay({
-        commandId: command?._id as string,
-        paymentTypes: command?.paymentTypes as string[],
+        commandId: latestCommand._id,
+        paymentTypes: latestCommand.paymentTypes || [],
         waiterExtra: waiterExtraFormatted,
         observation: observation.current,
-        discount: command?.discount || 0,
+        discount: latestCommand.discount || 0,
       });
 
       toast.closeAll();
@@ -104,7 +99,7 @@ export const CloseCommandModal = ({ isModalOpen, setIsModalOpen }: Props) => {
         title: 'Comanda fechada!',
         duration: 2000,
       });
-      handleCloseModal();
+      setIsModalOpen(false);
 
       setCommand(paymentInfos.command);
     } catch (err: any) {
@@ -112,15 +107,22 @@ export const CloseCommandModal = ({ isModalOpen, setIsModalOpen }: Props) => {
       toast.closeAll();
       toast({
         status: 'error',
-        title: err?.response?.data?.message,
+        title:
+          err?.response?.data?.message ||
+          err?.message ||
+          'Unable to close the command.',
         duration: 1000,
       });
+    } finally {
+      closingRequest.current = false;
+      setIsClosing(false);
     }
   }
 
   return (
     <CloseCommandModalLayout
       isModalOpen={isModalOpen}
+      isClosing={isClosing}
       handleCloseModal={handleCloseModal}
       waiterExtra={waiterExtra}
       setWaiterExtra={setWaiterExtra}

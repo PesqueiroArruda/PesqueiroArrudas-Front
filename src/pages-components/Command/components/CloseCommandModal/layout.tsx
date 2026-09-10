@@ -15,6 +15,7 @@ import { parseToBRL } from 'utils/parseToBRL';
 
 interface Props {
   isModalOpen: boolean;
+  isClosing: boolean;
   handleCloseModal: () => void;
   waiterExtra: string;
   setWaiterExtra: Dispatch<SetStateAction<string>>;
@@ -27,6 +28,7 @@ interface Props {
 
 export const CloseCommandModalLayout = ({
   isModalOpen,
+  isClosing,
   handleCloseModal,
   waiterExtra,
   setWaiterExtra,
@@ -97,6 +99,7 @@ export const CloseCommandModalLayout = ({
         </Text>
         <Flex gap={[2, 4, 6]} alignItems="center" w="100%">
           <Input
+            isDisabled={isClosing}
             value={waiterExtra}
             onChange={(e) => setWaiterExtra(e.target.value)}
             w="auto"
@@ -104,6 +107,7 @@ export const CloseCommandModalLayout = ({
             flex="1"
           />
           <Select
+            isDisabled={isClosing}
             value={waiterExtraPercent}
             onChange={(e) => setWaiterExtraPercent(Number(e.target.value))}
             w="auto"
@@ -118,6 +122,7 @@ export const CloseCommandModalLayout = ({
       <Stack>
         <Text>Observações</Text>
         <Input
+          isDisabled={isClosing}
           placeholder="Ex: Deixou para pagar 50 reais depois"
           onChange={(e) => {
             observation.current = e.target.value;
@@ -125,9 +130,12 @@ export const CloseCommandModalLayout = ({
         />
       </Stack>
       <Flex gap={4}>
-        <Button flex="1">Cancelar</Button>
+        <Button flex="1" onClick={handleCloseModal} isDisabled={isClosing}>
+          Cancelar
+        </Button>
         <Button
           onClick={() => handleCloseCommand()}
+          isLoading={isClosing}
           flex="1"
           colorScheme="blue"
         >

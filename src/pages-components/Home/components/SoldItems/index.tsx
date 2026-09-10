@@ -6,14 +6,12 @@ import { useRouter } from 'next/router';
 import { SocketContext } from 'pages/_app';
 import { DateTime } from 'luxon';
 import { downloadFile } from 'utils/downloadFile';
+import { groupCashiersByMonth } from 'utils/groupCashiersByMonth';
 import { SoldItemsLayout } from './layout';
 
 export const SoldItems = () => {
   const [allCashiers, setAllCashiers] = useState<Cashier[]>([]);
-  const [cashiersByMonth] = useState<CashierByMonth[]>([]);
-  const [cashiersFilteredByMonth] = useState<CashierByMonth[]>([]);
-  const [selectedMonthsFilter, setSelectedMonthsFilter] = useState(false)
-
+  const [selectedMonthsFilter, setSelectedMonthsFilter] = useState(false);
 
   const [month, setMonth] = useState('Todos');
   const [year, setYear] = useState('Todos');
@@ -29,7 +27,7 @@ export const SoldItems = () => {
   }, []);
 
   useEffect(() => {
-    socket.on('cashier-created', (newCashier: Cashier) => {
+    const onCashierCreated = (newCashier: Cashier) => {
       setAllCashiers((prevCashiers) => {
         const cashierAlreadyExists = prevCashiers.find((prevCashier) => {
           const prevDt = DateTime.fromISO(prevCashier.date, {
@@ -60,17 +58,19 @@ export const SoldItems = () => {
 
         return [...prevCashiers, newCashier];
       });
-    });
+    };
+    socket.on('cashier-created', onCashierCreated);
 
     return () => {
-      socket.off('cashier-created');
+      socket.off('cashier-created', onCashierCreated);
     };
-  }, []);
+  }, [socket]);
 
-  function handleGoToSoldItemsPage(cashierId: string, cashierByMonthObject?: CashierByMonth) {
-    localStorage.setItem('cashierByMonthObject', JSON.stringify(cashierByMonthObject));
-
-    router.push(`/sold-items/${cashierId}`);
+  function handleGoToSoldItemsPage(
+    cashierId: string,
+    cashierByMonthObject?: CashierByMonth
+  ) {
+    router.push(`/sold-items/${cashierByMonthObject?._id || cashierId}`);
   }
 
   function handleDownloadCashiers(e: any) {
@@ -85,151 +85,26 @@ export const SoldItems = () => {
     });
   }
 
-
-  let filteredCashiers: any = []
-  if(!selectedMonthsFilter) {
-    filteredCashiers = allCashiers.filter((cashier) => {
-      const dt = DateTime.fromISO(cashier.date, {
-        zone: 'pt-BR',
-        setZone: true,
-      }).setLocale('pt-BR');
-      const formattedDt = dt.toLocaleString(DateTime.DATE_FULL);
-
-      // This path is when the user wants all the cashiers, it doesn't matter the year and month
-      if (month === 'Todos' && year === 'Todos') {
-        return true;
-      }
-
-      // This path is when the user wants cashiers of all months of some specific year
-      if (month === 'Todos' && formattedDt.includes(year.toLowerCase())) {
-        return true;
-      }
-
-      // This path is when the user wants cashiers of some month of all years
-      if (year === 'Todos' && formattedDt.includes(month.toLowerCase())) {
-        return true;
-      }
-
-      // This path is when the user wants cashiers of some month and year
-      if (
-        formattedDt.includes(month.toLowerCase()) &&
-        formattedDt.includes(year.toLowerCase())
-      ) {
-        return true;
-      }
-      return false;
-  });
-  } else {
-    allCashiers.forEach((cashier) => {
-      const dt = DateTime.fromISO(cashier.date, {
-        zone: 'pt-BR',
-        setZone: true,
-      }).setLocale('pt-BR');
-      const formattedDt = dt.toLocaleString(DateTime.DATE_FULL);
-    let monthName = 'janeiro';
-    let yearName = '2022';
-
-    if(formattedDt.includes('janeiro')) {
-      monthName = 'janeiro'
-    }
-    if(formattedDt.includes('fevereiro')) {
-      monthName = 'fevereiro'
-    }
-    if(formattedDt.includes('março')) {
-      monthName = 'março'
-    }
-    if(formattedDt.includes('abril')) {
-      monthName = 'abril'
-    }
-    if(formattedDt.includes('maio')) {
-      monthName = 'maio'
-    }
-    if(formattedDt.includes('junho')) {
-      monthName = 'junho'
-    }
-    if(formattedDt.includes('julho')) {
-      monthName = 'julho'
-    }
-    if(formattedDt.includes('agosto')) {
-      monthName = 'agosto'
-    }
-    if(formattedDt.includes('setembro')) {
-      monthName = 'setembro'
-    }
-    if(formattedDt.includes('outubro')) {
-      monthName = 'outubro'
-    }
-    if(formattedDt.includes('novembro')) {
-      monthName = 'novembro'
-    }
-    if(formattedDt.includes('dezembro')) {
-      monthName = 'dezembro'
-    }
-    if(formattedDt.includes('2021')) {
-      yearName = '2021'
-    }
-    if(formattedDt.includes('2022')) {
-      yearName = '2022'
-    }
-    if(formattedDt.includes('2023')) {
-      yearName = '2023'
-    }
-    if(formattedDt.includes('2024')) {
-      yearName = '2024'
-    }
-    if(formattedDt.includes('2025')) {
-      yearName = '2025'
-    }
-    if(formattedDt.includes('2026')) {
-      yearName = '2026'
-    }
-    if(formattedDt.includes('2027')) {
-      yearName = '2027'
-    }
-    if(formattedDt.includes('2028')) {
-      yearName = '2028'
-    }
-    if(formattedDt.includes('2029')) {
-      yearName = '2029'
-    }
-    if(formattedDt.includes('2030')) {
-      yearName = '2030'
-    }
-
-    cashiersByMonth.push({
-      _id: `${Math.random()}`,
-      month: monthName,
-      payments: cashier.payments,
-      total: cashier.total,
-      year: yearName
-    })
-
-  });
-
-
-    cashiersByMonth.forEach((cashier) => {
-      const foundCashiersByMonthAndYear = cashiersByMonth.filter(cashierByMonth => cashierByMonth.month === cashier.month && cashierByMonth.year === cashier.year)
-      const allPayments: any = []
-      const alreadyHasMonthAndYear = cashiersFilteredByMonth.find(cashierByMonth => cashierByMonth.month === cashier.month && cashierByMonth.year === cashier.year)
-
-
-      foundCashiersByMonthAndYear.forEach(cashierByMonth => cashierByMonth.payments.forEach(payment => allPayments.push(payment)))
-      
-
-      if(!alreadyHasMonthAndYear){
-        cashiersFilteredByMonth.push({
-          _id: cashier._id,
-          month: cashier.month,
-          payments: allPayments,
-          total: cashier.total,
-          year: cashier.year
-        })
-      }
-
-    })
-
-  }  
-
+  const filteredCashiers = selectedMonthsFilter
+    ? []
+    : allCashiers.filter((cashier) => {
+        const date = DateTime.fromISO(cashier.date, {
+          zone: 'America/Sao_Paulo',
+          setZone: true,
+        }).setLocale('pt-BR');
+        return (
+          (month === 'Todos' ||
+            date.toFormat('LLLL') === month.toLowerCase()) &&
+          (year === 'Todos' || String(date.year) === year)
+        );
+      });
+  const cashiersFilteredByMonth = selectedMonthsFilter
+    ? groupCashiersByMonth(allCashiers).filter(
+        (cashier) =>
+          (month === 'Todos' || cashier.month === month.toLowerCase()) &&
+          (year === 'Todos' || cashier.year === year)
+      )
+    : [];
   return (
     <SoldItemsLayout
       allCashiers={filteredCashiers}

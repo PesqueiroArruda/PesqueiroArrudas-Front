@@ -1,25 +1,26 @@
-import { Cashier as CashierProps } from 'types/Cashier';
+import { useCashierReport } from 'hooks/useCashierReport';
+import { ReportError } from 'components/ReportError';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Product } from 'types/Product';
 import { SoldItemsLayout } from './layout';
-import CashierService from './services/CashierService';
-import StockService from '../Stock/services/index';
 
 interface Props {
   cashierId: string;
 }
 
 export const SoldItems = ({ cashierId }: Props) => {
-  const [cashier, setCashier] = useState<CashierProps>({} as CashierProps);
-  const [products, setProducts] = useState<Product[]>([] as Product[]);
-  const [isLoading, setIsLoading] = useState(true);
   const [search] = useState('');
 
   const router = useRouter();
+  const { cashier, products, isLoading, error, retry } = useCashierReport(
+    cashierId,
+    true
+  );
 
   useEffect(() => {
-    const hasCleanedAuthStorage = localStorage.getItem('hasCleanedAuthStorage_v1');
+    const hasCleanedAuthStorage = localStorage.getItem(
+      'hasCleanedAuthStorage_v1'
+    );
 
     if (!hasCleanedAuthStorage) {
       localStorage.removeItem('isLogged');
@@ -31,39 +32,14 @@ export const SoldItems = ({ cashierId }: Props) => {
     }
   }, []);
 
-   useEffect(() => {
-
-    (async () => {
-       const storedData = localStorage.getItem('cashierByMonthObject');
-        if (storedData !== 'undefined' && storedData !== null) {
-          setCashier(JSON.parse(storedData));
-        }
-        const allProducts = await StockService.getAllProducts();
-        setProducts(allProducts)
-        setIsLoading(false);
-      })();
-   
-  }, []);
-
-
-  useEffect(() => {
-    const storedData = localStorage.getItem('cashierByMonthObject');
-    if (storedData === 'undefined' ) {
-      (async () => {
-        const { cashier: cashierFound } = await CashierService.getOne(cashierId);
-        const allProducts = await StockService.getAllProducts();
-        setProducts(allProducts)
-        setIsLoading(false);
-        setCashier(cashierFound);
-        setIsLoading(false);
-      })();
-    }
-    
-  }, [cashierId]);
-
   function handleBackPage() {
     router.back();
   }
+
+  if (error)
+    return (
+      <ReportError message={error} onRetry={retry} onBack={handleBackPage} />
+    );
 
   const { payments } = cashier;
 

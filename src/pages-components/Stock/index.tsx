@@ -64,7 +64,9 @@ export const Stock = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const hasCleanedAuthStorage = localStorage.getItem('hasCleanedAuthStorage_v1');
+    const hasCleanedAuthStorage = localStorage.getItem(
+      'hasCleanedAuthStorage_v1'
+    );
 
     if (!hasCleanedAuthStorage) {
       localStorage.removeItem('isLogged');
@@ -85,26 +87,27 @@ export const Stock = () => {
   }, []);
 
   useEffect(() => {
-    const isAdminUse = localStorage.getItem("isAdmin") === "true";
-    setIsAdmin(isAdminUse)
+    const isAdminUse = localStorage.getItem('isAdmin') === 'true';
+    setIsAdmin(isAdminUse);
 
     if (!isAdminUse) {
-      router.push("/commands");
+      router.push('/commands');
     }
   }, [router]);
 
   useEffect(() => {
-    socket.on('product-updated', (updatedProduct: Product) => {
+    const onProductUpdated = (updatedProduct: Product) => {
       productsDispatch({
         type: 'UPDATE-ONE-PRODUCT',
         payload: { product: updatedProduct },
       });
-    });
+    };
+    socket.on('product-updated', onProductUpdated);
 
     return () => {
-      socket.off('product-updated');
+      socket.off('product-updated', onProductUpdated);
     };
-  }, []);
+  }, [socket]);
 
   const handleToggleOrderByDir = useCallback(
     () => setOrderByDir((prev) => (prev === 'asc' ? 'desc' : 'asc')),
@@ -124,8 +127,7 @@ export const Stock = () => {
     router.push('/');
   }
 
-
-  if(isAdmin){
+  if (isAdmin) {
     return (
       <StockContext.Provider
         value={{
@@ -157,7 +159,6 @@ export const Stock = () => {
         />
       </StockContext.Provider>
     );
-  } 
-  return <div />
-  
+  }
+  return <div />;
 };

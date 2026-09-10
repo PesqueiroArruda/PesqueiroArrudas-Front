@@ -1,4 +1,5 @@
 {
+  "root": true,
   "env": {
     "browser": true,
     "es2021": true,
@@ -34,7 +35,7 @@
     "react/require-default-props": "off",
     "class-methods-use-this": "off",
     "no-underscore-dangle": "off",
-    "react-hooks/rules-of-hooks": "off",
+    "react-hooks/rules-of-hooks": "error",
     "@typescript-eslint/no-unused-vars": "error",
     "no-unused-vars": "off",
     "@typescript-eslint/no-explicit-any": "off"

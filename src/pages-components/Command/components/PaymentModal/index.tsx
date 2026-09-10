@@ -7,7 +7,8 @@ import {
 } from 'react';
 
 import { CommandContext } from 'pages-components/Command';
-import { formatDecimalNum } from 'utils/formatDecimalNum';
+import { calculatePayment } from 'utils/calculatePayment';
+import { getCommandBalance } from 'utils/getCommandBalance';
 import { Button, Flex, useToast } from '@chakra-ui/react';
 // import PaymentsService from 'pages-components/Command/services/PaymentsService';
 import CommandService from 'pages-components/Command/services/CommandService';
@@ -29,11 +30,7 @@ export const PaymentModal = ({
   const [isPaying, setIsPaying] = useState(false);
   const [receivedValue, setReceivedValue] = useState('');
   const [totalValuePayment, setTotalValuePayment] = useState(false);
-  const [exchange, setExchange] = useState('0');
-  const [isReceivedValueInvalid, setIsReceivedValueInvalid] = useState({
-    value: false,
-    message: '',
-  });
+
   const [paymentType, setPaymentType] = useState('Dinheiro');
   const [isConfirmCloseCommandModalOpen, setIsConfirmCloseCommandModalOpen] =
     useState(false);
@@ -50,57 +47,29 @@ export const PaymentModal = ({
     ) / 100;
   const totalToBePayed = tempTotalToBePayed > 0 ? tempTotalToBePayed : 0;
 
+  const payment = calculatePayment({
+    receivedValue,
+    totalDue: totalToBePayed,
+    isCash: paymentType === 'Dinheiro',
+  });
+  const exchange = payment.change.toFixed(2);
+  const isReceivedValueInvalid = {
+    value: receivedValue !== '' && !payment.isValid,
+    message: 'Invalid payment amount.',
+  };
+
   useEffect(() => {
-    const receivedValueFormatted = Number(
-      formatDecimalNum({ num: receivedValue, to: 'point' })
-    );
-
-    if (Number.isNaN(receivedValueFormatted)) {
-      setIsReceivedValueInvalid({ value: true, message: 'Valor inválido.' });
-      setExchange('');
-      return;
+    if (totalValuePayment) {
+      setReceivedValue(totalToBePayed.toFixed(2));
     }
-
-    if (receivedValue === '') {
-      setExchange('0');
-    }
-
-    if (receivedValueFormatted < 0) {
-      setIsReceivedValueInvalid({ value: true, message: 'Valor inválido.' });
-    }
-
-    if (receivedValueFormatted > totalToBePayed && paymentType === 'Dinheiro') {
-      setIsReceivedValueInvalid({ value: false, message: '' });
-      const updatedExchange = (receivedValueFormatted - totalToBePayed).toFixed(
-        2
-      );
-      setExchange(
-        // formatDecimalNum({
-        //   num: updatedExchange.toString(),
-        //   to: 'comma',
-        // })
-        updatedExchange
-      );
-    }
-
-    if (paymentType !== 'Dinheiro' && receivedValueFormatted > totalToBePayed) {
-      setIsReceivedValueInvalid({
-        value: true,
-        message: 'Pagamento maior do que o necessário',
-      });
-    } else {
-      setIsReceivedValueInvalid({ value: false, message: '' });
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [receivedValue]);
+  }, [totalValuePayment, totalToBePayed]);
 
   function handleCloseModal() {
     setIsModalOpen(false);
-    setIsReceivedValueInvalid({ value: false, message: '' });
+
     setIsPaying(false);
     setReceivedValue('');
-    setExchange('0');
+    setTotalValuePayment(false);
   }
 
   const handleMakePayment = async (e: any) => {
@@ -134,7 +103,7 @@ export const PaymentModal = ({
         return;
       }
 
-      if (isReceivedValueInvalid.value === true) {
+      if (!payment.isValid) {
         setIsPaying(false);
         toast.closeAll();
         toast({
@@ -145,40 +114,17 @@ export const PaymentModal = ({
         return;
       }
 
-      const receivedValueFormatted = Number(
-        formatDecimalNum({ num: receivedValue, to: 'point' })
-      );
-
-      if (receivedValueFormatted < 0) {
-        setIsPaying(false);
-        toast.closeAll();
-        toast({
-          status: 'error',
-          title: 'Valor menor que 0',
-          duration: 1000,
-        });
-        return;
-      }
-
-      const totalToPay =
-        receivedValueFormatted > totalToBePayed
-          ? totalToBePayed
-          : receivedValueFormatted;
-
       const { message, command: updatedCommand } =
         await CommandService.updateCommand({
           _id: command._id,
           updateTotal: 'true',
-          total: totalToPay,
+          total: payment.amount,
           paymentType,
         });
 
       setCommand(updatedCommand);
 
-      if (
-        updatedCommand.total ===
-        updatedCommand.totalPayed + updatedCommand.discount
-      ) {
+      if (updatedCommand.isActive && getCommandBalance(updatedCommand) === 0) {
         // Ask if the user wants to close the cashier
 
         setIsConfirmCloseCommandModalOpen(true);

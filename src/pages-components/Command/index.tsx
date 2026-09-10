@@ -110,7 +110,9 @@ export const Command = ({ commandId }: Props) => {
   const toast = useToast();
 
   useEffect(() => {
-    const hasCleanedAuthStorage = localStorage.getItem('hasCleanedAuthStorage_v1');
+    const hasCleanedAuthStorage = localStorage.getItem(
+      'hasCleanedAuthStorage_v1'
+    );
 
     if (!hasCleanedAuthStorage) {
       localStorage.removeItem('isLogged');
@@ -158,24 +160,30 @@ export const Command = ({ commandId }: Props) => {
   }, []);
 
   useEffect(() => {
-    socket.on('kitchen-order-created', async (payload: any) => {
-      if(payload.commandId === commandId){
-        
+    let active = true;
+    const onKitchenOrderCreated = async (payload: any) => {
+      if (payload.commandId !== commandId) return;
+      try {
         const { command: commandFound } = await CommandService.getOneCommand({
           commandId,
         });
-        setCommand(commandFound);
-
-        productsDispatch({
-          type: 'add-products',
-          payload: commandFound?.products,
-        });
-
-        setIsLoading(false);
+        if (active) {
+          setCommand(commandFound);
+          productsDispatch({
+            type: 'add-products',
+            payload: commandFound?.products,
+          });
+          setIsLoading(false);
+        }
+      } catch {
+        if (active) {
+          toast({ status: 'error', title: 'Unable to refresh the command.' });
+        }
       }
-    });
+    };
+    socket.on('kitchen-order-created', onKitchenOrderCreated);
 
-    socket.on('command-updated', (updatedCommand: CommandType) => {
+    const onCommandUpdated = (updatedCommand: CommandType) => {
       if (updatedCommand._id === commandId) {
         setCommand(updatedCommand);
 
@@ -184,9 +192,10 @@ export const Command = ({ commandId }: Props) => {
           payload: updatedCommand?.products,
         });
       }
-    });
+    };
+    socket.on('command-updated', onCommandUpdated);
 
-    socket.on('command-deleted', (deletedCommandId: string) => {
+    const onCommandDeleted = (deletedCommandId: string) => {
       if (deletedCommandId === commandId) {
         toast.closeAll();
         toast({
@@ -197,25 +206,29 @@ export const Command = ({ commandId }: Props) => {
         });
         router.push('/commands');
       }
-    });
+    };
+    socket.on('command-deleted', onCommandDeleted);
 
-    socket.on('product-updated', (updatedProduct: Product) => {
+    const onProductUpdated = (updatedProduct: Product) => {
       stockProductsDispatch({
         type: 'UPDATE-ONE-PRODUCT',
         payload: { product: updatedProduct },
       });
-    });
+    };
+    socket.on('product-updated', onProductUpdated);
 
     return () => {
-      socket.off('command-updated');
-      socket.off('command-deleted');
-      socket.off('product-updated');
+      active = false;
+      socket.off('kitchen-order-created', onKitchenOrderCreated);
+      socket.off('command-updated', onCommandUpdated);
+      socket.off('command-deleted', onCommandDeleted);
+      socket.off('product-updated', onProductUpdated);
     };
-  }, []);
+  }, [commandId, router, socket, toast]);
 
   useEffect(() => {
-    const isAdminUse = localStorage.getItem("isAdmin") === "true";
-    setIsAdmin(isAdminUse)
+    const isAdminUse = localStorage.getItem('isAdmin') === 'true';
+    setIsAdmin(isAdminUse);
   }, [router]);
 
   const handleOpenDeleteModal = useCallback(
@@ -252,195 +265,201 @@ export const Command = ({ commandId }: Props) => {
 
   const handlePrintCommand = useReactToPrint({
     content: () => {
-      const printContent = document.createElement("div");
-      const printHeader = document.createElement("div");
-      const printFooter = document.createElement("div");
+      const printContent = document.createElement('div');
+      const printHeader = document.createElement('div');
+      const printFooter = document.createElement('div');
 
-      const element1 = document.getElementById("commandName");
-      const element2 = document.getElementById("commandPrice");
+      const element1 = document.getElementById('commandName');
+      const element2 = document.getElementById('commandPrice');
 
-      const printInfo = document.createElement("div");
-      
-      const infoTitleName = document.createTextNode("Pesqueiro e Restaurante Arruda's")
-      const infoTitleNameElement = document.createElement("span")
-      infoTitleNameElement.appendChild(infoTitleName)
-      infoTitleNameElement.style.alignItems = "center"
-      infoTitleNameElement.style.display = "flex"
-      infoTitleNameElement.style.fontSize = "18px"
-      infoTitleNameElement.style.justifyContent = "center"
+      const printInfo = document.createElement('div');
 
-      printInfo.appendChild(infoTitleNameElement)
+      const infoTitleName = document.createTextNode(
+        "Pesqueiro e Restaurante Arruda's"
+      );
+      const infoTitleNameElement = document.createElement('span');
+      infoTitleNameElement.appendChild(infoTitleName);
+      infoTitleNameElement.style.alignItems = 'center';
+      infoTitleNameElement.style.display = 'flex';
+      infoTitleNameElement.style.fontSize = '18px';
+      infoTitleNameElement.style.justifyContent = 'center';
 
+      printInfo.appendChild(infoTitleNameElement);
 
-      const infoSubtitleName = document.createTextNode("Lanchonete Arrudas LTDA")
-      const infoSubtitleNameElement = document.createElement("span")
-      infoSubtitleNameElement.appendChild(infoSubtitleName)
+      const infoSubtitleName = document.createTextNode(
+        'Lanchonete Arrudas LTDA'
+      );
+      const infoSubtitleNameElement = document.createElement('span');
+      infoSubtitleNameElement.appendChild(infoSubtitleName);
 
-      infoSubtitleNameElement.style.fontSize = "16px"
+      infoSubtitleNameElement.style.fontSize = '16px';
 
-      printInfo.appendChild(infoSubtitleNameElement)
+      printInfo.appendChild(infoSubtitleNameElement);
 
+      const infoPhone = document.createTextNode('(11) 97231-1736');
+      const infoPhoneElement = document.createElement('span');
+      infoPhoneElement.appendChild(infoPhone);
 
-      const infoPhone = document.createTextNode("(11) 97231-1736")
-      const infoPhoneElement = document.createElement("span")
-      infoPhoneElement.appendChild(infoPhone)
+      infoPhoneElement.style.fontSize = '16px';
 
-      infoPhoneElement.style.fontSize = "16px"
+      printInfo.appendChild(infoPhoneElement);
 
-      printInfo.appendChild(infoPhoneElement)
+      const cnpjContainer = document.createElement('div');
 
+      const infoCnpj = document.createTextNode('CNPJ: 13.521.007/0001-09');
+      const infoCnpjElement = document.createElement('span');
+      infoCnpjElement.appendChild(infoCnpj);
 
-      const cnpjContainer = document.createElement("div")
+      cnpjContainer.appendChild(infoCnpjElement);
 
-      const infoCnpj = document.createTextNode("CNPJ: 13.521.007/0001-09")
-      const infoCnpjElement = document.createElement("span")
-      infoCnpjElement.appendChild(infoCnpj)
+      const infoIE = document.createTextNode('IE: 623.032.562.119');
+      const infoIEElement = document.createElement('span');
+      infoIEElement.appendChild(infoIE);
 
-      cnpjContainer.appendChild(infoCnpjElement)
+      cnpjContainer.appendChild(infoIEElement);
 
-      const infoIE = document.createTextNode("IE: 623.032.562.119")
-      const infoIEElement = document.createElement("span")
-      infoIEElement.appendChild(infoIE)
+      cnpjContainer.style.display = 'flex';
+      cnpjContainer.style.flexDirection = 'column';
+      cnpjContainer.style.fontSize = '14px';
+      cnpjContainer.style.justifyContent = 'space-between';
+      cnpjContainer.style.marginBottom = '10px';
+      cnpjContainer.style.marginLeft = '20px';
+      cnpjContainer.style.marginRight = '50px';
+      cnpjContainer.style.marginTop = '10px';
 
-      cnpjContainer.appendChild(infoIEElement)
-      
-      cnpjContainer.style.display = "flex"
-      cnpjContainer.style.flexDirection = "column"
-      cnpjContainer.style.fontSize = "14px"
-      cnpjContainer.style.justifyContent = "space-between"
-      cnpjContainer.style.marginBottom = "10px"
-      cnpjContainer.style.marginLeft = "20px"
-      cnpjContainer.style.marginRight = "50px"
-      cnpjContainer.style.marginTop = "10px"
+      printInfo.appendChild(cnpjContainer);
 
-      printInfo.appendChild(cnpjContainer)
+      printInfo.style.alignItems = 'center';
+      printInfo.style.display = 'flex';
+      printInfo.style.flexDirection = 'column';
+      printInfo.style.justifyContent = 'center';
+      printInfo.style.marginLeft = '20px';
+      printInfo.style.marginRight = '50px';
 
-      printInfo.style.alignItems = "center"
-      printInfo.style.display = "flex"
-      printInfo.style.flexDirection = "column"
-      printInfo.style.justifyContent = "center"
-      printInfo.style.marginLeft = "20px"
-      printInfo.style.marginRight = "50px"
-
-      printContent.appendChild(printInfo)
+      printContent.appendChild(printInfo);
 
       if (element1) {
         printHeader.appendChild(element1.cloneNode(true));
       }
-      const currentDate = new Date()
-      const opcoesFormatacao: DateTimeFormatOptions = { day: 'numeric', month: '2-digit', year: 'numeric' };
-      const dataFormatada = currentDate.toLocaleDateString('pt-BR', opcoesFormatacao);
-
+      const currentDate = new Date();
+      const opcoesFormatacao: DateTimeFormatOptions = {
+        day: 'numeric',
+        month: '2-digit',
+        year: 'numeric',
+      };
+      const dataFormatada = currentDate.toLocaleDateString(
+        'pt-BR',
+        opcoesFormatacao
+      );
 
       const dayText = document.createTextNode(dataFormatada);
-      const dayElement = document.createElement("span")
-      dayElement.appendChild(dayText)
+      const dayElement = document.createElement('span');
+      dayElement.appendChild(dayText);
 
-      const dateElement = document.createElement("div")
-      dateElement.style.display = "flex"
-      dateElement.style.flexDirection = "column"
-      dateElement.style.alignItems = "end"
-      dateElement.style.justifyContent = "center"
+      const dateElement = document.createElement('div');
+      dateElement.style.display = 'flex';
+      dateElement.style.flexDirection = 'column';
+      dateElement.style.alignItems = 'end';
+      dateElement.style.justifyContent = 'center';
 
-
-      let horas : number | string = currentDate.getHours();
-      let minutos : number | string = currentDate.getMinutes();
+      let horas: number | string = currentDate.getHours();
+      let minutos: number | string = currentDate.getMinutes();
 
       // Formatar para garantir que tenham dois dígitos
-      horas = horas < 10 ? `0${  horas}` : horas;
-      minutos = minutos < 10 ? `0${  minutos}` : minutos;
+      horas = horas < 10 ? `0${horas}` : horas;
+      minutos = minutos < 10 ? `0${minutos}` : minutos;
       const horaFormatada = `${horas}:${minutos}`;
-      
+
       const hourText = document.createTextNode(horaFormatada);
-      const hourElement = document.createElement("span");
+      const hourElement = document.createElement('span');
       hourElement.appendChild(hourText);
 
-      
-      if(dateElement){
-        dateElement.appendChild(dayElement)
-        dateElement.appendChild(hourElement)
+      if (dateElement) {
+        dateElement.appendChild(dayElement);
+        dateElement.appendChild(hourElement);
       }
 
       printHeader.appendChild(dateElement.cloneNode(true));
 
-      
-      printHeader.style.display = "flex"
-      printHeader.style.flexDirection = "row"
-      printHeader.style.justifyContent = "space-between"
-      printHeader.style.marginLeft = "20px"
-      printHeader.style.marginRight = "50px"
-      printHeader.style.fontSize = "16px"
-      printHeader.style.fontFamily = "Monospace"
-      printHeader.style.fontWeight = "700"
+      printHeader.style.display = 'flex';
+      printHeader.style.flexDirection = 'row';
+      printHeader.style.justifyContent = 'space-between';
+      printHeader.style.marginLeft = '20px';
+      printHeader.style.marginRight = '50px';
+      printHeader.style.fontSize = '16px';
+      printHeader.style.fontFamily = 'Monospace';
+      printHeader.style.fontWeight = '700';
       printContent.appendChild(printHeader.cloneNode(true));
 
-      const productsBody = document.createElement("div")
-      
+      const productsBody = document.createElement('div');
+
       const linhas = products.value.map((element) => {
-        const productRow = document.createElement("div")
+        const productRow = document.createElement('div');
 
         // Criando um elemento de célula (td) e adicionando o texto do elemento
-        const productName = document.createTextNode(`${element.name  }`)
-        const productNameElement = document.createElement("span")
-        productNameElement.appendChild(productName)
+        const productName = document.createTextNode(`${element.name}`);
+        const productNameElement = document.createElement('span');
+        productNameElement.appendChild(productName);
 
-        const productQuantity = document.createTextNode(`${element.amount  }x`)
-        const productQuantityElement = document.createElement("span")
-        productQuantityElement.appendChild(productQuantity)
+        const productQuantity = document.createTextNode(`${element.amount}x`);
+        const productQuantityElement = document.createElement('span');
+        productQuantityElement.appendChild(productQuantity);
 
-        const productPrice = document.createTextNode(`R$ ${element.unitPrice  } |`)
-        const productPriceElement = document.createElement("span")
-        productPriceElement.appendChild(productPrice)
+        const productPrice = document.createTextNode(
+          `R$ ${element.unitPrice} |`
+        );
+        const productPriceElement = document.createElement('span');
+        productPriceElement.appendChild(productPrice);
 
-        productNameElement.style.maxWidth = "100px"
-        productNameElement.style.width = "100%"
+        productNameElement.style.maxWidth = '100px';
+        productNameElement.style.width = '100%';
 
-        productNameElement.style.lineHeight = "1.2"
+        productNameElement.style.lineHeight = '1.2';
 
         // Adicionando a célula à linha
         productRow.appendChild(productQuantityElement);
         productRow.appendChild(productNameElement);
         productRow.appendChild(productPriceElement);
 
-        productRow.style.marginTop = "10px"
-        productRow.style.marginBottom = "10px"
+        productRow.style.marginTop = '10px';
+        productRow.style.marginBottom = '10px';
 
-        productRow.style.display = "flex"
-        productRow.style.justifyContent = "space-between"
+        productRow.style.display = 'flex';
+        productRow.style.justifyContent = 'space-between';
 
         return productRow;
-      })
-
-      linhas.forEach((linha) => {
-          productsBody.style.fontSize = "14px";
-          productsBody.style.marginLeft = "20px";
-          productsBody.style.marginRight = "50px";
-          productsBody.appendChild(linha);
       });
 
-      if(productsBody){
-        printContent.appendChild(productsBody)
+      linhas.forEach((linha) => {
+        productsBody.style.fontSize = '14px';
+        productsBody.style.marginLeft = '20px';
+        productsBody.style.marginRight = '50px';
+        productsBody.appendChild(linha);
+      });
+
+      if (productsBody) {
+        printContent.appendChild(productsBody);
       }
-      
+
       if (element2) {
         printFooter.appendChild(element2.cloneNode(true));
-        printFooter.style.display = "flex"
-        printFooter.style.flexDirection = "column"
-        printFooter.style.alignItems = "start"
-        printFooter.style.justifyContent = "end"
-        printFooter.style.marginLeft = "200px"
-        printFooter.style.width = "100px"
-        printFooter.style.marginBottom = "50px"
+        printFooter.style.display = 'flex';
+        printFooter.style.flexDirection = 'column';
+        printFooter.style.alignItems = 'start';
+        printFooter.style.justifyContent = 'end';
+        printFooter.style.marginLeft = '200px';
+        printFooter.style.width = '100px';
+        printFooter.style.marginBottom = '50px';
         printContent.appendChild(printFooter.cloneNode(true));
       }
 
-      printContent.style.fontFamily = "Monospace"
-      printContent.style.paddingBottom = '10px'
-      printContent.style.borderBottom = '1px solid black'
+      printContent.style.fontFamily = 'Monospace';
+      printContent.style.paddingBottom = '10px';
+      printContent.style.borderBottom = '1px solid black';
 
       return printContent;
     },
-    documentTitle: `${command.table}_comanda`
+    documentTitle: `${command.table}_comanda`,
   });
 
   const tempTotalToBePayed =

@@ -121,7 +121,8 @@ export const AddItemModal = ({
       toast.closeAll();
       toast({
         status: 'error',
-        title: error?.response.data.message,
+        title:
+          error?.response?.data?.message || 'Request failed. Please try again.',
       });
     }
   }

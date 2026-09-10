@@ -69,7 +69,9 @@ export const Kitchen = () => {
   // ✅ arrow-body-style: retorno implícito
   const getIdsPorCategoria = useCallback(
     (cat: Cat, orders: Order[]) =>
-      orders.filter((o) => !o.isMade && o.orderCategory === cat).map((o) => o._id),
+      orders
+        .filter((o) => !o.isMade && o.orderCategory === cat)
+        .map((o) => o._id),
     []
   );
 
@@ -94,7 +96,9 @@ export const Kitchen = () => {
   }, [applyReconcile]);
 
   useEffect(() => {
-    const hasCleanedAuthStorage = localStorage.getItem('hasCleanedAuthStorage_v1');
+    const hasCleanedAuthStorage = localStorage.getItem(
+      'hasCleanedAuthStorage_v1'
+    );
 
     if (!hasCleanedAuthStorage) {
       localStorage.removeItem('isLogged');
@@ -123,79 +127,55 @@ export const Kitchen = () => {
   }, [reloadOrders, toast]);
 
   useEffect(() => {
-    try {
-      // criado
-      socket.on('kitchen-order-created', (payload: Order) => {
-        allOrdersDispatch({
-          type: 'ADD-ONE-ORDER',
-          payload: { order: payload },
+    const onKitchenOrderCreated = (payload: Order) => {
+      allOrdersDispatch({
+        type: 'ADD-ONE-ORDER',
+        payload: { order: payload },
+      });
+      applyReconcile([...latestOrdersRef.current, payload]);
+      animateScroll.scrollToBottom();
+      if (payload.orderCategory === 'kitchen') setPlaySound(true);
+    };
+
+    const refreshOrders = () => {
+      reloadOrders().catch(() => {
+        toast({
+          status: 'error',
+          title: 'Unable to refresh kitchen orders.',
+          isClosable: true,
         });
-
-        // concilia baseado no array mais recente em ref
-        const next = [...latestOrdersRef.current, payload];
-        applyReconcile(next);
-
-        animateScroll.scrollToBottom();
-        if (payload.orderCategory === 'kitchen') setPlaySound(true);
       });
+    };
 
-      // atualizado
-      socket.on('kitchen-order-updated', (payload: any) => {
-        const updated: Order | undefined = payload?.[0];
-        if (updated?.isMade) {
-          allOrdersDispatch({
-            type: 'REMOVE-ONE-ORDER',
-            payload: { order: updated },
-          });
-        }
-
+    const onKitchenOrderUpdated = (payload: Order[]) => {
+      const updated = payload?.[0];
+      if (updated) {
         allOrdersDispatch({
-          type: 'UPDATE-ONE-PRODUCT',
-          payload: { order: updated || {} },
+          type: updated.isMade ? 'REMOVE-ONE-ORDER' : 'UPDATE-ONE-PRODUCT',
+          payload: { order: updated },
         });
+      }
+      refreshOrders();
+    };
 
-        // manter consistência simples: refetch
-        reloadOrders().catch((err) =>
-          console.error('reloadOrders after update failed:', err)
-        );
+    const onKitchenOrderDeleted = (payload: { commandId: string }) => {
+      allOrdersDispatch({
+        type: 'REMOVE-COMMAND-ORDERS',
+        payload: { commandId: payload.commandId },
       });
+      refreshOrders();
+    };
 
-      // deletado
-      socket.on('kitchen-order-deleted', (payload: { commandId: string }) => {
-        allOrdersDispatch({
-          type: 'REMOVE-COMMAND-ORDERS',
-          payload: { commandId: payload.commandId },
-        });
-
-        // refetch para garantir consistência e reconciliação
-        reloadOrders().catch((err) =>
-          console.error('reloadOrders after delete failed:', err)
-        );
-      });
-
-      // reordenado no back (se existir)
-      socket.on('kitchen-orders-reordered', async () => {
-        try {
-          await reloadOrders();
-        } catch (err) {
-          console.error('reloadOrders after reordered signal failed:', err);
-        }
-      });
-    } catch (error: any) {
-      toast({
-        status: 'error',
-        title:
-          'Algo deu errado no carregamento em tempo real. Recarre a página!',
-        isClosable: true,
-      });
-      console.error('socket init failed:', error);
-    }
+    socket.on('kitchen-order-created', onKitchenOrderCreated);
+    socket.on('kitchen-order-updated', onKitchenOrderUpdated);
+    socket.on('kitchen-order-deleted', onKitchenOrderDeleted);
+    socket.on('kitchen-orders-reordered', refreshOrders);
 
     return () => {
-      socket.off('kitchen-order-created');
-      socket.off('kitchen-order-updated');
-      socket.off('kitchen-order-deleted');
-      socket.off('kitchen-orders-reordered');
+      socket.off('kitchen-order-created', onKitchenOrderCreated);
+      socket.off('kitchen-order-updated', onKitchenOrderUpdated);
+      socket.off('kitchen-order-deleted', onKitchenOrderDeleted);
+      socket.off('kitchen-orders-reordered', refreshOrders);
     };
   }, [socket, toast, reloadOrders, applyReconcile]);
 

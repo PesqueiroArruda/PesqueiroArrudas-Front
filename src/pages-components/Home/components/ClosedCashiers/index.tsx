@@ -25,7 +25,7 @@ export const ClosedCashiers = () => {
   }, []);
 
   useEffect(() => {
-    socket.on('cashier-created', (newCashier: Cashier) => {
+    const onCashierCreated = (newCashier: Cashier) => {
       setAllCashiers((prevCashiers) => {
         const cashierAlreadyExists = prevCashiers.find((prevCashier) => {
           const prevDt = DateTime.fromISO(prevCashier.date, {
@@ -56,12 +56,13 @@ export const ClosedCashiers = () => {
 
         return [...prevCashiers, newCashier];
       });
-    });
+    };
+    socket.on('cashier-created', onCashierCreated);
 
     return () => {
-      socket.off('cashier-created');
+      socket.off('cashier-created', onCashierCreated);
     };
-  }, []);
+  }, [socket]);
 
   function handleGoToCashierPage(cashierId: string) {
     router.push(`/cashier/${cashierId}`);

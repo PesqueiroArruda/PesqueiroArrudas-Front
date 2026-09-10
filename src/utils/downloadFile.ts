@@ -1,7 +1,7 @@
 interface Props {
-  data: any;
-  fileName: any;
-  fileType: any;
+  data: string;
+  fileName: string;
+  fileType: string;
 }
 
 export const downloadFile = ({ data, fileName, fileType }: Props) => {
@@ -11,12 +11,14 @@ export const downloadFile = ({ data, fileName, fileType }: Props) => {
   // to trigger a download
   const a = document.createElement('a');
   a.download = fileName;
-  a.href = window.URL.createObjectURL(blob);
-  const clickEvt = new MouseEvent('click', {
-    view: window,
-    bubbles: true,
-    cancelable: true,
-  });
-  a.dispatchEvent(clickEvt);
-  a.remove();
+  const url = window.URL.createObjectURL(blob);
+  a.href = url;
+  document.body.appendChild(a);
+  try {
+    a.click();
+  } finally {
+    a.remove();
+    // Let the browser start the download before releasing the blob URL.
+    window.setTimeout(() => window.URL.revokeObjectURL(url), 0);
+  }
 };

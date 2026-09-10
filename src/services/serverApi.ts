@@ -1,9 +1,6 @@
 import axios from 'axios';
-
-// const prodUrl = 'http://localhost:8080';
-// const prodUrl = process.env.API_URL;
-const prodUrl = 'https://web-production-8cfce.up.railway.app';
+import { API_URL } from './apiConfig';
 
 export const serverApi = axios.create({
-  baseURL: prodUrl,
+  baseURL: API_URL,
 });

@@ -1,24 +1,29 @@
-/* eslint-disable react/jsx-no-constructed-context-values */
-import { createContext } from 'react';
+import { createContext, useEffect } from 'react';
 import type { AppProps } from 'next/app';
 import { ChakraProvider } from '@chakra-ui/react';
-import io from 'socket.io-client';
+import io, { Socket } from 'socket.io-client';
+import { API_URL } from 'services/apiConfig';
 
 interface SocketProps {
-  socket: any;
+  socket: Socket;
 }
 
 export const SocketContext = createContext({} as SocketProps);
 
-const prodUrl = 'https://web-production-8cfce.up.railway.app'
-// const prodUrl = 'http://localhost:8080'
-
-const socket = io(prodUrl);
+const socket = io(API_URL, { autoConnect: false });
+const socketContextValue = { socket };
 
 function MyApp({ Component, pageProps }: AppProps) {
+  useEffect(() => {
+    socket.connect();
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
   return (
     <ChakraProvider>
-      <SocketContext.Provider value={{ socket }}>
+      <SocketContext.Provider value={socketContextValue}>
         <Component {...pageProps} />
       </SocketContext.Provider>
     </ChakraProvider>
