@@ -26,8 +26,6 @@ import { CheckOrderModal } from './components/CheckOrderModal';
 
 export const KitchenContext = createContext({} as KitchenContextProps);
 
-type Cat = 'kitchen' | 'bar';
-
 function reconcileOrder(idsLocal: string[], idsAtuais: string[]) {
   const setAtuais = new Set(idsAtuais);
   // 1) remove o que não existe mais
@@ -52,40 +50,31 @@ export const Kitchen = () => {
   }, [allOrders.value]);
 
   const [playSound, setPlaySound] = useState(false);
-  const [isKitchen, setIsKitchen] = useState(true);
+
+  const [orderStatusFilter, setOrderStatusFilter] = useState<
+    'Pendentes' | 'Concluídos'
+  >('Pendentes');
+  const [completedOrders, setCompletedOrders] = useState<Order[]>([]);
+  const [isLoadingCompleted, setIsLoadingCompleted] = useState(false);
 
   const { socket } = useContext(SocketContext);
   const toast = useToast();
   const [playNotify] = useSound<any>(NotifySound);
 
-  // 🔹 ORDEM LOCAL (por categoria) — pode opcionalmente persistir em localStorage
-  const [frontOrderByCategory, setFrontOrderByCategory] = useState<
-    Record<Cat, string[]>
-  >({
-    kitchen: [],
-    bar: [],
-  });
+  // 🔹 ORDEM LOCAL dos pedidos pendentes — pode opcionalmente persistir em localStorage
+  const [frontOrderIds, setFrontOrderIds] = useState<string[]>([]);
 
-  // ✅ arrow-body-style: retorno implícito
-  const getIdsPorCategoria = useCallback(
-    (cat: Cat, orders: Order[]) =>
-      orders
-        .filter((o) => !o.isMade && o.orderCategory === cat)
-        .map((o) => o._id),
+  const getPendingIds = useCallback(
+    (orders: Order[]) => orders.filter((o) => !o.isMade).map((o) => o._id),
     []
   );
 
   const applyReconcile = useCallback(
     (orders: Order[]) => {
-      const idsKitchen = getIdsPorCategoria('kitchen', orders);
-      const idsBar = getIdsPorCategoria('bar', orders);
-
-      setFrontOrderByCategory((prev) => ({
-        kitchen: reconcileOrder(prev.kitchen, idsKitchen),
-        bar: reconcileOrder(prev.bar, idsBar),
-      }));
+      const idsAtuais = getPendingIds(orders);
+      setFrontOrderIds((prev) => reconcileOrder(prev, idsAtuais));
     },
-    [getIdsPorCategoria]
+    [getPendingIds]
   );
 
   // << refetch centralizado
@@ -125,6 +114,35 @@ export const Kitchen = () => {
       }
     })();
   }, [reloadOrders, toast]);
+
+  useEffect(() => {
+    if (orderStatusFilter !== 'Concluídos') return;
+
+    let active = true;
+    (async () => {
+      try {
+        setIsLoadingCompleted(true);
+        const orders = await KitchenOrdersService.getAllMade();
+        if (active) setCompletedOrders(orders);
+      } catch (error: any) {
+        if (active) {
+          toast({
+            status: 'error',
+            title: 'Não foi possível carregar os pedidos concluídos.',
+            duration: 2000,
+            isClosable: true,
+          });
+        }
+      } finally {
+        if (active) setIsLoadingCompleted(false);
+      }
+    })();
+
+    // eslint-disable-next-line consistent-return
+    return () => {
+      active = false;
+    };
+  }, [orderStatusFilter, toast]);
 
   useEffect(() => {
     const onKitchenOrderCreated = (payload: Order) => {
@@ -200,29 +218,31 @@ export const Kitchen = () => {
       allOrdersDispatch, // dispatch é estável
       setIsCheckOrderModalOpen,
       setOrderToCheck,
-      isKitchen,
-      setIsKitchen,
       reloadOrders,
-      frontOrderByCategory,
-      setFrontOrderByCategory,
+      frontOrderIds,
+      setFrontOrderIds,
     }),
     [
       allOrders.value,
-      isKitchen,
       reloadOrders,
-      frontOrderByCategory,
+      frontOrderIds,
       // setters/dispatch são estáveis, não precisariam entrar nas deps
       allOrdersDispatch,
       setIsCheckOrderModalOpen,
       setOrderToCheck,
-      setIsKitchen,
-      setFrontOrderByCategory,
+      setFrontOrderIds,
     ]
   );
 
   return (
     <KitchenContext.Provider value={contextValue}>
-      <KitchenLayout orders={allOrders.value} />
+      <KitchenLayout
+        orders={allOrders.value}
+        orderStatusFilter={orderStatusFilter}
+        setOrderStatusFilter={setOrderStatusFilter}
+        completedOrders={completedOrders}
+        isLoadingCompleted={isLoadingCompleted}
+      />
       <CheckOrderModal
         isModalOpen={isCheckOrderModalOpen}
         setIsModalOpen={setIsCheckOrderModalOpen}

@@ -28,6 +28,13 @@ class KitchenOrdersService {
     return data;
   }
 
+  async getAllMade() {
+    const { data } = await serverApi.get('/kitchen/orders', {
+      params: { made: true },
+    });
+    return data;
+  }
+
   async checkOneOrder({ orderId, isMade }: CheckOneOrder) {
     const { data } = await serverApi.put(`/kitchen/orders/${orderId}`, {
       isMade,

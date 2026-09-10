@@ -16,21 +16,15 @@ interface Props {
 }
 
 export const OrdersListLayout = ({ orders, onReorder }: Props) => {
-  const {
-    isKitchen, setIsKitchen,
-    frontOrderByCategory, setFrontOrderByCategory,
-  } = useContext(KitchenContext);
-
-  const category = isKitchen ? 'kitchen' : 'bar';
+  const { frontOrderIds, setFrontOrderIds } = useContext(KitchenContext);
 
   const visibleOrdersRaw = useMemo(
-    () => orders.filter(o => !o.isMade && o.orderCategory === category),
-    [orders, category]
+    () => orders.filter((o) => !o.isMade && o.orderCategory === 'kitchen'),
+    [orders]
   );
 
   // 🔹 Ordena pela ordem local (fallback: mantém ordem natural)
-  const orderIds = frontOrderByCategory[category] || [];
-  const indexMap = new Map(orderIds.map((id: any, i: any) => [id, i]));
+  const indexMap = new Map(frontOrderIds.map((id, i) => [id, i]));
   const visibleOrders = useMemo(
     () =>
       [...visibleOrdersRaw].sort((a, b) => {
@@ -38,10 +32,10 @@ export const OrdersListLayout = ({ orders, onReorder }: Props) => {
         const ib = indexMap.has(b._id) ? (indexMap.get(b._id) as number) : Number.MAX_SAFE_INTEGER;
         return ia - ib;
       }),
-    [visibleOrdersRaw, orderIds]
+    [visibleOrdersRaw, frontOrderIds]
   );
 
-  const visibleIds = useMemo(() => visibleOrders.map(o => o._id), [visibleOrders]);
+  const visibleIds = useMemo(() => visibleOrders.map((o) => o._id), [visibleOrders]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -54,13 +48,12 @@ export const OrdersListLayout = ({ orders, onReorder }: Props) => {
     // Reordena só os visíveis
     const newVisibleOrder = arrayMove(visibleIds, oldIndex, newIndex);
 
-    // Atualiza o array de IDs da categoria:
-    // regra: manter outros IDs (que não estão visíveis — ex.: já feitos ou outra categoria) como estão
+    // Atualiza o array de IDs: mantém outros IDs (ex.: já feitos) como estão
     const setLocal = new Set(newVisibleOrder);
-    const unchanged = orderIds.filter((id:any) => !setLocal.has(id));
+    const unchanged = frontOrderIds.filter((id) => !setLocal.has(id));
     const nextIds = [...newVisibleOrder, ...unchanged];
 
-    setFrontOrderByCategory((prev: any) => ({ ...prev, [category]: nextIds }));
+    setFrontOrderIds(nextIds);
 
     // Se quiser notificar o pai com a lista completa já “visual-ordenada”:
     if (onReorder) {
@@ -68,28 +61,13 @@ export const OrdersListLayout = ({ orders, onReorder }: Props) => {
       const movedVisible = visibleOrders
         .slice() // cópia já ordenada pelo newVisibleOrder acima
         .sort((a, b) => newVisibleOrder.indexOf(a._id) - newVisibleOrder.indexOf(b._id));
-      const otherGroup = orders.filter(o => !inVisible.has(o._id));
+      const otherGroup = orders.filter((o) => !inVisible.has(o._id));
       onReorder([...movedVisible, ...otherGroup]);
     }
   };
 
   return (
     <div className="flex flex-col gap-4">
-      <label htmlFor="kitchen-bar-toggle" className="flex items-center gap-2.5 text-sm font-bold text-navy">
-        <span className="relative inline-flex h-5 w-9 items-center">
-          <input
-            id="kitchen-bar-toggle"
-            type="checkbox"
-            checked={isKitchen}
-            onChange={(e) => setIsKitchen(e.target.checked)}
-            className="peer sr-only"
-          />
-          <span className="absolute inset-0 rounded-full bg-secondary transition-colors peer-checked:bg-gold" />
-          <span className="absolute left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4" />
-        </span>
-        {isKitchen ? 'Cozinha' : 'Bar'}
-      </label>
-
       <DndContext onDragEnd={handleDragEnd}>
         <SortableContext items={visibleIds} strategy={verticalListSortingStrategy}>
           <div className="flex flex-col gap-3">

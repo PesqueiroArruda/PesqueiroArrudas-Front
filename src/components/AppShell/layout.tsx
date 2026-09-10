@@ -75,7 +75,7 @@ export const AppShellLayout = ({
   isSideMenuOpen,
   setIsSideMenuOpen,
 }: Props) => (
-  <div className="flex min-h-screen flex-col bg-background md:flex-row">
+  <div className="flex h-screen flex-col overflow-hidden bg-background md:flex-row">
     {/* Desktop sidebar */}
     <aside className="hidden w-60 shrink-0 flex-col bg-navy px-4 py-5 md:flex">
       <div className="flex items-center gap-2">
@@ -141,6 +141,6 @@ export const AppShellLayout = ({
       )}
     </header>
 
-    <main className="min-w-0 flex-1 px-4 py-6 md:px-9 md:py-8">{children}</main>
+    <main className="min-w-0 flex-1 overflow-y-auto px-4 py-6 md:px-9 md:py-8">{children}</main>
   </div>
 );
