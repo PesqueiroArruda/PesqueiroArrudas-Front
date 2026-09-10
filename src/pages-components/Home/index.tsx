@@ -7,19 +7,25 @@ import { useRouter } from 'next/router';
 import { HomeLayout } from './layout';
 import AuthService from './services/AuthService';
 
+type PermissionTarget = 'closed-cashiers' | 'dashboard' | null;
+
 export const Home = () => {
   const [isPermittedToSeeClosedCahiers, setIsPermittedToSeeClosedCahiers] =
     useState(false);
+  const [isPermittedToSeeDashboard, setIsPermittedToSeeDashboard] =
+    useState(false);
   const [isAsksPermitionModalOpen, setIsAsksPermitionModalOpen] =
     useState(false);
+  const permissionTarget = useRef<PermissionTarget>(null);
   const password = useRef('');
   const [isAdmin, setIsAdmin] = useState(false);
 
   const toast = useToast();
   const router = useRouter();
 
-  function handleAsksPermition() {
+  function handleAsksPermition(target: PermissionTarget = 'closed-cashiers') {
     password.current = '';
+    permissionTarget.current = target;
     setIsAsksPermitionModalOpen(true);
   }
 
@@ -38,7 +44,11 @@ export const Home = () => {
       );
 
       if (isAuthorized) {
-        setIsPermittedToSeeClosedCahiers(true);
+        if (permissionTarget.current === 'dashboard') {
+          setIsPermittedToSeeDashboard(true);
+        } else {
+          setIsPermittedToSeeClosedCahiers(true);
+        }
         setIsAsksPermitionModalOpen(false);
         password.current = '';
       }
@@ -55,6 +65,7 @@ export const Home = () => {
   function handleCloseAsksPermitionModal() {
     setIsAsksPermitionModalOpen(false);
     setIsPermittedToSeeClosedCahiers(false);
+    setIsPermittedToSeeDashboard(false);
     password.current = '';
   }
 
@@ -87,7 +98,7 @@ export const Home = () => {
       <HomeLayout
         handleAsksPermition={handleAsksPermition}
         isPermittedToSeeClosedCahiers={isPermittedToSeeClosedCahiers}
-        setIsAsksPermitionModalOpen={setIsAsksPermitionModalOpen}
+        isPermittedToSeeDashboard={isPermittedToSeeDashboard}
         isAdmin={isAdmin}
       />
       <Modal

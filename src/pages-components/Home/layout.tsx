@@ -1,5 +1,3 @@
-import { Dispatch, SetStateAction } from 'react';
-
 import { AppShell } from 'components/AppShell';
 import { Button } from 'components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from 'components/ui/tabs';
@@ -7,18 +5,19 @@ import { ClosedCashiers } from './components/ClosedCashiers';
 import { PayedCommands } from './components/PayedCommands';
 import { SoldItems } from './components/SoldItems';
 import { Customers } from './components/Customers';
+import { SalesDashboard } from './components/SalesDashboard';
 
 interface Props {
-  handleAsksPermition: () => void;
+  handleAsksPermition: (target?: 'closed-cashiers' | 'dashboard') => void;
   isPermittedToSeeClosedCahiers: boolean;
-  setIsAsksPermitionModalOpen: Dispatch<SetStateAction<boolean>>;
+  isPermittedToSeeDashboard: boolean;
   isAdmin: boolean;
 }
 
 export const HomeLayout = ({
   handleAsksPermition,
   isPermittedToSeeClosedCahiers,
-  setIsAsksPermitionModalOpen,
+  isPermittedToSeeDashboard,
   isAdmin,
 }: Props) => (
   <AppShell>
@@ -26,11 +25,14 @@ export const HomeLayout = ({
       {isAdmin && (
         <TabsList className="mb-6">
           <TabsTrigger value="payed-commands">Comandas Pagas</TabsTrigger>
-          <TabsTrigger value="closed-cashiers" onClick={handleAsksPermition}>
+          <TabsTrigger value="closed-cashiers" onClick={() => handleAsksPermition('closed-cashiers')}>
             Caixas Fechados
           </TabsTrigger>
           <TabsTrigger value="sold-items">Itens Vendidos</TabsTrigger>
           <TabsTrigger value="customers">Clientes Recorrentes</TabsTrigger>
+          <TabsTrigger value="sales-dashboard" onClick={() => handleAsksPermition('dashboard')}>
+            Dashboard de Vendas
+          </TabsTrigger>
         </TabsList>
       )}
 
@@ -41,7 +43,7 @@ export const HomeLayout = ({
         {isPermittedToSeeClosedCahiers ? (
           <ClosedCashiers />
         ) : (
-          <Button onClick={() => setIsAsksPermitionModalOpen(true)}>Acessar Caixas</Button>
+          <Button onClick={() => handleAsksPermition('closed-cashiers')}>Acessar Caixas</Button>
         )}
       </TabsContent>
       <TabsContent value="sold-items">
@@ -49,6 +51,13 @@ export const HomeLayout = ({
       </TabsContent>
       <TabsContent value="customers">
         <Customers />
+      </TabsContent>
+      <TabsContent value="sales-dashboard">
+        {isPermittedToSeeDashboard ? (
+          <SalesDashboard />
+        ) : (
+          <Button onClick={() => handleAsksPermition('dashboard')}>Acessar Dashboard</Button>
+        )}
       </TabsContent>
     </Tabs>
   </AppShell>

@@ -11,6 +11,9 @@ interface CashierCommand {
   total: number;
   waiterExtra: number;
   products: CashierProduct[];
+  createdAt?: string;
+  peopleCount?: number;
+  fishingType?: string;
 }
 
 interface CashierPayment {
@@ -19,6 +22,7 @@ interface CashierPayment {
   totalPayed: number;
   command: CashierCommand;
   waiterExtra?: number;
+  createdAt?: string;
 }
 
 interface Cashier {
