@@ -210,6 +210,29 @@ export const SalesDashboardLayout = ({ stats, isLoading, month, setMonth, year, 
         </SectionCard>
       </div>
 
+      <SectionCard title="Clientes recorrentes (comandas por mês)">
+        {stats.commandsPerMonth.length === 0 ? (
+          <EmptyHint text="Nenhuma comanda paga no período." />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Mês</TableHead>
+                <TableHead>Comandas pagas</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {stats.commandsPerMonth.map((entry) => (
+                <TableRow key={`commands-month-${entry.label}`}>
+                  <TableCell className="capitalize">{entry.label}</TableCell>
+                  <TableCell>{entry.commandsCount}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </SectionCard>
+
       <SectionCard title="Horário de pico (comandas simultaneamente abertas)">
         {stats.peakHours.length === 0 ? (
           <EmptyHint text="Ainda sem dados suficientes — essa métrica só existe pra caixas fechados a partir de agora." />
