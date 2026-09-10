@@ -14,6 +14,11 @@ export interface MonthStat {
   total: number;
 }
 
+export interface MonthCommandsStat {
+  label: string;
+  commandsCount: number;
+}
+
 export interface HourStat {
   hour: number;
   concurrentCount: number;
@@ -39,6 +44,7 @@ export interface SalesDashboardStats {
   worstSellingItems: ItemStat[];
   neverSoldProducts: { name: string; category?: string }[];
   monthsRanked: MonthStat[];
+  commandsPerMonth: MonthCommandsStat[];
   peakHours: HourStat[];
   weekdaysRanked: WeekdayStat[];
   paymentTypeBreakdown: ShareStat[];
@@ -61,6 +67,32 @@ function normalizeName(name: string) {
     .replace(DIACRITICS_REGEX, '')
     .toLowerCase()
     .trim();
+}
+
+// Remove pontuação perdida no começo/fim do nome (ex.: "`Patricia"),
+// mantendo letras (com acento) e espaços.
+const STRAY_PUNCTUATION_REGEX = /^[^\p{L}]+|[^\p{L}]+$/gu;
+
+function stripStrayPunctuation(name: string) {
+  return name.replace(STRAY_PUNCTUATION_REGEX, '');
+}
+
+// Corrige apelidos/erros de digitação conhecidos de nomes de garçom antes de
+// agrupar (chave = nome normalizado). Complete aqui conforme forem aparecendo
+// novas duplicatas na lista de "Desempenho por garçom".
+const WAITER_NAME_ALIASES: Record<string, string> = {
+  diegp: 'Diego',
+  dieog: 'Diego',
+  grazy: 'Grazyele',
+  grazi: 'Grazyele',
+  grazyele: 'Grazyele',
+  paty: 'Patricia',
+};
+
+function canonicalWaiterName(rawName: string) {
+  const cleaned = stripStrayPunctuation(rawName.trim());
+  const alias = WAITER_NAME_ALIASES[normalizeName(cleaned)];
+  return alias || cleaned;
 }
 
 function round2(value: number) {
@@ -113,9 +145,15 @@ export function buildSalesDashboardStats(cashiers: Cashier[], products: Product[
     .filter((product) => !quantityByName.has(product.name))
     .map((product) => ({ name: product.name, category: product.category }));
 
-  const monthsRanked: MonthStat[] = groupCashiersByMonth(cashiers)
+  const cashiersByMonth = groupCashiersByMonth(cashiers);
+
+  const monthsRanked: MonthStat[] = cashiersByMonth
     .map((group) => ({ label: `${group.month} de ${group.year}`, total: round2(group.total) }))
     .sort((a, b) => b.total - a.total);
+
+  const commandsPerMonth: MonthCommandsStat[] = cashiersByMonth
+    .map((group) => ({ label: `${group.month} de ${group.year}`, commandsCount: group.payments.length }))
+    .sort((a, b) => b.commandsCount - a.commandsCount);
 
   // Horário de pico: pra cada intervalo [abertura da comanda, pagamento],
   // marca cada hora cheia coberta como "1 comanda aberta" e soma entre todas
@@ -189,15 +227,16 @@ export function buildSalesDashboardStats(cashiers: Cashier[], products: Product[
     .map(([category, quantity]) => ({ category, quantity: round2(quantity) }))
     .sort((a, b) => b.quantity - a.quantity);
 
-  // Agrupa por nome normalizado (sem acento, minúsculo) pra juntar duplicatas
-  // como "José"/"jose"/"JOSÉ", mas mantém o primeiro nome visto como rótulo.
+  // Agrupa por nome normalizado (sem acento, minúsculo, sem pontuação perdida)
+  // e aplica os aliases conhecidos, pra juntar duplicatas como
+  // "José"/"jose"/"JOSÉ" ou "Diegp"/"Dieog" (erro de digitação de "Diego").
   const waiterTotals = new Map<string, { label: string; total: number }>();
   payments.forEach((payment) => {
-    const rawWaiter = (payment.command?.waiter || 'Não informado').trim();
-    const key = normalizeName(rawWaiter);
+    const waiterName = canonicalWaiterName(payment.command?.waiter || 'Não informado');
+    const key = normalizeName(waiterName);
     const existing = waiterTotals.get(key);
     waiterTotals.set(key, {
-      label: existing?.label || rawWaiter,
+      label: existing?.label || waiterName,
       total: (existing?.total || 0) + (payment.totalPayed || 0),
     });
   });
@@ -212,6 +251,7 @@ export function buildSalesDashboardStats(cashiers: Cashier[], products: Product[
     worstSellingItems,
     neverSoldProducts,
     monthsRanked,
+    commandsPerMonth,
     peakHours,
     weekdaysRanked,
     paymentTypeBreakdown,
