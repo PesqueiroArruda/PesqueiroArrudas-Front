@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { BadgeCheck, ChefHat, Loader2, MoreVertical, Percent, Printer, Trash2, Wallet } from 'lucide-react';
+import { BadgeCheck, ChefHat, Loader2, Minus, MoreVertical, Percent, Plus, Printer, Trash2, Wallet } from 'lucide-react';
 
 import { AppShell } from 'components/AppShell';
 import { Button } from 'components/ui/button';
@@ -26,6 +26,7 @@ interface Props {
   handleEditDiscount: () => void;
   handlePrintCommand: () => void;
   isAdmin: boolean;
+  handleUpdatePeopleCount: (peopleCount: number) => void;
 }
 
 export const CommandLayout = ({
@@ -40,6 +41,7 @@ export const CommandLayout = ({
   handleEditDiscount,
   handlePrintCommand,
   isAdmin,
+  handleUpdatePeopleCount,
 }: Props) => {
   const dt = DateTime.fromISO(command?.createdAt as string, {
     zone: 'pt-BR',
@@ -80,6 +82,30 @@ export const CommandLayout = ({
             </div>
 
             <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto md:flex-row md:items-center">
+              <div className="flex items-center justify-center gap-3 rounded-card bg-secondary px-3 py-2 shadow-sm">
+                <span className="font-heading text-sm font-extrabold text-navy">Pessoas:</span>
+                <button
+                  type="button"
+                  aria-label="Diminuir quantidade de pessoas"
+                  disabled={!isAdmin || (command?.peopleCount || 1) <= 1}
+                  onClick={() => handleUpdatePeopleCount((command?.peopleCount || 1) - 1)}
+                  className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-navy disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <Minus className="h-3.5 w-3.5" />
+                </button>
+                <span className="min-w-4 text-center font-heading text-base font-extrabold text-navy">
+                  {command?.peopleCount || 1}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Aumentar quantidade de pessoas"
+                  disabled={!isAdmin}
+                  onClick={() => handleUpdatePeopleCount((command?.peopleCount || 1) + 1)}
+                  className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-navy disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
               <div className="rounded-card bg-secondary px-4 py-2 text-center shadow-sm">
                 <span className="font-heading text-base font-extrabold text-navy sm:text-lg">
                   Total: {parseToBRL(command?.total || 0)}

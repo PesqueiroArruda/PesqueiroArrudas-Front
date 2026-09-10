@@ -14,4 +14,5 @@ export interface Command {
   waiterExtra?: number;
   paymentTypes?: string[];
   discount?: number;
+  peopleCount?: number;
 }

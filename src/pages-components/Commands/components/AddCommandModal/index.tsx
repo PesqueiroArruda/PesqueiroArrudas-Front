@@ -15,6 +15,7 @@ type AddCommandInputs = {
   table: string;
   waiter: string;
   fishingType: string;
+  peopleCount: number;
 };
 
 export const AddCommandModal = ({ isModalOpen, setIsModalOpen }: Props) => {
@@ -39,6 +40,7 @@ export const AddCommandModal = ({ isModalOpen, setIsModalOpen }: Props) => {
     table,
     waiter,
     fishingType,
+    peopleCount,
   }) => {
     try {
       if (isAdding) {
@@ -49,6 +51,7 @@ export const AddCommandModal = ({ isModalOpen, setIsModalOpen }: Props) => {
         table,
         waiter,
         fishingType,
+        peopleCount: Number(peopleCount) || 1,
       });
 
       allCommandsDispatch({ type: 'ADD-ONE-COMMAND', payload: { command } });

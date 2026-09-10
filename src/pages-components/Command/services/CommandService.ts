@@ -63,6 +63,19 @@ class CommandService {
     return data;
   }
 
+  async updateCommandPeopleCount({
+    _id,
+    peopleCount,
+  }: {
+    _id: string;
+    peopleCount: number;
+  }) {
+    const { data } = await serverApi.put(`/commands/${_id}`, {
+      peopleCount,
+    });
+    return data;
+  }
+
   async deleteCommand({ commandId }: DeleteCommand) {
     const { data } = await serverApi.delete(`/commands/${commandId}`);
     return data;

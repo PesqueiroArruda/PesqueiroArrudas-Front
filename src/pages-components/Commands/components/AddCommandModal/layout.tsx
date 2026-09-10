@@ -10,6 +10,7 @@ type AddCommandInputs = {
   table: string;
   waiter: string;
   fishingType: string;
+  peopleCount: number;
 };
 
 type Props = {
@@ -55,6 +56,16 @@ export const AddCommandModalLayout = ({
           <option>Pesca Esportiva</option>
           <option>Pesque Pague</option>
         </select>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm font-semibold text-navy">Quantidade de pessoas</span>
+        <Input
+          type="number"
+          min={1}
+          defaultValue={1}
+          {...rhfRegister('peopleCount', { valueAsNumber: true, min: 1 })}
+        />
       </div>
 
       <Button type="submit" disabled={isAdding}>

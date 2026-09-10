@@ -264,6 +264,27 @@ export const Command = ({ commandId }: Props) => {
     setIsDiscountModalOpen(true);
   }, []);
 
+  const handleUpdatePeopleCount = useCallback(
+    async (peopleCount: number) => {
+      if (peopleCount < 1) return;
+      try {
+        const data = await CommandService.updateCommandPeopleCount({
+          _id: command._id as string,
+          peopleCount,
+        });
+        setCommand(data.command);
+      } catch (error: any) {
+        toast({
+          status: 'error',
+          title: error?.response?.data?.message || 'Não foi possível atualizar a quantidade de pessoas.',
+          duration: 2000,
+          isClosable: true,
+        });
+      }
+    },
+    [command._id, toast]
+  );
+
   const handlePrintCommand = useReactToPrint({
     content: () => {
       // Recibo dimensionado para bobina térmica de 58mm.
@@ -440,6 +461,7 @@ export const Command = ({ commandId }: Props) => {
         totalToBePayed={totalToBePayed}
         handlePrintCommand={handlePrintCommand}
         isAdmin={isAdmin}
+        handleUpdatePeopleCount={handleUpdatePeopleCount}
       />
       <DeleteProductModal
         isModalOpen={isDeleteProductModalOpen}
