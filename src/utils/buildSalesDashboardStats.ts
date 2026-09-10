@@ -14,9 +14,10 @@ export interface MonthStat {
   total: number;
 }
 
-export interface MonthCommandsStat {
-  label: string;
-  commandsCount: number;
+export interface RepeatCustomerStat {
+  name: string;
+  visits: number;
+  total: number;
 }
 
 export interface HourStat {
@@ -44,7 +45,7 @@ export interface SalesDashboardStats {
   worstSellingItems: ItemStat[];
   neverSoldProducts: { name: string; category?: string }[];
   monthsRanked: MonthStat[];
-  commandsPerMonth: MonthCommandsStat[];
+  repeatCustomers: RepeatCustomerStat[];
   peakHours: HourStat[];
   weekdaysRanked: WeekdayStat[];
   paymentTypeBreakdown: ShareStat[];
@@ -81,8 +82,28 @@ function stripStrayPunctuation(name: string) {
 // agrupar (chave = nome normalizado). Complete aqui conforme forem aparecendo
 // novas duplicatas na lista de "Desempenho por garçom".
 const WAITER_NAME_ALIASES: Record<string, string> = {
+  giovani: 'Giovanni',
+  giovane: 'Giovanni',
+  giovannk: 'Giovanni',
+  deigo: 'Diego',
+  diegi: 'Diego',
+  diegio: 'Diego',
+  diwego: 'Diego',
   diegp: 'Diego',
   dieog: 'Diego',
+  euo: 'Euso',
+  eusi: 'Euso',
+  julcio: 'Julio',
+  juliop: 'Julio',
+  juliio: 'Julio',
+  stevfe: 'Steve',
+  luu: 'Lu',
+  lui: 'Lu',
+  li: 'Lu',
+  pri: 'Priscila',
+  pti: 'Priscila',
+  tiago: 'Thiago',
+  vianca: 'Bianca',
   grazy: 'Grazyele',
   grazi: 'Grazyele',
   grazyele: 'Grazyele',
@@ -149,11 +170,35 @@ export function buildSalesDashboardStats(cashiers: Cashier[], products: Product[
 
   const monthsRanked: MonthStat[] = cashiersByMonth
     .map((group) => ({ label: `${group.month} de ${group.year}`, total: round2(group.total) }))
-    .sort((a, b) => b.total - a.total);
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 10);
 
-  const commandsPerMonth: MonthCommandsStat[] = cashiersByMonth
-    .map((group) => ({ label: `${group.month} de ${group.year}`, commandsCount: group.payments.length }))
-    .sort((a, b) => b.commandsCount - a.commandsCount);
+  // Clientes recorrentes: agrupa pelo nome da mesa/cliente (normalizado —
+  // sem acento, minúsculo, sem espaço sobrando), contando quantas vezes uma
+  // comanda com esse nome foi paga. Não usa os aliases dos garçons aqui de
+  // propósito: com nomes de cliente é melhor deixar variações comuns (ex.
+  // "Thiago"/"Tiago") como entradas separadas do que arriscar juntar gente
+  // diferente.
+  const customerTotals = new Map<string, { name: string; visits: number; total: number }>();
+  payments.forEach((payment) => {
+    const rawName = stripStrayPunctuation((payment.command?.table || 'Não informado').trim());
+    const key = normalizeName(rawName);
+    const existing = customerTotals.get(key);
+    customerTotals.set(key, {
+      name: existing?.name || rawName,
+      visits: (existing?.visits || 0) + 1,
+      total: round2((existing?.total || 0) + (payment.totalPayed || 0)),
+    });
+  });
+  // Só entram aqui clientes com mais de uma visita no período — é o que
+  // "recorrente" quer dizer; cliente de visita única não é o foco da seção.
+  const repeatCustomers: RepeatCustomerStat[] = [...customerTotals.values()]
+    .filter((entry) => entry.visits > 1)
+    .sort((a, b) => {
+      if (b.visits !== a.visits) return b.visits - a.visits;
+      return b.total - a.total;
+    })
+    .slice(0, 20);
 
   // Horário de pico: pra cada intervalo [abertura da comanda, pagamento],
   // marca cada hora cheia coberta como "1 comanda aberta" e soma entre todas
@@ -251,7 +296,7 @@ export function buildSalesDashboardStats(cashiers: Cashier[], products: Product[
     worstSellingItems,
     neverSoldProducts,
     monthsRanked,
-    commandsPerMonth,
+    repeatCustomers,
     peakHours,
     weekdaysRanked,
     paymentTypeBreakdown,

@@ -210,22 +210,24 @@ export const SalesDashboardLayout = ({ stats, isLoading, month, setMonth, year, 
         </SectionCard>
       </div>
 
-      <SectionCard title="Clientes recorrentes (comandas por mês)">
-        {stats.commandsPerMonth.length === 0 ? (
-          <EmptyHint text="Nenhuma comanda paga no período." />
+      <SectionCard title="Clientes recorrentes">
+        {stats.repeatCustomers.length === 0 ? (
+          <EmptyHint text="Nenhum cliente com mais de uma visita no período." />
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Mês</TableHead>
-                <TableHead>Comandas pagas</TableHead>
+                <TableHead>Cliente</TableHead>
+                <TableHead>Quantidade de visitas</TableHead>
+                <TableHead>Valor total gasto</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {stats.commandsPerMonth.map((entry) => (
-                <TableRow key={`commands-month-${entry.label}`}>
-                  <TableCell className="capitalize">{entry.label}</TableCell>
-                  <TableCell>{entry.commandsCount}</TableCell>
+              {stats.repeatCustomers.map((entry) => (
+                <TableRow key={`repeat-customer-${entry.name}`}>
+                  <TableCell className="capitalize">{entry.name}</TableCell>
+                  <TableCell>{entry.visits}</TableCell>
+                  <TableCell>{parseToBRL(entry.total)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
