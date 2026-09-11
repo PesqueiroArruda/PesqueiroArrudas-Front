@@ -1,3 +1,4 @@
+import { IfoodDeliveryStatus } from './IfoodOrder';
 import { Product } from './Product';
 
 export interface Command {
@@ -9,7 +10,7 @@ export interface Command {
   total?: number;
   isActive?: boolean;
   isCancelled?: boolean;
-  deliveryStatus?: 'dispatched' | 'concluded' | null;
+  deliveryStatus?: IfoodDeliveryStatus;
   hasPendingOrders?: boolean;
   totalPayed?: number;
   createdAt?: string;

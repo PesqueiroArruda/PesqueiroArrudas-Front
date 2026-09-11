@@ -1,15 +1,15 @@
 import { DateTime } from 'luxon';
-import { BadgeCheck, ChefHat, Loader2, Minus, MoreVertical, Percent, Plus, Printer, Trash2, Truck, Wallet } from 'lucide-react';
+import { BadgeCheck, ChefHat, Loader2, Minus, MoreVertical, Percent, Plus, Printer, Trash2, Wallet } from 'lucide-react';
 
 import { AppShell } from 'components/AppShell';
 import { Button } from 'components/ui/button';
+import { DeliveryStatusBadge } from 'components/DeliveryStatusBadge';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from 'components/ui/dropdown-menu';
-import { cn } from 'lib/utils';
 import { Command } from 'types/Command';
 import { parseToBRL } from 'utils/parseToBRL';
 import { NavHeader } from './components/NavHeader';
@@ -80,21 +80,7 @@ export const CommandLayout = ({
                 </h1>
               </div>
               <span className="text-sm text-text-muted">{createdAtFormatted}</span>
-              {command?.deliveryStatus && (
-                <span
-                  className={cn(
-                    'inline-flex items-center gap-1.5 rounded-(--radius) px-3 py-1 text-sm font-bold text-white',
-                    command.deliveryStatus === 'concluded' ? 'bg-success' : 'bg-cyan',
-                  )}
-                >
-                  {command.deliveryStatus === 'concluded' ? (
-                    <BadgeCheck className="h-4 w-4" />
-                  ) : (
-                    <Truck className="h-4 w-4" />
-                  )}
-                  {command.deliveryStatus === 'concluded' ? 'Entrega concluída' : 'Saiu para entrega'}
-                </span>
-              )}
+              <DeliveryStatusBadge status={command?.deliveryStatus} />
             </div>
 
             <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto md:flex-row md:items-center">

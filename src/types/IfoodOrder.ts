@@ -92,12 +92,15 @@ export interface IfoodCancellationReason {
   description: string;
 }
 
+export type IfoodDeliveryStatus = 'confirmed' | 'dispatched' | 'concluded' | null;
+
 export interface IfoodOrder {
   _id: string;
   ifoodOrderId: string;
   eventId: string;
   rawPayload?: IfoodOrderPayload;
   status: 'pending' | 'accepted' | 'rejected' | 'cancellation_requested' | 'cancelled';
+  deliveryStatus?: IfoodDeliveryStatus;
   commandId?: string | null;
   rejectionReason?: string;
   createdAt?: string;

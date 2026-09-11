@@ -14,6 +14,7 @@ import {
 
 import { AppShell } from 'components/AppShell';
 import { Button } from 'components/ui/button';
+import { DeliveryStatusBadge } from 'components/DeliveryStatusBadge';
 import { Modal } from 'components/Modal';
 import { IfoodCancellationReason, IfoodOrder } from 'types/IfoodOrder';
 import { Product } from 'types/Product';
@@ -173,9 +174,12 @@ export const IfoodOrdersLayout = ({
                 className="flex flex-col gap-3 rounded-card border border-destructive/40 bg-destructive/10 p-3 sm:p-4"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-base font-semibold text-navy sm:text-lg">
-                    Pedido iFood: <span className="font-bold">#{payload?.displayId || order.ifoodOrderId}</span>
-                  </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-base font-semibold text-navy sm:text-lg">
+                      Pedido iFood: <span className="font-bold">#{payload?.displayId || order.ifoodOrderId}</span>
+                    </span>
+                    <DeliveryStatusBadge status={order.deliveryStatus} />
+                  </div>
                   <span className="text-sm text-navy">
                     Recebido: <span className="font-semibold">{createdAtFormatted}</span>
                   </span>
