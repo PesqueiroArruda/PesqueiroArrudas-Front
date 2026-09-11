@@ -26,6 +26,11 @@ class StockService {
     return data;
   }
 
+  async mergeProducts({ survivorId, mergedIds }: { survivorId: string; mergedIds: string[] }) {
+    const { data } = await serverApi.post('/products/merge', { survivorId, mergedIds });
+    return data;
+  }
+
   async updateFavoriteStatus({ productId, isFavorite }: FavoriteStatus) {
     const { data } = await serverApi.put(
       `/products/${productId}?isUpdateFavorite=true`,

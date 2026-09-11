@@ -1,5 +1,5 @@
 import { SetStateAction, Dispatch } from 'react';
-import { PackagePlus } from 'lucide-react';
+import { Merge, PackagePlus } from 'lucide-react';
 
 import { AppShell } from 'components/AppShell';
 import { Button } from 'components/ui/button';
@@ -12,6 +12,7 @@ interface Props {
   orderBy: string;
   setOrderBy: Dispatch<SetStateAction<string>>;
   setIsAddItemModalOpen: Dispatch<SetStateAction<boolean>>;
+  setIsMergeDuplicatesModalOpen: Dispatch<SetStateAction<boolean>>;
   handleGoToHome: () => void;
   handleDownload: (e: any) => void;
 }
@@ -22,6 +23,7 @@ export const StockLayout = ({
   orderBy,
   setOrderBy,
   setIsAddItemModalOpen,
+  setIsMergeDuplicatesModalOpen,
   handleGoToHome,
   handleDownload,
 }: Props) => (
@@ -32,6 +34,10 @@ export const StockLayout = ({
         <div className="flex gap-3">
           <Button onClick={handleDownload} variant="secondary">
             Baixar Dados
+          </Button>
+          <Button onClick={() => setIsMergeDuplicatesModalOpen(true)} variant="secondary">
+            <Merge className="h-4 w-4" />
+            Juntar Duplicados
           </Button>
           <Button onClick={() => setIsAddItemModalOpen(true)}>
             <PackagePlus className="h-4 w-4" />

@@ -16,6 +16,7 @@ import { downloadFile } from 'utils/downloadFile';
 import StockService from './services/index';
 import { StockLayout } from './layout';
 import { AddItemModal } from './components/AddItemModal';
+import { MergeDuplicatesModal } from './components/MergeDuplicatesModal';
 import { productsReducer } from './reducers/productsReducer';
 import { Product } from './types/Product';
 
@@ -57,6 +58,7 @@ export const Stock = () => {
   const [searchContent, setSearchContent] = useState('');
 
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
+  const [isMergeDuplicatesModalOpen, setIsMergeDuplicatesModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -148,12 +150,17 @@ export const Stock = () => {
           isAddItemModalOpen={isAddItemModalOpen}
           setIsAddItemModalOpen={setIsAddItemModalOpen}
         />
+        <MergeDuplicatesModal
+          isModalOpen={isMergeDuplicatesModalOpen}
+          setIsModalOpen={setIsMergeDuplicatesModalOpen}
+        />
         <StockLayout
           filters={filters}
           setFilters={setFilters}
           orderBy={orderBy}
           setOrderBy={setOrderBy}
           setIsAddItemModalOpen={setIsAddItemModalOpen}
+          setIsMergeDuplicatesModalOpen={setIsMergeDuplicatesModalOpen}
           handleGoToHome={handleGoToHome}
           handleDownload={handleDownload}
         />
