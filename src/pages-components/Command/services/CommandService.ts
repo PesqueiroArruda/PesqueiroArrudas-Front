@@ -80,6 +80,11 @@ class CommandService {
     const { data } = await serverApi.delete(`/commands/${commandId}`);
     return data;
   }
+
+  async dispatchIfoodOrder(commandId: string) {
+    const { data } = await serverApi.post(`/ifood/commands/${commandId}/dispatch`);
+    return data;
+  }
 }
 
 export default new CommandService();

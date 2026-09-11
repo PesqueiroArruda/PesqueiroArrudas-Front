@@ -93,6 +93,7 @@ export const Command = ({ commandId }: Props) => {
   const [isCloseCommandModalOpen, setIsCloseCommandModalOpen] = useState(false);
 
   const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
+  const [isDispatchingIfoodOrder, setIsDispatchingIfoodOrder] = useState(false);
 
   const [filter, setFilter] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
@@ -285,6 +286,31 @@ export const Command = ({ commandId }: Props) => {
     [command._id, toast]
   );
 
+  const handleDispatchIfoodOrder = useCallback(async () => {
+    if (!command._id) return;
+    try {
+      setIsDispatchingIfoodOrder(true);
+      const { ifoodOrder } = await CommandService.dispatchIfoodOrder(command._id);
+      setCommand((prev) => ({ ...prev, deliveryStatus: ifoodOrder.deliveryStatus }));
+      toast.closeAll();
+      toast({
+        status: 'success',
+        title: 'Pedido marcado como despachado no iFood',
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (error: any) {
+      toast({
+        status: 'error',
+        title: error?.response?.data?.message || 'Não foi possível despachar o pedido no iFood.',
+        duration: null,
+        isClosable: true,
+      });
+    } finally {
+      setIsDispatchingIfoodOrder(false);
+    }
+  }, [command._id, toast]);
+
   const handlePrintCommand = useReactToPrint({
     content: () => {
       // Recibo dimensionado para bobina térmica de 58mm.
@@ -462,6 +488,8 @@ export const Command = ({ commandId }: Props) => {
         handlePrintCommand={handlePrintCommand}
         isAdmin={isAdmin}
         handleUpdatePeopleCount={handleUpdatePeopleCount}
+        handleDispatchIfoodOrder={handleDispatchIfoodOrder}
+        isDispatchingIfoodOrder={isDispatchingIfoodOrder}
       />
       <DeleteProductModal
         isModalOpen={isDeleteProductModalOpen}

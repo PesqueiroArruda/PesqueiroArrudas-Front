@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { BadgeCheck, ChefHat, Loader2, Minus, MoreVertical, Percent, Plus, Printer, Trash2, Wallet } from 'lucide-react';
+import { BadgeCheck, Bike, ChefHat, Loader2, Minus, MoreVertical, Percent, Plus, Printer, Trash2, Wallet } from 'lucide-react';
 
 import { AppShell } from 'components/AppShell';
 import { Button } from 'components/ui/button';
@@ -28,6 +28,8 @@ interface Props {
   handlePrintCommand: () => void;
   isAdmin: boolean;
   handleUpdatePeopleCount: (peopleCount: number) => void;
+  handleDispatchIfoodOrder: () => void;
+  isDispatchingIfoodOrder: boolean;
 }
 
 export const CommandLayout = ({
@@ -43,6 +45,8 @@ export const CommandLayout = ({
   handlePrintCommand,
   isAdmin,
   handleUpdatePeopleCount,
+  handleDispatchIfoodOrder,
+  isDispatchingIfoodOrder,
 }: Props) => {
   const dt = DateTime.fromISO(command?.createdAt as string, {
     zone: 'pt-BR',
@@ -81,6 +85,24 @@ export const CommandLayout = ({
               </div>
               <span className="text-sm text-text-muted">{createdAtFormatted}</span>
               <DeliveryStatusBadge status={command?.deliveryStatus} />
+              {isAdmin &&
+                command?.isActive !== false &&
+                command?.table?.startsWith('iFood #') &&
+                command?.deliveryStatus !== 'dispatched' &&
+                command?.deliveryStatus !== 'concluded' && (
+                  <Button
+                    variant="secondary"
+                    disabled={isDispatchingIfoodOrder}
+                    onClick={handleDispatchIfoodOrder}
+                  >
+                    {isDispatchingIfoodOrder ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Bike className="h-4 w-4" />
+                    )}
+                    Marcar como despachado
+                  </Button>
+                )}
             </div>
 
             <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto md:flex-row md:items-center">
