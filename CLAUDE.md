@@ -66,4 +66,6 @@ Kitchen/bar routing category lists (`categoriesToKitchenPrepare` / `categoriesTo
 
 ## Commit conventions
 
-Recent commits use `Feat:` / `Fix:` prefixes with a concise description. Keep commits focused on one change.
+Follow the Commitizen conventional-commit types configured in `package.json` (`yarn commit`, backed by `cz-conventional-changelog`), written in this repo's existing capitalized style: `Feat:`, `Fix:`, `Refactor:`, `Chore:`, `Docs:`, `Test:` followed by a concise, lowercase description (e.g. `Feat: add button to mark iFood order as dispatched`).
+
+Keep commits well segmented: one logical change per commit. When a task spans multiple concerns (e.g. dependencies/config, then types/clients, then API/service layer, then UI), split it into a sequence of focused commits by layer rather than one large commit — each commit should stand on its own and be easy to review in isolation.
