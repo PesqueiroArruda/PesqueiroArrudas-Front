@@ -40,7 +40,7 @@ export const Login = () => {
 
       const isUser = splitedValues[1] === 'usuario';
 
-      const { isAuthorized, message, isAdmin } = await LoginService.login(
+      const { isAuthorized, message, isAdmin, token } = await LoginService.login(
         isUser ? `@${userValidation}` : accessKey
       );
 
@@ -58,6 +58,7 @@ export const Login = () => {
 
       localStorage.setItem('loggedUser', !isAdmin ? user : 'Bar');
       localStorage.setItem('isAdmin', isAdmin);
+      localStorage.setItem('token', token);
 
       toast.closeAll();
       toast({

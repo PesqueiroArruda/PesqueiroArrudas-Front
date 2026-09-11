@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import Image from 'next/image';
-import { ArrowLeft, Loader2, Menu } from 'lucide-react';
+import { ArrowLeft, Loader2, LogOut, Menu } from 'lucide-react';
 
 import { Avatar, AvatarFallback } from 'components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from 'components/ui/sheet';
@@ -15,6 +15,7 @@ interface Props {
   isAdmin: boolean;
   loggedUser: string;
   handleLinkToPage: (path: string) => void;
+  handleLogout: () => void;
   hasBackPageBtn?: boolean;
   handleBackPage?: () => void;
   isSideMenuOpen: boolean;
@@ -76,6 +77,7 @@ export const AppShellLayout = ({
   isAdmin,
   loggedUser,
   handleLinkToPage,
+  handleLogout,
   hasBackPageBtn,
   handleBackPage,
   isSideMenuOpen,
@@ -107,6 +109,14 @@ export const AppShellLayout = ({
             <AvatarFallback>{loggedUser.slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <span className="text-sm font-bold text-text-on-navy">{loggedUser}</span>
+          <button
+            type="button"
+            onClick={handleLogout}
+            aria-label="Sair"
+            className="ml-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-text-on-navy/80 hover:bg-navy-hover"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
         </div>
       )}
     </aside>
@@ -123,28 +133,38 @@ export const AppShellLayout = ({
         </button>
       )}
       <Brand />
-      {isAdmin && (
-        <Sheet open={isSideMenuOpen} onOpenChange={setIsSideMenuOpen}>
-          <SheetTrigger asChild>
-            <button
-              type="button"
-              className="ml-auto flex h-9 w-9 items-center justify-center rounded-md text-text-on-navy/80 hover:bg-navy-hover"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-          </SheetTrigger>
-          <SheetContent side="left" className="flex flex-col px-4 py-5">
-            <Brand />
-            <div className="mt-7">
-              <NavList
-                pathname={pathname}
-                handleLinkToPage={handleLinkToPage}
-                onNavigate={() => setIsSideMenuOpen(false)}
-              />
-            </div>
-          </SheetContent>
-        </Sheet>
-      )}
+      <div className="ml-auto flex items-center gap-1">
+        {isAdmin && (
+          <Sheet open={isSideMenuOpen} onOpenChange={setIsSideMenuOpen}>
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                className="flex h-9 w-9 items-center justify-center rounded-md text-text-on-navy/80 hover:bg-navy-hover"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="left" className="flex flex-col px-4 py-5">
+              <Brand />
+              <div className="mt-7">
+                <NavList
+                  pathname={pathname}
+                  handleLinkToPage={handleLinkToPage}
+                  onNavigate={() => setIsSideMenuOpen(false)}
+                />
+              </div>
+            </SheetContent>
+          </Sheet>
+        )}
+        <button
+          type="button"
+          onClick={handleLogout}
+          aria-label="Sair"
+          className="flex h-9 w-9 items-center justify-center rounded-md text-text-on-navy/80 hover:bg-navy-hover"
+        >
+          <LogOut className="h-5 w-5" />
+        </button>
+      </div>
     </header>
 
     <main className="min-w-0 flex-1 overflow-y-auto px-4 py-6 md:px-9 md:py-8">{children}</main>
