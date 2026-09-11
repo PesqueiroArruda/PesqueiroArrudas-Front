@@ -183,7 +183,7 @@ export const IfoodOrders = () => {
       toast({
         status: 'error',
         title: error?.response?.data?.message || 'Não foi possível aceitar o pedido no iFood.',
-        duration: 3000,
+        duration: null,
         isClosable: true,
       });
     } finally {
@@ -230,7 +230,7 @@ export const IfoodOrders = () => {
       toast({
         status: 'error',
         title: error?.response?.data?.message || 'Não foi possível recusar o pedido no iFood.',
-        duration: 3000,
+        duration: null,
         isClosable: true,
       });
     } finally {
@@ -247,7 +247,7 @@ export const IfoodOrders = () => {
       toast({
         status: 'error',
         title: error?.response?.data?.message || 'Não foi possível confirmar o cancelamento no iFood.',
-        duration: 3000,
+        duration: null,
         isClosable: true,
       });
     } finally {
@@ -264,7 +264,7 @@ export const IfoodOrders = () => {
       toast({
         status: 'error',
         title: error?.response?.data?.message || 'Não foi possível negar o cancelamento no iFood.',
-        duration: 3000,
+        duration: null,
         isClosable: true,
       });
     } finally {
