@@ -4,6 +4,7 @@ import { useToast } from '@chakra-ui/react';
 // import { formatPrice } from 'utils/formatPrice';
 import { formatDecimalNum } from 'utils/formatDecimalNum';
 import { StockContext } from 'pages-components/Stock';
+import { uploadFileToPresignedUrl } from 'utils/uploadFileToPresignedUrl';
 import StockService from '../../services/index';
 import { EditModalLayout } from './layout';
 import type { Item } from '../../types/Item';
@@ -21,7 +22,33 @@ export const EditModal = ({
 }: Props) => {
   const { productsDispatch } = useContext(StockContext);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const toast = useToast();
+
+  async function handleMenuImageChange(e: any) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploadingImage(true);
+      const { uploadUrl, imageKey } = await StockService.getPresignedUploadUrl({
+        productId: String(itemInfos.id),
+        contentType: file.type,
+      });
+
+      await uploadFileToPresignedUrl({ uploadUrl, file, contentType: file.type });
+
+      itemInfos.setMenu((prev) => ({ ...prev, imageKey }));
+      toast({ status: 'success', title: 'Imagem enviada!' });
+    } catch (err: any) {
+      toast({
+        status: 'error',
+        title: err?.response?.data?.message || 'Falha ao enviar a imagem.',
+      });
+    } finally {
+      setIsUploadingImage(false);
+    }
+  }
 
   async function handleSubmit(e: any) {
     try {
@@ -39,6 +66,7 @@ export const EditModal = ({
         category,
         image,
         id,
+        menu,
       }: any = itemInfos;
 
       const unitPrice = updatedUnitPrice;
@@ -79,6 +107,10 @@ export const EditModal = ({
           category,
           imageURL: image,
           unitPrice: formattedUnitPrice,
+          menu: {
+            ...menu,
+            order: Number(menu?.order) || 0,
+          },
         }
       );
 
@@ -122,6 +154,8 @@ export const EditModal = ({
       handleSubmit={handleSubmit}
       handleChangeUnitPrice={handleChangeUnitPrice}
       isSubmitting={isSubmitting}
+      handleMenuImageChange={handleMenuImageChange}
+      isUploadingImage={isUploadingImage}
     />
   );
 };

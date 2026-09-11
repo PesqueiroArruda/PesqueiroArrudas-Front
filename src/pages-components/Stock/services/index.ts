@@ -31,6 +31,20 @@ class StockService {
     return data;
   }
 
+  async getPresignedUploadUrl({
+    productId,
+    contentType,
+  }: {
+    productId: string;
+    contentType: string;
+  }) {
+    const { data } = await serverApi.post('/uploads/presigned-url', {
+      productId,
+      contentType,
+    });
+    return data;
+  }
+
   async updateFavoriteStatus({ productId, isFavorite }: FavoriteStatus) {
     const { data } = await serverApi.put(
       `/products/${productId}?isUpdateFavorite=true`,

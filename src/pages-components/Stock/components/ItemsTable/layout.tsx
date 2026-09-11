@@ -90,7 +90,7 @@ export const ItemsTableLayout = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {items.map(({ _id, imageURL, amount, category, unitPrice, name, isFavorite }) => (
+        {items.map(({ _id, imageURL, amount, category, unitPrice, name, isFavorite, menu }) => (
           <TableRow key={`stock-product-_id${_id}`}>
             <TableCell>{categoryIcons[category]}</TableCell>
             <TableCell>{name}</TableCell>
@@ -108,6 +108,7 @@ export const ItemsTableLayout = ({
                       amount,
                       unitPrice,
                       category,
+                      menu,
                     })
                   }
                   className="h-4 w-4 cursor-pointer hover:text-cyan"

@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
+import { MenuConfig } from './Product';
 
 export interface Item {
   id: number | string | null;
@@ -12,4 +13,6 @@ export interface Item {
   setUnitPrice: Dispatch<SetStateAction<string>>;
   category: string;
   setCategory: Dispatch<SetStateAction<string>>;
+  menu: MenuConfig;
+  setMenu: Dispatch<SetStateAction<MenuConfig>>;
 }

@@ -1,0 +1,19 @@
+export const uploadFileToPresignedUrl = async ({
+  uploadUrl,
+  file,
+  contentType,
+}: {
+  uploadUrl: string;
+  file: File;
+  contentType: string;
+}) => {
+  const response = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': contentType },
+    body: file,
+  });
+
+  if (!response.ok) {
+    throw new Error('Falha ao enviar a imagem.');
+  }
+};

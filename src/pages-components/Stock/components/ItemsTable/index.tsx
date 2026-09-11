@@ -5,6 +5,7 @@ import { useCallback, useContext, useMemo, useState } from 'react';
 import { StockContext } from 'pages-components/Stock';
 import { formatDecimalNum } from 'utils/formatDecimalNum';
 import { Item } from 'pages-components/Stock/types/Item';
+import { EMPTY_MENU_CONFIG, MenuConfig } from 'pages-components/Stock/types/Product';
 import { ItemsTableLayout } from './layout';
 import { EditModal } from '../EditModal';
 import { DeleteItemModal } from '../DeleteItemModal';
@@ -17,6 +18,7 @@ export const ItemsTable = () => {
   const [category, setCategory] = useState('');
   const [amount, setAmount] = useState(null as null | number);
   const [unitPrice, setUnitPrice] = useState('');
+  const [menu, setMenu] = useState<MenuConfig>(EMPTY_MENU_CONFIG);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteItemModalOpen, setIsDeleteItemModalOpen] = useState(false);
@@ -89,6 +91,7 @@ export const ItemsTable = () => {
       })}`
     );
     setCategory(itemInfos.category);
+    setMenu(itemInfos.menu || EMPTY_MENU_CONFIG);
 
     setIsEditModalOpen(true);
   }, []);
@@ -161,6 +164,8 @@ export const ItemsTable = () => {
           setAmount,
           unitPrice,
           setUnitPrice,
+          menu,
+          setMenu,
         }}
       />
       <DeleteItemModal
