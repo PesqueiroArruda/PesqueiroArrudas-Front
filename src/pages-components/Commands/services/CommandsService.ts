@@ -45,6 +45,16 @@ class CommandsService {
     const { data } = await serverApi.get(`/commands/${commandId}`);
     return data;
   }
+
+  async findByReservationId(reservationId: string): Promise<Command | null> {
+    try {
+      const { data } = await serverApi.get(`/commands/by-reservation/${reservationId}`);
+      return data.command;
+    } catch (error: any) {
+      if (error?.response?.status === 404) return null;
+      throw error;
+    }
+  }
 }
 
 export default new CommandsService();

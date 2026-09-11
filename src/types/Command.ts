@@ -18,4 +18,5 @@ export interface Command {
   paymentTypes?: string[];
   discount?: number;
   peopleCount?: number;
+  reservationId?: string;
 }

@@ -1,8 +1,18 @@
 import { useState } from 'react';
 import { DateTime } from 'luxon';
-import { AlertTriangle, CalendarDays, ChevronDown, Inbox, List, Loader2, Users } from 'lucide-react';
+import {
+  AlertTriangle,
+  CalendarDays,
+  ChevronDown,
+  Inbox,
+  List,
+  Loader2,
+  ReceiptText,
+  Users,
+} from 'lucide-react';
 
 import { AppShell } from 'components/AppShell';
+import { Button } from 'components/ui/button';
 import { Input } from 'components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from 'components/ui/tabs';
 import {
@@ -23,6 +33,7 @@ import { ReservationOperationalStatusBadge } from 'components/ReservationOperati
 import { Reservation, ReservationFilters, ReservationOperationalStatus } from 'types/Reservation';
 import { cn } from 'lib/utils';
 import { parseToBRL } from 'utils/parseToBRL';
+import { getReservationDatePreset, ReservationDatePresetKey } from 'utils/getReservationDatePreset';
 
 interface Props {
   reservations: Reservation[];
@@ -35,6 +46,7 @@ interface Props {
   handleOpenDetail: (reservation: Reservation) => void;
   handleCloseDetail: () => void;
   handleChangeOperationalStatus: (id: string, status: ReservationOperationalStatus) => void;
+  handleOpenCommandModal: (reservation: Reservation) => void;
 }
 
 const OPERATIONAL_STATUS_OPTIONS: { value: ReservationOperationalStatus; label: string }[] = [
@@ -56,6 +68,25 @@ function formatDate(isoDate: string) {
 function formatTime(time: string) {
   return time.slice(0, 5);
 }
+
+function canOpenCommand(reservation: Reservation) {
+  return reservation.paymentStatus === 'paid' && reservation.reservationDate === DateTime.now().toISODate();
+}
+
+interface OpenCommandButtonProps {
+  reservation: Reservation;
+  onOpen: (reservation: Reservation) => void;
+}
+
+const OpenCommandButton = ({ reservation, onOpen }: OpenCommandButtonProps) => {
+  if (!canOpenCommand(reservation)) return null;
+
+  return (
+    <Button variant="ghost" size="sm" onClick={() => onOpen(reservation)}>
+      <ReceiptText className="h-3.5 w-3.5" /> Abrir comanda
+    </Button>
+  );
+};
 
 interface OperationalStatusMenuProps {
   reservation: Reservation;
@@ -85,6 +116,12 @@ const OperationalStatusMenu = ({ reservation, isUpdating, onChange }: Operationa
   </DropdownMenu>
 );
 
+const DATE_PRESET_OPTIONS: { value: ReservationDatePresetKey; label: string }[] = [
+  { value: 'today', label: 'Hoje' },
+  { value: 'next7days', label: 'Próximos 7 dias' },
+  { value: 'thisMonth', label: 'Este mês' },
+];
+
 export const ReservationsLayout = ({
   reservations,
   isLoading,
@@ -96,8 +133,20 @@ export const ReservationsLayout = ({
   handleOpenDetail,
   handleCloseDetail,
   handleChangeOperationalStatus,
+  handleOpenCommandModal,
 }: Props) => {
   const [viewMode, setViewMode] = useState<'list' | 'byDay'>('list');
+  const [datePreset, setDatePreset] = useState<ReservationDatePresetKey | 'custom'>('custom');
+
+  function handleDatePresetChange(value: string) {
+    if (value === 'custom') {
+      setDatePreset('custom');
+      return;
+    }
+    const preset = value as ReservationDatePresetKey;
+    setDatePreset(preset);
+    handleFilterChange(getReservationDatePreset(preset));
+  }
 
   function renderRow(reservation: Reservation) {
     const hasConflict = conflictIds.has(reservation.id);
@@ -128,6 +177,9 @@ export const ReservationsLayout = ({
             isUpdating={updatingId === reservation.id}
             onChange={(status) => handleChangeOperationalStatus(reservation.id, status)}
           />
+        </TableCell>
+        <TableCell onClick={(e) => e.stopPropagation()}>
+          <OpenCommandButton reservation={reservation} onOpen={handleOpenCommandModal} />
         </TableCell>
       </TableRow>
     );
@@ -173,23 +225,43 @@ export const ReservationsLayout = ({
         </div>
 
         <div className="flex flex-col gap-3 rounded-card border border-border bg-card p-3 sm:p-4">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Input
-              placeholder="Buscar por nome ou telefone"
-              value={filters.q || ''}
-              onChange={(e) => handleFilterChange({ q: e.target.value })}
-            />
-            <Input
-              type="date"
-              value={filters.from || ''}
-              onChange={(e) => handleFilterChange({ from: e.target.value || undefined })}
-            />
-            <Input
-              type="date"
-              value={filters.to || ''}
-              onChange={(e) => handleFilterChange({ to: e.target.value || undefined })}
-            />
-          </div>
+          <Input
+            placeholder="Buscar por nome ou telefone"
+            value={filters.q || ''}
+            onChange={(e) => handleFilterChange({ q: e.target.value })}
+          />
+
+          <Tabs value={datePreset} onValueChange={handleDatePresetChange}>
+            <TabsList>
+              {DATE_PRESET_OPTIONS.map((option) => (
+                <TabsTrigger key={option.value} value={option.value}>
+                  {option.label}
+                </TabsTrigger>
+              ))}
+              <TabsTrigger value="custom">Personalizado</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          {datePreset === 'custom' && (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-semibold text-text-muted">De</span>
+                <Input
+                  type="date"
+                  value={filters.from || ''}
+                  onChange={(e) => handleFilterChange({ from: e.target.value || undefined })}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-semibold text-text-muted">Até</span>
+                <Input
+                  type="date"
+                  value={filters.to || ''}
+                  onChange={(e) => handleFilterChange({ to: e.target.value || undefined })}
+                />
+              </div>
+            </div>
+          )}
 
           <Tabs
             value={filters.paymentStatus || 'all'}
@@ -242,6 +314,7 @@ export const ReservationsLayout = ({
                 <TableHead>Ambiente</TableHead>
                 <TableHead>Pagamento</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>{reservations.map(renderRow)}</TableBody>
@@ -263,6 +336,7 @@ export const ReservationsLayout = ({
                       <TableHead>Ambiente</TableHead>
                       <TableHead>Pagamento</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -296,6 +370,9 @@ export const ReservationsLayout = ({
                                 isUpdating={updatingId === reservation.id}
                                 onChange={(status) => handleChangeOperationalStatus(reservation.id, status)}
                               />
+                            </TableCell>
+                            <TableCell onClick={(e) => e.stopPropagation()}>
+                              <OpenCommandButton reservation={reservation} onOpen={handleOpenCommandModal} />
                             </TableCell>
                           </TableRow>
                         );
@@ -375,13 +452,16 @@ export const ReservationsLayout = ({
                 </span>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-navy">Status:</span>
-                <OperationalStatusMenu
-                  reservation={selectedReservation}
-                  isUpdating={updatingId === selectedReservation.id}
-                  onChange={(status) => handleChangeOperationalStatus(selectedReservation.id, status)}
-                />
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-navy">Status:</span>
+                  <OperationalStatusMenu
+                    reservation={selectedReservation}
+                    isUpdating={updatingId === selectedReservation.id}
+                    onChange={(status) => handleChangeOperationalStatus(selectedReservation.id, status)}
+                  />
+                </div>
+                <OpenCommandButton reservation={selectedReservation} onOpen={handleOpenCommandModal} />
               </div>
             </>
           )}

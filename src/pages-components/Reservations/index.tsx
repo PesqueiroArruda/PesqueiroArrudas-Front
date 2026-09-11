@@ -5,6 +5,7 @@ import { DateTime } from 'luxon';
 
 import { Reservation, ReservationFilters, ReservationOperationalStatus } from 'types/Reservation';
 import { findReservationConflicts } from 'utils/findReservationConflicts';
+import { OpenCommandModal } from './components/OpenCommandModal';
 import { ReservationsLayout } from './layout';
 import ReservationsService from './services/ReservationsService';
 
@@ -20,6 +21,7 @@ export const Reservations = () => {
   const [filters, setFilters] = useState<ReservationFilters>({ from: DateTime.now().toISODate() as string });
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [openCommandReservation, setOpenCommandReservation] = useState<Reservation | null>(null);
 
   const conflictIds = useMemo(() => findReservationConflicts(reservations), [reservations]);
 
@@ -75,6 +77,14 @@ export const Reservations = () => {
     setSelectedReservation(null);
   }
 
+  function handleOpenCommandModal(reservation: Reservation) {
+    setOpenCommandReservation(reservation);
+  }
+
+  function handleCloseCommandModal() {
+    setOpenCommandReservation(null);
+  }
+
   async function handleChangeOperationalStatus(id: string, operationalStatus: ReservationOperationalStatus) {
     try {
       setUpdatingId(id);
@@ -95,18 +105,26 @@ export const Reservations = () => {
 
   if (isAdmin) {
     return (
-      <ReservationsLayout
-        reservations={reservations}
-        isLoading={isLoading}
-        filters={filters}
-        conflictIds={conflictIds}
-        selectedReservation={selectedReservation}
-        updatingId={updatingId}
-        handleFilterChange={handleFilterChange}
-        handleOpenDetail={handleOpenDetail}
-        handleCloseDetail={handleCloseDetail}
-        handleChangeOperationalStatus={handleChangeOperationalStatus}
-      />
+      <>
+        <ReservationsLayout
+          reservations={reservations}
+          isLoading={isLoading}
+          filters={filters}
+          conflictIds={conflictIds}
+          selectedReservation={selectedReservation}
+          updatingId={updatingId}
+          handleFilterChange={handleFilterChange}
+          handleOpenDetail={handleOpenDetail}
+          handleCloseDetail={handleCloseDetail}
+          handleChangeOperationalStatus={handleChangeOperationalStatus}
+          handleOpenCommandModal={handleOpenCommandModal}
+        />
+        <OpenCommandModal
+          isOpen={!!openCommandReservation}
+          reservation={openCommandReservation}
+          onClose={handleCloseCommandModal}
+        />
+      </>
     );
   }
 
