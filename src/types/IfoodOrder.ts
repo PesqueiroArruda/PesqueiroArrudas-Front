@@ -88,8 +88,7 @@ export interface ResolvedIfoodItem {
 }
 
 export interface IfoodCancellationReason {
-  cancellationCode?: string;
-  code?: string;
+  cancelCodeId: string;
   description: string;
 }
 

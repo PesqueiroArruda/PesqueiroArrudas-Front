@@ -24,8 +24,8 @@ class IfoodOrdersService {
     return data;
   }
 
-  async reject(id: string, cancellationCode: string, reason: string) {
-    const { data } = await serverApi.post(`/ifood/orders/${id}/reject`, { cancellationCode, reason });
+  async reject(id: string, cancelCodeId: string, reason: string) {
+    const { data } = await serverApi.post(`/ifood/orders/${id}/reject`, { cancelCodeId, reason });
     return data;
   }
 

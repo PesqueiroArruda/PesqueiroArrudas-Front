@@ -51,17 +51,23 @@ export const DeleteCommandModal = ({
       const commandProducts = command.products;
       commandProducts.forEach((product: Product) => {
         (async () => {
-          const { product: updatedProduct } =
-            await ProductsService.increaseAmount({
-              productId: product._id,
-              amount: product.amount,
-            });
+          try {
+            const { product: updatedProduct } =
+              await ProductsService.increaseAmount({
+                productId: product._id,
+                amount: product.amount,
+              });
 
-          if (updatedProduct) {
-            stockProductsDispatch({
-              type: 'UPDATE-ONE-PRODUCT',
-              payload: { product: updatedProduct },
-            });
+            if (updatedProduct) {
+              stockProductsDispatch({
+                type: 'UPDATE-ONE-PRODUCT',
+                payload: { product: updatedProduct },
+              });
+            }
+          } catch (error) {
+            // Itens avulsos (ex.: item do iFood sem produto vinculado) não
+            // existem no catálogo — não há estoque pra repor, e isso não deve
+            // impedir a comanda de ser deletada.
           }
         })();
       });

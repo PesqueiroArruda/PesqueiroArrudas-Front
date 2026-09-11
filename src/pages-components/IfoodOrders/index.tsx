@@ -105,7 +105,10 @@ export const IfoodOrders = () => {
 
   useEffect(() => {
     const onIfoodOrderReceived = (payload: IfoodOrder) => {
-      setIfoodOrders((prev) => [payload, ...prev]);
+      setIfoodOrders((prev) => {
+        if (prev.some((order) => order._id === payload._id)) return prev;
+        return [payload, ...prev];
+      });
       playNotify();
     };
 
@@ -217,11 +220,10 @@ export const IfoodOrders = () => {
   async function handleConfirmReject() {
     if (!rejectingOrderId || selectedReasonIndex === null) return;
     const reason = cancellationReasons[selectedReasonIndex];
-    const cancellationCode = reason.cancellationCode || reason.code || '';
 
     try {
       setProcessingId(rejectingOrderId);
-      await IfoodOrdersService.reject(rejectingOrderId, cancellationCode, reason.description);
+      await IfoodOrdersService.reject(rejectingOrderId, reason.cancelCodeId, reason.description);
       setIfoodOrders((prev) => prev.filter((order) => order._id !== rejectingOrderId));
       handleCloseRejectModal();
     } catch (error: any) {
