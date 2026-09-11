@@ -9,6 +9,7 @@ export interface Command {
   total?: number;
   isActive?: boolean;
   isCancelled?: boolean;
+  deliveryStatus?: 'dispatched' | 'concluded' | null;
   hasPendingOrders?: boolean;
   totalPayed?: number;
   createdAt?: string;
