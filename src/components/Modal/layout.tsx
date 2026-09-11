@@ -56,7 +56,12 @@ export const ModalLayout = ({
         </DialogHeader>
         <div
           className={cn(
-            'flex min-h-0 flex-1 flex-col',
+            // -mx-1 px-1 give the focus ring of edge-to-edge children (ex.:
+            // Input) room to render without being clipped: overflow-y-auto
+            // with no overflow-x set is computed as overflow-x: auto too, so
+            // it silently crops anything (like a focus ring) poking past the
+            // container's own box, not just past the Dialog's padding.
+            'flex min-h-0 flex-1 flex-col -mx-1 px-1',
             (modalBodyOverflow || 'scroll') === 'scroll'
               ? 'max-h-[65vh] overflow-y-auto'
               : 'overflow-hidden',
