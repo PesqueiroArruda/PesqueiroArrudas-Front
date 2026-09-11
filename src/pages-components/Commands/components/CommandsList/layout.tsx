@@ -102,7 +102,10 @@ export const CommandsListLayout = ({
         <TableBody>
           {items.length > 0 ? (
             items.map(({ _id, table, waiter, total, fishingType, isActive, discount, hasPendingOrders }) => (
-              <TableRow key={`list-command-${_id}`}>
+              <TableRow
+                key={`list-command-${_id}`}
+                className={cn(table?.startsWith('iFood #') && 'bg-destructive/10 hover:bg-destructive/15')}
+              >
                 <TableCell className="cursor-pointer" onClick={() => handleGoToCommandPage({ commandId: _id })}>
                   {table}
                 </TableCell>

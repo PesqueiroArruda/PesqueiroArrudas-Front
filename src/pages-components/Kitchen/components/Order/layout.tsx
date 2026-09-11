@@ -43,8 +43,15 @@ export const OrderLayout = ({
 
   const createdAtFormatted = dt.toLocaleString(DateTime.TIME_24_SIMPLE);
 
+  const isFromIfood = order?.table?.startsWith('iFood #');
+
   return (
-    <div className="flex flex-col gap-2 rounded-card border border-border bg-secondary p-3 sm:p-4">
+    <div
+      className={cn(
+        'flex flex-col gap-2 rounded-card border p-3 sm:p-4',
+        isFromIfood ? 'border-destructive/40 bg-destructive/10' : 'border-border bg-secondary',
+      )}
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-base font-semibold text-navy sm:text-lg">
           Mesa: <span className="font-bold">{order?.table}</span>

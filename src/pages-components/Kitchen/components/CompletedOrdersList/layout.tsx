@@ -2,6 +2,7 @@ import { DateTime } from 'luxon';
 import { BadgeCheck, Inbox, Loader2, Snowflake } from 'lucide-react';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'components/ui/table';
+import { cn } from 'lib/utils';
 import { Order } from '../../../../types/Order';
 
 interface Props {
@@ -52,8 +53,16 @@ export const CompletedOrdersListLayout = ({ orders, isLoading }: Props) => {
               .toLocaleString(DateTime.DATETIME_MED)
           : '';
 
+        const isFromIfood = order.table?.startsWith('iFood #');
+
         return (
-          <div key={order._id} className="flex flex-col gap-2 rounded-card border border-border bg-secondary p-3 sm:p-4">
+          <div
+            key={order._id}
+            className={cn(
+              'flex flex-col gap-2 rounded-card border p-3 sm:p-4',
+              isFromIfood ? 'border-destructive/40 bg-destructive/10' : 'border-border bg-secondary',
+            )}
+          >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-base font-semibold text-navy sm:text-lg">
                 Mesa: <span className="font-bold">{order.table}</span>

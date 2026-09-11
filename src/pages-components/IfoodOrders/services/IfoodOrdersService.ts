@@ -1,4 +1,5 @@
 import { serverApi } from 'services/serverApi';
+import { ResolvedIfoodItem } from 'types/IfoodOrder';
 
 class IfoodOrdersService {
   async getAllPending() {
@@ -8,8 +9,13 @@ class IfoodOrdersService {
     return data;
   }
 
-  async accept(id: string) {
-    const { data } = await serverApi.post(`/ifood/orders/${id}/accept`);
+  async getProductMappings() {
+    const { data } = await serverApi.get('/ifood/product-mappings');
+    return data;
+  }
+
+  async accept(id: string, items: ResolvedIfoodItem[]) {
+    const { data } = await serverApi.post(`/ifood/orders/${id}/accept`, { items });
     return data;
   }
 
