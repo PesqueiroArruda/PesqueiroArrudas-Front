@@ -1,9 +1,10 @@
 import { ReactNode } from 'react';
 import Image from 'next/image';
-import { ArrowLeft, Menu } from 'lucide-react';
+import { ArrowLeft, Loader2, Menu } from 'lucide-react';
 
 import { Avatar, AvatarFallback } from 'components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from 'components/ui/sheet';
+import { useRouteChanging } from 'hooks/useRouteChanging';
 import { cn } from 'lib/utils';
 import Logo from '../../assets/logo.jpeg';
 import { navItems } from './navItems';
@@ -37,32 +38,37 @@ const NavList = ({
   pathname: string;
   handleLinkToPage: (path: string) => void;
   onNavigate?: () => void;
-}) => (
-  <nav className="flex flex-col gap-1">
-    {navItems.map(({ text, icon: ItemIcon, path }) => {
-      const isActive = pathname === path;
-      return (
-        <button
-          key={`nav-item-${path}`}
-          type="button"
-          onClick={() => {
-            handleLinkToPage(path);
-            onNavigate?.();
-          }}
-          className={cn(
-            'flex items-center gap-2.5 rounded-md px-3 py-2.5 text-left text-sm font-bold transition-colors',
-            isActive
-              ? 'bg-navy-hover text-nav-active'
-              : 'text-nav-inactive hover:bg-navy-hover/70',
-          )}
-        >
-          <ItemIcon className="h-4 w-4" />
-          {text}
-        </button>
-      );
-    })}
-  </nav>
-);
+}) => {
+  const pendingPath = useRouteChanging();
+
+  return (
+    <nav className="flex flex-col gap-1">
+      {navItems.map(({ text, icon: ItemIcon, path }) => {
+        const isActive = pathname === path;
+        const isPending = pendingPath === path;
+        return (
+          <button
+            key={`nav-item-${path}`}
+            type="button"
+            onClick={() => {
+              handleLinkToPage(path);
+              onNavigate?.();
+            }}
+            className={cn(
+              'flex items-center gap-2.5 rounded-md px-3 py-2.5 text-left text-sm font-bold transition-colors',
+              isActive
+                ? 'bg-navy-hover text-nav-active'
+                : 'text-nav-inactive hover:bg-navy-hover/70',
+            )}
+          >
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ItemIcon className="h-4 w-4" />}
+            {text}
+          </button>
+        );
+      })}
+    </nav>
+  );
+};
 
 export const AppShellLayout = ({
   children,

@@ -4,6 +4,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { Bitter, Manrope } from 'next/font/google';
 import io, { Socket } from 'socket.io-client';
 import { API_URL } from 'services/apiConfig';
+import { RouteProgressBar } from 'components/RouteProgressBar';
 
 import 'styles/globals.css';
 
@@ -41,6 +42,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <div className={`${bitter.variable} ${manrope.variable}`}>
       <ChakraProvider>
+        <RouteProgressBar />
         <SocketContext.Provider value={socketContextValue}>
           <Component {...pageProps} />
         </SocketContext.Provider>
