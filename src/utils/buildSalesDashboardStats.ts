@@ -2,6 +2,7 @@ import { DateTime } from 'luxon';
 import { Cashier, CashierPayment } from 'types/Cashier';
 import { Product } from 'types/Product';
 import { groupCashiersByMonth } from './groupCashiersByMonth';
+import { normalizeName, stripStrayPunctuation } from './normalizeName';
 
 export interface ItemStat {
   name: string;
@@ -58,24 +59,6 @@ const WEEKDAYS_PT = ['segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-fe
 
 function allPayments(cashiers: Cashier[]): CashierPayment[] {
   return cashiers.flatMap((cashier) => cashier.payments || []);
-}
-
-const DIACRITICS_REGEX = /[̀-ͯ]/g;
-
-function normalizeName(name: string) {
-  return name
-    .normalize('NFD')
-    .replace(DIACRITICS_REGEX, '')
-    .toLowerCase()
-    .trim();
-}
-
-// Remove pontuação perdida no começo/fim do nome (ex.: "`Patricia"),
-// mantendo letras (com acento) e espaços.
-const STRAY_PUNCTUATION_REGEX = /^[^\p{L}]+|[^\p{L}]+$/gu;
-
-function stripStrayPunctuation(name: string) {
-  return name.replace(STRAY_PUNCTUATION_REGEX, '');
 }
 
 // Corrige apelidos/erros de digitação conhecidos de nomes de garçom antes de
