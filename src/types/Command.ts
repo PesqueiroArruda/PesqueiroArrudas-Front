@@ -8,6 +8,7 @@ export interface Command {
   products?: Product[];
   total?: number;
   isActive?: boolean;
+  isCancelled?: boolean;
   hasPendingOrders?: boolean;
   totalPayed?: number;
   createdAt?: string;

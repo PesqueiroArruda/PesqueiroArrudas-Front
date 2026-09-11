@@ -1,10 +1,10 @@
 import { serverApi } from 'services/serverApi';
-import { ResolvedIfoodItem } from 'types/IfoodOrder';
+import { IfoodCancellationReason, ResolvedIfoodItem } from 'types/IfoodOrder';
 
 class IfoodOrdersService {
   async getAllPending() {
     const { data } = await serverApi.get('/ifood/orders', {
-      params: { status: 'pending' },
+      params: { status: 'pending,cancellation_requested' },
     });
     return data;
   }
@@ -19,8 +19,23 @@ class IfoodOrdersService {
     return data;
   }
 
-  async reject(id: string) {
-    const { data } = await serverApi.post(`/ifood/orders/${id}/reject`);
+  async getCancellationReasons(id: string): Promise<IfoodCancellationReason[]> {
+    const { data } = await serverApi.get(`/ifood/orders/${id}/cancellation-reasons`);
+    return data;
+  }
+
+  async reject(id: string, cancellationCode: string, reason: string) {
+    const { data } = await serverApi.post(`/ifood/orders/${id}/reject`, { cancellationCode, reason });
+    return data;
+  }
+
+  async acceptCancellation(id: string) {
+    const { data } = await serverApi.post(`/ifood/orders/${id}/accept-cancellation`);
+    return data;
+  }
+
+  async denyCancellation(id: string, reason: string) {
+    const { data } = await serverApi.post(`/ifood/orders/${id}/deny-cancellation`, { reason });
     return data;
   }
 }

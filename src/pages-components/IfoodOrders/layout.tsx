@@ -1,9 +1,21 @@
 import { DateTime } from 'luxon';
-import { Check, Inbox, Loader2, MapPin, ShoppingBag, User, X } from 'lucide-react';
+import {
+  AlertTriangle,
+  Check,
+  Inbox,
+  Loader2,
+  MapPin,
+  ShoppingBag,
+  Ticket,
+  User,
+  Wallet,
+  X,
+} from 'lucide-react';
 
 import { AppShell } from 'components/AppShell';
 import { Button } from 'components/ui/button';
-import { IfoodOrder } from 'types/IfoodOrder';
+import { Modal } from 'components/Modal';
+import { IfoodCancellationReason, IfoodOrder } from 'types/IfoodOrder';
 import { Product } from 'types/Product';
 import { parseToBRL } from 'utils/parseToBRL';
 
@@ -19,13 +31,32 @@ interface Props {
   isLoading: boolean;
   processingId: string | null;
   handleAccept: (id: string) => void;
-  handleReject: (id: string) => void;
+  handleOpenRejectModal: (id: string) => void;
   handleSelectProduct: (orderId: string, itemId: string, productId: string) => void;
   handleToggleSaveMapping: (orderId: string, itemId: string, saveMapping: boolean) => void;
+  handleAcceptCancellation: (id: string) => void;
+  handleDenyCancellation: (id: string) => void;
+  handleGoToCommand: (commandId: string) => void;
+  rejectingOrderId: string | null;
+  cancellationReasons: IfoodCancellationReason[];
+  selectedReasonIndex: number | null;
+  isLoadingReasons: boolean;
+  handleSelectReason: (index: number) => void;
+  handleConfirmReject: () => void;
+  handleCloseRejectModal: () => void;
 }
 
 const selectClassName =
   'h-9 w-full rounded-(--radius) border border-input bg-card px-2 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
+
+const PAYMENT_METHOD_LABEL: Record<string, string> = {
+  CREDIT: 'Crédito',
+  DEBIT: 'Débito',
+  MEAL_VOUCHER: 'Vale-refeição',
+  FOOD_VOUCHER: 'Vale-alimentação',
+  CASH: 'Dinheiro',
+  PIX: 'Pix',
+};
 
 export const IfoodOrdersLayout = ({
   ifoodOrders,
@@ -34,9 +65,19 @@ export const IfoodOrdersLayout = ({
   isLoading,
   processingId,
   handleAccept,
-  handleReject,
+  handleOpenRejectModal,
   handleSelectProduct,
   handleToggleSaveMapping,
+  handleAcceptCancellation,
+  handleDenyCancellation,
+  handleGoToCommand,
+  rejectingOrderId,
+  cancellationReasons,
+  selectedReasonIndex,
+  isLoadingReasons,
+  handleSelectReason,
+  handleConfirmReject,
+  handleCloseRejectModal,
 }: Props) => (
   <AppShell>
     <div className="flex flex-col gap-6">
@@ -74,6 +115,57 @@ export const IfoodOrdersLayout = ({
             const isProcessing = processingId === order._id;
             const orderSelections = selections[order._id] || {};
             const address = payload?.delivery?.deliveryAddress;
+            const isCancellationRequested = order.status === 'cancellation_requested';
+
+            if (isCancellationRequested) {
+              return (
+                <div
+                  key={order._id}
+                  className="flex flex-col gap-3 rounded-card border border-destructive bg-destructive/10 p-3 sm:p-4"
+                >
+                  <div className="flex items-center gap-2 text-destructive">
+                    <AlertTriangle className="h-5 w-5 shrink-0" />
+                    <span className="text-base font-bold sm:text-lg">
+                      Cancelamento solicitado — Pedido #{payload?.displayId || order.ifoodOrderId}
+                    </span>
+                  </div>
+                  <p className="text-sm text-navy">
+                    O cliente ou o iFood pediram o cancelamento deste pedido. Aceite se ainda não começou o
+                    preparo, ou negue se o pedido já está sendo feito.
+                  </p>
+                  {order.commandId && (
+                    <button
+                      type="button"
+                      onClick={() => handleGoToCommand(order.commandId as string)}
+                      className="w-fit text-sm font-semibold text-navy underline"
+                    >
+                      Ver comanda vinculada
+                    </button>
+                  )}
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <Button
+                      variant="secondary"
+                      disabled={isProcessing}
+                      onClick={() => handleDenyCancellation(order._id)}
+                    >
+                      {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+                      Negar cancelamento
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      disabled={isProcessing}
+                      onClick={() => handleAcceptCancellation(order._id)}
+                    >
+                      {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                      Aceitar cancelamento
+                    </Button>
+                  </div>
+                </div>
+              );
+            }
+
+            const paymentMethods = payload?.payments?.methods || [];
+            const benefits = payload?.benefits || [];
 
             return (
               <div
@@ -90,10 +182,13 @@ export const IfoodOrdersLayout = ({
                 </div>
 
                 {payload?.customer && (
-                  <div className="flex items-center gap-2 text-sm text-navy">
+                  <div className="flex flex-wrap items-center gap-2 text-sm text-navy">
                     <User className="h-4 w-4 shrink-0" />
                     <span className="font-semibold">{payload.customer.name}</span>
                     {payload.customer.phone?.number && <span>· {payload.customer.phone.number}</span>}
+                    {payload.customer.documentNumber && (
+                      <span>· CPF/CNPJ: {payload.customer.documentNumber}</span>
+                    )}
                   </div>
                 )}
 
@@ -108,6 +203,46 @@ export const IfoodOrdersLayout = ({
                   </div>
                 )}
 
+                {payload?.delivery?.observations && (
+                  <div className="rounded-(--radius) bg-card px-2.5 py-1.5 text-sm font-semibold text-navy">
+                    Observação da entrega: {payload.delivery.observations}
+                  </div>
+                )}
+
+                {paymentMethods.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-navy">
+                    <Wallet className="h-4 w-4 shrink-0" />
+                    {paymentMethods.map((payment) => (
+                      <span key={`${order._id}-payment-${payment.method}-${payment.value}`}>
+                        {PAYMENT_METHOD_LABEL[payment.method] || payment.method}
+                        {payment.card?.brand ? ` (${payment.card.brand})` : ''}
+                        {payment.cash?.changeFor
+                          ? ` — Troco para ${parseToBRL(payment.cash.changeFor)}`
+                          : ''}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {benefits.length > 0 && (
+                  <div className="flex flex-col gap-1 text-sm text-navy">
+                    {benefits.map((benefit) => (
+                      <div
+                        key={`${order._id}-benefit-${benefit.value}-${benefit.sponsorshipValues?.map((s) => s.name).join('-')}`}
+                        className="flex items-center gap-2"
+                      >
+                        <Ticket className="h-4 w-4 shrink-0" />
+                        <span>
+                          Cupom: {parseToBRL(benefit.value)}
+                          {benefit.sponsorshipValues && benefit.sponsorshipValues.length > 0
+                            ? ` (pago por: ${benefit.sponsorshipValues.map((s) => s.name).join(', ')})`
+                            : ''}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <div className="flex flex-col gap-2 rounded-(--radius) border border-border bg-card p-3">
                   {payload?.items?.map((item) => {
                     const selection = orderSelections[item.id];
@@ -118,6 +253,9 @@ export const IfoodOrdersLayout = ({
                             {item.quantity}x {item.name}
                           </p>
                           <p className="text-xs text-text-muted">{parseToBRL(item.totalPrice)}</p>
+                          {item.observations && (
+                            <p className="text-xs font-semibold text-destructive">Obs: {item.observations}</p>
+                          )}
                         </div>
                         <div className="flex items-center gap-2 sm:w-64">
                           <select
@@ -155,6 +293,7 @@ export const IfoodOrdersLayout = ({
                   <div className="flex flex-wrap justify-end gap-3 text-sm text-navy">
                     <span>Subtotal: {parseToBRL(payload.total.subTotal)}</span>
                     {payload.total.deliveryFee > 0 && <span>Entrega: {parseToBRL(payload.total.deliveryFee)}</span>}
+                    {payload.total.benefits > 0 && <span>Desconto: -{parseToBRL(payload.total.benefits)}</span>}
                     <span className="font-bold">Total: {parseToBRL(payload.total.orderAmount)}</span>
                   </div>
                 )}
@@ -163,7 +302,7 @@ export const IfoodOrdersLayout = ({
                   <Button
                     variant="destructive"
                     disabled={isProcessing}
-                    onClick={() => handleReject(order._id)}
+                    onClick={() => handleOpenRejectModal(order._id)}
                   >
                     {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
                     Recusar
@@ -179,5 +318,58 @@ export const IfoodOrdersLayout = ({
         </div>
       )}
     </div>
+
+    <Modal
+      title="Motivo da recusa"
+      isOpen={!!rejectingOrderId}
+      onClose={handleCloseRejectModal}
+    >
+      <div className="flex flex-col gap-3">
+        {isLoadingReasons && (
+          <div className="flex justify-center py-6">
+            <Loader2 className="h-6 w-6 animate-spin text-gold" />
+          </div>
+        )}
+
+        {!isLoadingReasons && cancellationReasons.length === 0 && (
+          <p className="text-sm text-navy">Nenhum motivo disponível no momento.</p>
+        )}
+
+        {!isLoadingReasons && cancellationReasons.length > 0 && (
+          <div className="flex max-h-72 flex-col gap-2 overflow-y-auto">
+            {cancellationReasons.map((reason, index) => (
+              <label
+                key={reason.cancellationCode || reason.code || index}
+                htmlFor={`cancellation-reason-${index}`}
+                className="flex cursor-pointer items-center gap-2 rounded-(--radius) border border-border bg-card px-3 py-2 text-sm font-semibold text-navy"
+              >
+                <input
+                  id={`cancellation-reason-${index}`}
+                  type="radio"
+                  name="cancellation-reason"
+                  checked={selectedReasonIndex === index}
+                  onChange={() => handleSelectReason(index)}
+                  className="h-3.5 w-3.5 accent-gold"
+                />
+                {reason.description}
+              </label>
+            ))}
+          </div>
+        )}
+
+        <div className="grid gap-3 md:grid-cols-2">
+          <Button variant="secondary" onClick={handleCloseRejectModal}>
+            Cancelar
+          </Button>
+          <Button
+            variant="destructive"
+            disabled={selectedReasonIndex === null}
+            onClick={handleConfirmReject}
+          >
+            Confirmar recusa
+          </Button>
+        </div>
+      </div>
+    </Modal>
   </AppShell>
 );

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   ArrowUp,
   BadgeCheck,
+  Ban,
   ChefHat,
   Eye,
   EyeOff,
@@ -101,7 +102,7 @@ export const CommandsListLayout = ({
         </TableHeader>
         <TableBody>
           {items.length > 0 ? (
-            items.map(({ _id, table, waiter, total, fishingType, isActive, discount, hasPendingOrders }) => (
+            items.map(({ _id, table, waiter, total, fishingType, isActive, isCancelled, discount, hasPendingOrders }) => (
               <TableRow
                 key={`list-command-${_id}`}
                 className={cn(table?.startsWith('iFood #') && 'bg-destructive/10 hover:bg-destructive/15')}
@@ -120,7 +121,13 @@ export const CommandsListLayout = ({
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-end gap-2">
-                    {isActive === false && (
+                    {isCancelled && (
+                      <span className="inline-flex items-center gap-1.5 rounded-(--radius) bg-destructive px-2 py-1 text-sm font-bold text-white sm:px-3">
+                        <Ban className="h-4 w-4" />
+                        Cancelada (iFood)
+                      </span>
+                    )}
+                    {!isCancelled && isActive === false && (
                       <span className="inline-flex items-center gap-1.5 rounded-(--radius) bg-success px-2 py-1 text-sm font-bold text-white sm:px-3">
                         <BadgeCheck className="h-4 w-4" />
                         Paga

@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import useSound from 'use-sound';
 import { SocketContext } from 'pages/_app';
 
-import { IfoodOrder, ResolvedIfoodItem } from 'types/IfoodOrder';
+import { IfoodCancellationReason, IfoodOrder, ResolvedIfoodItem } from 'types/IfoodOrder';
 import { Product } from 'types/Product';
 import { IfoodProductMapping } from 'types/IfoodProductMapping';
 import ProductsService from 'pages-components/Commands/services/ProductsService';
@@ -34,6 +34,11 @@ export const IfoodOrders = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [selections, setSelections] = useState<SelectionsState>({});
+
+  const [rejectingOrderId, setRejectingOrderId] = useState<string | null>(null);
+  const [cancellationReasons, setCancellationReasons] = useState<IfoodCancellationReason[]>([]);
+  const [selectedReasonIndex, setSelectedReasonIndex] = useState<number | null>(null);
+  const [isLoadingReasons, setIsLoadingReasons] = useState(false);
 
   const reloadIfoodOrders = useCallback(async () => {
     try {
@@ -105,7 +110,16 @@ export const IfoodOrders = () => {
     };
 
     const onIfoodOrderUpdated = (payload: IfoodOrder) => {
-      setIfoodOrders((prev) => prev.filter((order) => order._id !== payload._id));
+      setIfoodOrders((prev) => {
+        if (payload.status === 'pending' || payload.status === 'cancellation_requested') {
+          const exists = prev.some((order) => order._id === payload._id);
+          if (exists) {
+            return prev.map((order) => (order._id === payload._id ? payload : order));
+          }
+          return [payload, ...prev];
+        }
+        return prev.filter((order) => order._id !== payload._id);
+      });
     };
 
     socket.on('ifood-order-received', onIfoodOrderReceived);
@@ -174,11 +188,42 @@ export const IfoodOrders = () => {
     }
   }
 
-  async function handleReject(id: string) {
+  async function handleOpenRejectModal(id: string) {
+    setRejectingOrderId(id);
+    setSelectedReasonIndex(null);
+    setIsLoadingReasons(true);
     try {
-      setProcessingId(id);
-      await IfoodOrdersService.reject(id);
-      setIfoodOrders((prev) => prev.filter((order) => order._id !== id));
+      const reasons = await IfoodOrdersService.getCancellationReasons(id);
+      setCancellationReasons(reasons);
+    } catch (error: any) {
+      toast({
+        status: 'error',
+        title: 'Não foi possível buscar os motivos de recusa no iFood.',
+        duration: 3000,
+        isClosable: true,
+      });
+      setRejectingOrderId(null);
+    } finally {
+      setIsLoadingReasons(false);
+    }
+  }
+
+  function handleCloseRejectModal() {
+    setRejectingOrderId(null);
+    setCancellationReasons([]);
+    setSelectedReasonIndex(null);
+  }
+
+  async function handleConfirmReject() {
+    if (!rejectingOrderId || selectedReasonIndex === null) return;
+    const reason = cancellationReasons[selectedReasonIndex];
+    const cancellationCode = reason.cancellationCode || reason.code || '';
+
+    try {
+      setProcessingId(rejectingOrderId);
+      await IfoodOrdersService.reject(rejectingOrderId, cancellationCode, reason.description);
+      setIfoodOrders((prev) => prev.filter((order) => order._id !== rejectingOrderId));
+      handleCloseRejectModal();
     } catch (error: any) {
       toast({
         status: 'error',
@@ -191,6 +236,44 @@ export const IfoodOrders = () => {
     }
   }
 
+  async function handleAcceptCancellation(id: string) {
+    try {
+      setProcessingId(id);
+      await IfoodOrdersService.acceptCancellation(id);
+      setIfoodOrders((prev) => prev.filter((order) => order._id !== id));
+    } catch (error: any) {
+      toast({
+        status: 'error',
+        title: error?.response?.data?.message || 'Não foi possível confirmar o cancelamento no iFood.',
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setProcessingId(null);
+    }
+  }
+
+  async function handleDenyCancellation(id: string) {
+    try {
+      setProcessingId(id);
+      await IfoodOrdersService.denyCancellation(id, 'Pedido já está em preparo');
+      await reloadIfoodOrders();
+    } catch (error: any) {
+      toast({
+        status: 'error',
+        title: error?.response?.data?.message || 'Não foi possível negar o cancelamento no iFood.',
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setProcessingId(null);
+    }
+  }
+
+  function handleGoToCommand(commandId: string) {
+    router.push(`/command/${commandId}`);
+  }
+
   if (isAdmin) {
     return (
       <IfoodOrdersLayout
@@ -200,9 +283,19 @@ export const IfoodOrders = () => {
         isLoading={isLoading}
         processingId={processingId}
         handleAccept={handleAccept}
-        handleReject={handleReject}
+        handleOpenRejectModal={handleOpenRejectModal}
         handleSelectProduct={handleSelectProduct}
         handleToggleSaveMapping={handleToggleSaveMapping}
+        handleAcceptCancellation={handleAcceptCancellation}
+        handleDenyCancellation={handleDenyCancellation}
+        handleGoToCommand={handleGoToCommand}
+        rejectingOrderId={rejectingOrderId}
+        cancellationReasons={cancellationReasons}
+        selectedReasonIndex={selectedReasonIndex}
+        isLoadingReasons={isLoadingReasons}
+        handleSelectReason={setSelectedReasonIndex}
+        handleConfirmReject={handleConfirmReject}
+        handleCloseRejectModal={handleCloseRejectModal}
       />
     );
   }

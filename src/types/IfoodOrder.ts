@@ -14,6 +14,7 @@ interface IfoodCustomer {
   id: string;
   name: string;
   phone?: { number?: string };
+  documentNumber?: string;
 }
 
 interface IfoodDeliveryAddress {
@@ -37,6 +38,31 @@ interface IfoodOrderTotal {
   orderAmount: number;
 }
 
+interface IfoodPaymentCard {
+  brand?: string;
+}
+
+interface IfoodPaymentCash {
+  changeFor?: number;
+}
+
+export interface IfoodPaymentMethod {
+  method: string;
+  type?: string;
+  value: number;
+  card?: IfoodPaymentCard;
+  cash?: IfoodPaymentCash;
+}
+
+interface IfoodPayments {
+  methods: IfoodPaymentMethod[];
+}
+
+export interface IfoodBenefit {
+  value: number;
+  sponsorshipValues?: { name: string; value: number }[];
+}
+
 export interface IfoodOrderPayload {
   id: string;
   displayId: string;
@@ -47,6 +73,8 @@ export interface IfoodOrderPayload {
   delivery?: IfoodDelivery;
   items: IfoodOrderItem[];
   total: IfoodOrderTotal;
+  payments?: IfoodPayments;
+  benefits?: IfoodBenefit[];
 }
 
 export interface ResolvedIfoodItem {
@@ -59,12 +87,18 @@ export interface ResolvedIfoodItem {
   saveMapping: boolean;
 }
 
+export interface IfoodCancellationReason {
+  cancellationCode?: string;
+  code?: string;
+  description: string;
+}
+
 export interface IfoodOrder {
   _id: string;
   ifoodOrderId: string;
   eventId: string;
   rawPayload?: IfoodOrderPayload;
-  status: 'pending' | 'accepted' | 'rejected';
+  status: 'pending' | 'accepted' | 'rejected' | 'cancellation_requested' | 'cancelled';
   commandId?: string | null;
   rejectionReason?: string;
   createdAt?: string;

@@ -136,12 +136,36 @@ export const Commands = () => {
     };
     socket.on('ifood-order-received', onIfoodOrderReceived);
 
+    const onIfoodOrderCancelled = async ({ commandId }: { commandId: string | null }) => {
+      playNotify();
+      toast({
+        status: 'warning',
+        duration: 8000,
+        isClosable: true,
+        render: () => (
+          <Box bg="#7a1f1f" color="white" borderRadius="md" px={4} py={3}>
+            <Text fontWeight="bold">Pedido do iFood cancelado!</Text>
+            {commandId && <Text fontSize="sm">A comanda foi marcada como cancelada.</Text>}
+          </Box>
+        ),
+      });
+
+      if (!commandId) return;
+
+      const { command } = await CommandsService.getOneCommand({ commandId });
+      if (command) {
+        allCommandsDispatch({ type: 'UPDATE-ONE-COMMAND', payload: { command } });
+      }
+    };
+    socket.on('ifood-order-cancelled', onIfoodOrderCancelled);
+
     return () => {
       socket.off('command-created', onCommandCreated);
       socket.off('command-updated', onCommandUpdated);
       socket.off('command-deleted', onCommandDeleted);
       socket.off('product-updated', onProductUpdated);
       socket.off('ifood-order-received', onIfoodOrderReceived);
+      socket.off('ifood-order-cancelled', onIfoodOrderCancelled);
     };
   }, [socket, playNotify, toast, router]);
 
