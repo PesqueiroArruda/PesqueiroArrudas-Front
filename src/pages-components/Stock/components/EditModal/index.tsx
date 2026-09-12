@@ -23,11 +23,19 @@ export const EditModal = ({
   const { productsDispatch } = useContext(StockContext);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [localPreviewUrl, setLocalPreviewUrl] = useState('');
   const toast = useToast();
 
   async function handleMenuImageChange(e: any) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Preview instantâneo a partir do próprio arquivo escolhido — evita
+    // depender de buscar a imagem pela URL pública do R2 assim que o
+    // upload termina, já que a "Public Development URL" pode levar um
+    // instante pra propagar um objeto recém-criado (dava 404 nesse meio-tempo).
+    if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+    setLocalPreviewUrl(URL.createObjectURL(file));
 
     try {
       setIsUploadingImage(true);
@@ -137,6 +145,8 @@ export const EditModal = ({
   }
 
   function onClose() {
+    if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+    setLocalPreviewUrl('');
     setIsEditModalOpen(false);
     setIsSubmitting(false);
   }
@@ -156,6 +166,7 @@ export const EditModal = ({
       isSubmitting={isSubmitting}
       handleMenuImageChange={handleMenuImageChange}
       isUploadingImage={isUploadingImage}
+      localPreviewUrl={localPreviewUrl}
     />
   );
 };

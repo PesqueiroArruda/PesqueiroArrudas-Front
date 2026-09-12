@@ -17,6 +17,7 @@ interface Props {
   isSubmitting: boolean;
   handleMenuImageChange: any;
   isUploadingImage: boolean;
+  localPreviewUrl: string;
 }
 
 const categories = [
@@ -44,10 +45,13 @@ export const EditModalLayout = ({
   isSubmitting,
   handleMenuImageChange,
   isUploadingImage,
+  localPreviewUrl,
 }: Props) => {
-  const currentImageUrl = itemInfos.menu?.imageKey
-    ? `${process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL}/${itemInfos.menu.imageKey}`
-    : '';
+  const currentImageUrl =
+    localPreviewUrl ||
+    (itemInfos.menu?.imageKey
+      ? `${process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL}/${itemInfos.menu.imageKey}`
+      : '');
 
   return (
     <Modal isOpen={isEditModalOpen} onClose={onClose} title={title}>
