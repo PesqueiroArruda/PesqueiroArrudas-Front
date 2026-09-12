@@ -70,7 +70,7 @@ export const CommandsListLayout = ({
       {items.length > 0 && isAdmin && (
         <div className="flex items-center gap-2">
           <span className="text-base font-bold text-navy sm:text-lg">
-            Vendas de hoje: {allSalesVisible ? parseToBRL(allSalesWorth) : '•••••••'}
+            VH: {allSalesVisible ? parseToBRL(allSalesWorth) : '•••••••'}
           </span>
           <button type="button" onClick={handleToggleAllSalesVisible} className="text-navy hover:text-cyan">
             {allSalesVisible ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
