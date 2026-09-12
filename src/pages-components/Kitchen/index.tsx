@@ -173,7 +173,6 @@ export const Kitchen = () => {
           payload: { order: updated },
         });
       }
-      refreshOrders();
     };
 
     const onKitchenOrderDeleted = (payload: { commandId: string }) => {
@@ -181,7 +180,6 @@ export const Kitchen = () => {
         type: 'REMOVE-COMMAND-ORDERS',
         payload: { commandId: payload.commandId },
       });
-      refreshOrders();
     };
 
     socket.on('kitchen-order-created', onKitchenOrderCreated);
