@@ -1,20 +1,12 @@
 import { Dispatch, SetStateAction, useContext } from 'react';
-import { ArrowUp, Frown, MinusCircle, MoreVertical, PlusCircle, Trash2, Wallet } from 'lucide-react';
+import { ArrowUp, Frown } from 'lucide-react';
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from 'components/ui/dropdown-menu';
-import { Input } from 'components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'components/ui/table';
 import { cn } from 'lib/utils';
 import { CommandContext } from 'pages-components/Command';
 import { Product } from 'types/Product';
-import { formatAmount } from 'utils/formatAmount';
-import { parseToBRL } from 'utils/parseToBRL';
 import { useClickOutsideToClose } from 'hooks/useClickOutsideToClose';
+import { ProductRow } from './ProductRow';
 
 const columns = [
   { text: 'Nome', prop: 'name' },
@@ -74,9 +66,6 @@ export const ProductsListLayout = ({
   const { command } = useContext(CommandContext);
   const commandIsPayed = command?.isActive === false;
 
-  const isFishingCategory = (category?: string) =>
-    category?.toLowerCase() === 'peixes' || category?.toLowerCase() === 'misturas congeladas';
-
   const editAmountInputRef = useClickOutsideToClose(() => {
     setFishIdToEditAmount('');
   });
@@ -109,109 +98,23 @@ export const ProductsListLayout = ({
         </TableHeader>
         <TableBody>
           {products?.length > 0 ? (
-            products.map(({ _id, name, amount, unitPrice, category, totalPayed }: Product) => (
-              <TableRow key={`product-list${name}`}>
-                <TableCell>{name}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    {fishIdToEditAmount === _id ? (
-                      <form
-                        onSubmit={(e) =>
-                          handleUpdateProductAmount(e, {
-                            productId: _id,
-                            isFish: isFishingCategory(category),
-                          })
-                        }
-                      >
-                        <Input
-                          value={newProductAmount}
-                          onChange={(e) => setNewProductAmount(e.target.value)}
-                          ref={editAmountInputRef}
-                          autoFocus
-                          className="w-28"
-                        />
-                      </form>
-                    ) : (
-                      <>
-                        {!commandIsPayed && !isFishingCategory(category) && (
-                          <MinusCircle
-                            onClick={() => {
-                              if (isAdmin) {
-                                handleDecrementProductAmount({
-                                  _id,
-                                  amount,
-                                  unitPrice,
-                                  totalPayed: Number(totalPayed) as number,
-                                });
-                              }
-                            }}
-                            className="h-5 w-5 cursor-pointer text-navy hover:text-cyan"
-                          />
-                        )}
-                        <button
-                          type="button"
-                          disabled={commandIsPayed}
-                          onClick={() =>
-                            handleActiveEditFishAmount({
-                              productId: _id,
-                              amount: amount.toString(),
-                            })
-                          }
-                          className={cn('text-left', !commandIsPayed && 'cursor-pointer')}
-                        >
-                          {isFishingCategory(category)
-                            ? `${formatAmount({ num: amount.toString(), to: 'comma' })} Kg`
-                            : amount}
-                        </button>
-                        {!commandIsPayed && !isFishingCategory(category) && (
-                          <PlusCircle
-                            onClick={() => handleIncrementProductAmount({ productId: _id, amount })}
-                            className="h-5 w-5 cursor-pointer text-navy hover:text-cyan"
-                          />
-                        )}
-                      </>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell>{parseToBRL(unitPrice || 0)}</TableCell>
-                <TableCell>{parseToBRL(Number((amount * unitPrice).toFixed(2)))}</TableCell>
-                {!commandIsPayed && <TableCell>{parseToBRL(totalPayed || 0)}</TableCell>}
-
-                {isAdmin && (
-                  <TableCell>
-                    {!commandIsPayed && (
-                      <div className="flex justify-end">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger className="rounded-(--radius) p-1 text-navy hover:bg-secondary">
-                            <MoreVertical className="h-5 w-5" />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onSelect={() =>
-                                handleOpenPayProductModal({
-                                  _id,
-                                  name,
-                                  amount,
-                                  unitPrice,
-                                  category,
-                                  totalPayed,
-                                })
-                              }
-                            >
-                              <Wallet className="h-4 w-4" />
-                              Pagar Produto
-                            </DropdownMenuItem>
-                            <DropdownMenuItem destructive onSelect={() => handleOpenDeleteModal({ productId: _id })}>
-                              <Trash2 className="h-4 w-4" />
-                              Deletar
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    )}
-                  </TableCell>
-                )}
-              </TableRow>
+            products.map((product: Product) => (
+              <ProductRow
+                key={`product-list-${product._id}`}
+                {...product}
+                commandIsPayed={commandIsPayed}
+                isAdmin={isAdmin}
+                isEditingAmount={fishIdToEditAmount === product._id}
+                editAmountInputRef={editAmountInputRef}
+                newProductAmount={newProductAmount}
+                setNewProductAmount={setNewProductAmount}
+                handleActiveEditFishAmount={handleActiveEditFishAmount}
+                handleUpdateProductAmount={handleUpdateProductAmount}
+                handleOpenPayProductModal={handleOpenPayProductModal}
+                handleOpenDeleteModal={handleOpenDeleteModal}
+                handleDecrementProductAmount={handleDecrementProductAmount}
+                handleIncrementProductAmount={handleIncrementProductAmount}
+              />
             ))
           ) : (
             <TableRow>
