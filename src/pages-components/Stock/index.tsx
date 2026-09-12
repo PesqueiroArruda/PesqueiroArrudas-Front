@@ -17,6 +17,7 @@ import StockService from './services/index';
 import { StockLayout } from './layout';
 import { AddItemModal } from './components/AddItemModal';
 import { MergeDuplicatesModal } from './components/MergeDuplicatesModal';
+import { AutoOrderMenuModal } from './components/AutoOrderMenuModal';
 import { productsReducer } from './reducers/productsReducer';
 import { Product } from './types/Product';
 
@@ -59,6 +60,7 @@ export const Stock = () => {
 
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
   const [isMergeDuplicatesModalOpen, setIsMergeDuplicatesModalOpen] = useState(false);
+  const [isAutoOrderModalOpen, setIsAutoOrderModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -154,6 +156,10 @@ export const Stock = () => {
           isModalOpen={isMergeDuplicatesModalOpen}
           setIsModalOpen={setIsMergeDuplicatesModalOpen}
         />
+        <AutoOrderMenuModal
+          isModalOpen={isAutoOrderModalOpen}
+          setIsModalOpen={setIsAutoOrderModalOpen}
+        />
         <StockLayout
           filters={filters}
           setFilters={setFilters}
@@ -161,6 +167,7 @@ export const Stock = () => {
           setOrderBy={setOrderBy}
           setIsAddItemModalOpen={setIsAddItemModalOpen}
           setIsMergeDuplicatesModalOpen={setIsMergeDuplicatesModalOpen}
+          setIsAutoOrderModalOpen={setIsAutoOrderModalOpen}
           handleGoToHome={handleGoToHome}
           handleDownload={handleDownload}
         />

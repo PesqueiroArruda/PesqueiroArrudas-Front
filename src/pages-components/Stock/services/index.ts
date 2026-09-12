@@ -31,6 +31,11 @@ class StockService {
     return data;
   }
 
+  async autoOrderMenu() {
+    const { data } = await serverApi.put('/products/menu/auto-order');
+    return data;
+  }
+
   async getPresignedUploadUrl({
     productId,
     contentType,

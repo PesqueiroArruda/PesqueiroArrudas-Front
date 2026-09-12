@@ -1,5 +1,5 @@
 import { SetStateAction, Dispatch } from 'react';
-import { Merge, PackagePlus } from 'lucide-react';
+import { Merge, PackagePlus, ArrowUpDown } from 'lucide-react';
 
 import { AppShell } from 'components/AppShell';
 import { Button } from 'components/ui/button';
@@ -13,6 +13,7 @@ interface Props {
   setOrderBy: Dispatch<SetStateAction<string>>;
   setIsAddItemModalOpen: Dispatch<SetStateAction<boolean>>;
   setIsMergeDuplicatesModalOpen: Dispatch<SetStateAction<boolean>>;
+  setIsAutoOrderModalOpen: Dispatch<SetStateAction<boolean>>;
   handleGoToHome: () => void;
   handleDownload: (e: any) => void;
 }
@@ -24,6 +25,7 @@ export const StockLayout = ({
   setOrderBy,
   setIsAddItemModalOpen,
   setIsMergeDuplicatesModalOpen,
+  setIsAutoOrderModalOpen,
   handleGoToHome,
   handleDownload,
 }: Props) => (
@@ -38,6 +40,10 @@ export const StockLayout = ({
           <Button onClick={() => setIsMergeDuplicatesModalOpen(true)} variant="secondary">
             <Merge className="h-4 w-4" />
             Juntar Duplicados
+          </Button>
+          <Button onClick={() => setIsAutoOrderModalOpen(true)} variant="secondary">
+            <ArrowUpDown className="h-4 w-4" />
+            Ordenar Cardápio
           </Button>
           <Button onClick={() => setIsAddItemModalOpen(true)}>
             <PackagePlus className="h-4 w-4" />
