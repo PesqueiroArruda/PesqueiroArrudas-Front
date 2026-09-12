@@ -1,137 +1,151 @@
 # Graph Report - pesqueiro-arrudas-front-main  (2026-09-11)
 
 ## Corpus Check
-- 230 files · ~52,004 words
+- 238 files · ~54,149 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1201 nodes · 2649 edges · 89 communities (68 shown, 20 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 16 edges (avg confidence: 0.86)
-- Token cost: 214,907 input · 0 output
+- 1257 nodes · 2797 edges · 98 communities (80 shown, 17 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.86)
+- Token cost: 0 input · 0 output
+
+## Graph Freshness
+- Built from commit: `3a1e2a6e`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- UI Primitives & App Shell
-- Reservations Feature Module
-- Test Suite
-- Project Dependencies Manifest
-- ESLint Configuration
-- Frontend Dependency List
-- Modal & UI Primitives
-- Dev Tooling Dependencies
-- Stock Merge Duplicates Modal
-- TypeScript Configuration
-- Cashier Closing Flow
-- Stock Filter Nav Header
-- Table UI Primitives
-- iFood Orders Screen
-- Add Product Modal (Command)
-- Command Products List
-- Command Page & Printing
-- Add Product Modal Layout
-- Commands State & Delete Modal
-- Commands List & Edit Modal
-- Cashier Report Page
-- Kitchen Completed Orders List
-- iFood Order Actions
-- Reservations Filters & Tabs
-- Stock Delete Item Modal
-- Kitchen Order Reducer
-- Route Navigation Progress Bar
-- Sold Items Page
-- Close Command Modal
-- Kitchen Order Actions & Service
-- Merge Duplicate Products Logic
-- Sales Dashboard Stats Builder
-- Send To Kitchen Modal
-- Commands Add Products Modal
-- Sales Dashboard Charts
-- Command Payment Modal
-- App Shell Layout & Nav
-- Commands Page Entry
-- Command Products Service
-- Commands Products Service
-- Closed Cashiers List
-- Stock Add Item Modal
-- iFood Routing & Add Product
-- Backend P1 Findings (Payments)
-- Applied Fixes (Reports & Payments)
-- App Header Component
-- Cashier Report Types & Hook
-- Coding Conventions & Command Service
-- iFood Product Name Matching
-- Admin Page
-- Admin & Payments Services
-- Login Feature
-- NPM Scripts
-- Draggable Kitchen Order Card
-- Home Page
-- Kitchen Orders Service
-- Sales Dashboard Nav Header
+- react
+- Reservations/index.tsx
+- downloads.test.cjs
+- package.json
+- rules
+- dependencies
+- cn
+- devDependencies
+- Stock/index.tsx
+- compilerOptions
+- luxon
+- DropdownMenuContent
+- Order/layout.tsx
+- IfoodOrder.ts
+- Product
+- Command/layout.tsx
+- Command/index.tsx
+- parseToBRL
+- Commands/index.tsx
+- CommandsList/index.tsx
+- nookies
+- Order
+- IfoodOrders
+- Reservations/layout.tsx
+- ItemsTable/index.tsx
+- Kitchen/index.tsx
+- AppShell/layout.tsx
+- SoldItems/layout.tsx
+- PayProductModal/layout.tsx
+- Order/index.tsx
+- MergeDuplicatesModal/index.tsx
+- buildSalesDashboardStats.ts
+- SendToKitchenModal/index.tsx
+- AddProductsModal
+- SalesDashboard/layout.tsx
+- PaymentModal/index.tsx
+- MenuUsers/layout.tsx
+- Commands
+- ProductsService
+- ProductsService
+- AppShell/index.tsx
+- AddItemModal/index.tsx
+- AddProductModal
+- Backend Compatibility and Reliability Review
+- Repository Review
+- Header/layout.tsx
+- Cashier
+- Project Overview (CLAUDE.md)
+- resolveIfoodItemProduct.ts
+- Admin
+- serverApi.ts
+- MenuUsers/index.tsx
+- scripts
+- OrdersList/layout.tsx
+- @chakra-ui/react
+- KitchenOrdersService
+- SalesDashboard/NavHeader/index.tsx
 - Repository Guidelines (AGENTS.md)
-- Architecture Overview (CLAUDE.md)
-- Products List Layout & Hook
-- Command Service Methods
-- Add Command Modal
-- Cashier Report Download
-- Sheet UI Primitive
-- Kitchen Check Order Modal
-- Sales Dashboard Access Page
-- Backend Auth Gap Findings
-- Frontend/Backend Contract Findings
-- Kitchen Service Methods
-- Backend P2 Follow-ups
-- Dependency Security Findings
-- Stock Edit Item Modal
-- Stock Search & Filter Handlers
-- Next.js Config
-- Commitizen Config
-- Sample API Route
-- Cashier Feature Service
-- Commands Kitchen Service
-- Customers Cashier Service
-- Home Payments Service
-- Sold Items Cashier Service
-- Next.js Env Types
-- Pesqueiro Arruda's Brand
-- Sound Asset Types
-- Coding Conventions Note
-- Commit Conventions Note
-- Vercel Starter Logo
-- Local Dev Setup Docs
+- IfoodOrders/index.tsx
+- IfoodOrdersService
+- CommandService
+- AddCommandModal/index.tsx
+- Commands/components/DeleteCommandModal/index.tsx
+- sheet.tsx
+- CheckOrderModal/index.tsx
+- SalesDashboard
+- P1: Operational HTTP Routes and Sockets Have No Application Authentication
+- Frontend/Backend Compatibility Findings
+- Command/services/KitchenService.ts
+- P2: Error Propagation, Dates, and Inventory Need Follow-up
+- P1: Upgrade Dependencies and Assess Deployment Exposure (Next.js 13.5.11 unsupported)
+- EditModal
+- Stock/components/NavHeader/index.tsx
+- next.config.js
+- config
+- hello.ts
+- loadTypeScript.cjs
+- AddProductsModal/layout.tsx
+- EditCommandModal/index.tsx
+- StockService
+- AddProductsModal/index.tsx
+- next-env.d.ts
+- Pesqueiro & Restaurante Arruda's (business)
+- sounds.d.ts
+- Coding Conventions (CLAUDE.md)
+- Commit Conventions (CLAUDE.md)
+- Vercel Logo (SVG)
+- Local Development Setup
+- DeleteItemModal/index.tsx
+- cashiers.test.cjs
+- findReservationConflicts.test.cjs
+- getReservationDatePreset.test.cjs
+- reports.test.cjs
+- commandBalance.test.cjs
+- findSimilarProductGroups.test.cjs
+- payments.test.cjs
+- AdminService
 
 ## God Nodes (most connected - your core abstractions)
-1. `react` - 99 edges
+1. `react` - 101 edges
 2. `cn()` - 79 edges
-3. `lucide-react` - 52 edges
+3. `lucide-react` - 54 edges
 4. `parseToBRL()` - 42 edges
-5. `Button` - 37 edges
-6. `@chakra-ui/react` - 36 edges
+5. `Button` - 39 edges
+6. `@chakra-ui/react` - 38 edges
 7. `Product` - 35 edges
-8. `Order` - 30 edges
-9. `Command` - 29 edges
-10. `Modal()` - 28 edges
+8. `Command` - 30 edges
+9. `Order` - 30 edges
+10. `Modal()` - 29 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Applied Fix: Shared HTTP/Socket Backend Config & Reliability` --references--> `API_URL`  [EXTRACTED]
-  docs/REPOSITORY_REVIEW.md → src/services/apiConfig.ts
 - `Two-Layer Auth Pattern (route-level cookie + role-level localStorage)` --semantically_similar_to--> `P1: Verify Server-Side Authorization (client-only isAuthorized/isAdmin checks insufficient)`  [INFERRED] [semantically similar]
   CLAUDE.md → docs/REPOSITORY_REVIEW.md
-- `iFood Order-to-Command Naming Convention (table startsWith 'iFood #')` --references--> `DeliveryStatusBadge()`  [EXTRACTED]
-  CLAUDE.md → src/components/DeliveryStatusBadge/index.tsx
 - `Dual UI System: Tailwind/shadcn primitives + Chakra UI coexistence` --references--> `Badge()`  [EXTRACTED]
   CLAUDE.md → src/components/ui/badge.tsx
 - `Dual UI System: Tailwind/shadcn primitives + Chakra UI coexistence` --references--> `cn()`  [EXTRACTED]
   CLAUDE.md → src/lib/utils.ts
+- `Kitchen/Bar Routing Category Lists Duplicated in Three Places` --references--> `SendToKitchenModal()`  [EXTRACTED]
+  CLAUDE.md → src/pages-components/Command/components/SendToKitchenModal/index.tsx
+- `Feature Module Pattern (index.tsx/layout.tsx/services/reducers)` --references--> `API_URL`  [EXTRACTED]
+  CLAUDE.md → src/services/apiConfig.ts
 
 ## Import Cycles
 - 3-file cycle: `src/pages-components/Stock/components/ItemsTable/index.tsx -> src/pages-components/Stock/index.tsx -> src/pages-components/Stock/layout.tsx -> src/pages-components/Stock/components/ItemsTable/index.tsx`
 - 3-file cycle: `src/pages-components/Stock/components/NavHeader/index.tsx -> src/pages-components/Stock/index.tsx -> src/pages-components/Stock/layout.tsx -> src/pages-components/Stock/components/NavHeader/index.tsx`
-- 3-file cycle: `src/pages-components/Commands/components/CommandsList/index.tsx -> src/pages-components/Commands/index.tsx -> src/pages-components/Commands/layout.tsx -> src/pages-components/Commands/components/CommandsList/index.tsx`
 - 3-file cycle: `src/pages-components/Commands/components/NavHeader/index.tsx -> src/pages-components/Commands/index.tsx -> src/pages-components/Commands/layout.tsx -> src/pages-components/Commands/components/NavHeader/index.tsx`
+- 3-file cycle: `src/pages-components/Commands/components/CommandsList/index.tsx -> src/pages-components/Commands/index.tsx -> src/pages-components/Commands/layout.tsx -> src/pages-components/Commands/components/CommandsList/index.tsx`
 - 3-file cycle: `src/pages-components/Command/components/NavHeader/index.tsx -> src/pages-components/Command/index.tsx -> src/pages-components/Command/layout.tsx -> src/pages-components/Command/components/NavHeader/index.tsx`
 - 3-file cycle: `src/pages-components/Command/components/ProductsList/index.tsx -> src/pages-components/Command/index.tsx -> src/pages-components/Command/layout.tsx -> src/pages-components/Command/components/ProductsList/index.tsx`
-- 4-file cycle: `src/pages-components/Stock/components/DeleteItemModal/index.tsx -> src/pages-components/Stock/index.tsx -> src/pages-components/Stock/layout.tsx -> src/pages-components/Stock/components/ItemsTable/index.tsx -> src/pages-components/Stock/components/DeleteItemModal/index.tsx`
 - 4-file cycle: `src/pages-components/Stock/components/EditModal/index.tsx -> src/pages-components/Stock/index.tsx -> src/pages-components/Stock/layout.tsx -> src/pages-components/Stock/components/ItemsTable/index.tsx -> src/pages-components/Stock/components/EditModal/index.tsx`
+- 4-file cycle: `src/pages-components/Stock/components/DeleteItemModal/index.tsx -> src/pages-components/Stock/index.tsx -> src/pages-components/Stock/layout.tsx -> src/pages-components/Stock/components/ItemsTable/index.tsx -> src/pages-components/Stock/components/DeleteItemModal/index.tsx`
 - 4-file cycle: `src/pages-components/Kitchen/components/OrdersList/index.tsx -> src/pages-components/Kitchen/components/OrdersList/layout.tsx -> src/pages-components/Kitchen/index.tsx -> src/pages-components/Kitchen/layout.tsx -> src/pages-components/Kitchen/components/OrdersList/index.tsx`
 - 4-file cycle: `src/pages-components/Commands/components/AddProductsModal/index.tsx -> src/pages-components/Commands/index.tsx -> src/pages-components/Commands/layout.tsx -> src/pages-components/Commands/components/CommandsList/index.tsx -> src/pages-components/Commands/components/AddProductsModal/index.tsx`
 - 4-file cycle: `src/pages-components/Commands/components/CommandsList/index.tsx -> src/pages-components/Commands/components/DeleteCommandModal/index.tsx -> src/pages-components/Commands/index.tsx -> src/pages-components/Commands/layout.tsx -> src/pages-components/Commands/components/CommandsList/index.tsx`
@@ -141,229 +155,225 @@
 - 5-file cycle: `src/pages-components/Command/components/ProductsList/PayProductModal/index.tsx -> src/pages-components/Command/components/ProductsList/PayProductModal/layout.tsx -> src/pages-components/Command/index.tsx -> src/pages-components/Command/layout.tsx -> src/pages-components/Command/components/ProductsList/index.tsx -> src/pages-components/Command/components/ProductsList/PayProductModal/index.tsx`
 
 ## Hyperedges (group relationships)
-- **Kitchen/Bar Routing Category Lists Kept in Sync Across Three Locations** — claude_kitchen_bar_routing_duplication, src_pages_components_command_components_sendtokitchenmodal_index_sendtokitchenmodal, src_pages_components_command_components_addproductmodal_index_addproductmodal, backend_ifoodcontroller_ifoodcontroller [EXTRACTED 1.00]
 - **P1 Payment/Data-Integrity Findings (Backend Review)** — docs_backend_review_p1_payment_bypass, docs_backend_review_p1_concurrent_payments, docs_backend_review_p1_command_closing_not_atomic, docs_backend_review_p1_cashier_trusts_client [EXTRACTED 1.00]
+- **Kitchen/Bar Routing Category Lists Kept in Sync Across Three Locations** — claude_kitchen_bar_routing_duplication, src_pages_components_command_components_sendtokitchenmodal_index_sendtokitchenmodal, src_pages_components_command_components_addproductmodal_index_addproductmodal, backend_ifoodcontroller_ifoodcontroller [EXTRACTED 1.00]
 - **Authorization Gap Traced Across CLAUDE.md, Repository Review, and Backend Review** — claude_auth_pattern, docs_repository_review_p1_verify_server_auth, docs_backend_review_p1_no_auth [INFERRED 0.85]
 
-## Communities (89 total, 20 thin omitted)
+## Communities (98 total, 17 thin omitted)
 
-### Community 0 - "UI Primitives & App Shell"
+### Community 0 - "react"
 Cohesion: 0.06
-Nodes (50): lucide-react, react, react-hook-form, AppShell(), Props, Button, LegacyButtonProps, DeliveryStatusBadge() (+42 more)
+Nodes (49): lucide-react, @radix-ui/react-label, react, react-hook-form, Button, LegacyButtonProps, Modal(), Props (+41 more)
 
-### Community 1 - "Reservations Feature Module"
-Cohesion: 0.06
-Nodes (36): axios, class-variance-authority, @supabase/supabase-js, CONFIG, Props, CONFIG, Props, ReservationOperationalStatusBadge() (+28 more)
+### Community 1 - "Reservations/index.tsx"
+Cohesion: 0.05
+Nodes (45): @supabase/supabase-js, CONFIG, Props, CONFIG, Props, ReservationOperationalStatusBadge(), CONFIG, Props (+37 more)
 
-### Community 2 - "Test Suite"
+### Community 2 - "downloads.test.cjs"
+Cohesion: 0.22
+Nodes (3): assert, loadTypeScript, test
+
+### Community 3 - "package.json"
 Cohesion: 0.04
-Nodes (35): typescript, assert, cashiers, { groupCashiersByMonth }, loadTypeScript, test, assert, { getCommandBalance } (+27 more)
+Nodes (48): next, prettier, name, private, version, autoprefixer, clsx, cz-conventional-changelog (+40 more)
 
-### Community 3 - "Project Dependencies Manifest"
-Cohesion: 0.04
-Nodes (44): next, prettier, name, private, version, autoprefixer, clsx, cz-conventional-changelog (+36 more)
-
-### Community 4 - "ESLint Configuration"
+### Community 4 - "rules"
 Cohesion: 0.05
 Nodes (39): jsx, env, browser, es2021, node, extends, typescript, next (+31 more)
 
-### Community 5 - "Frontend Dependency List"
+### Community 5 - "dependencies"
 Cohesion: 0.05
 Nodes (38): dependencies, axios, @chakra-ui/react, class-variance-authority, clsx, @dnd-kit/core, @dnd-kit/modifiers, @dnd-kit/sortable (+30 more)
 
-### Community 6 - "Modal & UI Primitives"
-Cohesion: 0.13
-Nodes (22): @radix-ui/react-label, @radix-ui/react-separator, ModalLayout(), Props, SIZE_CLASSNAMES, DialogContent, DialogDescription, DialogFooter() (+14 more)
+### Community 6 - "cn"
+Cohesion: 0.15
+Nodes (20): @radix-ui/react-separator, ModalLayout(), Props, SIZE_CLASSNAMES, DialogContent, DialogDescription, DialogFooter(), DialogHeader() (+12 more)
 
-### Community 7 - "Dev Tooling Dependencies"
+### Community 7 - "devDependencies"
 Cohesion: 0.07
 Nodes (27): devDependencies, autoprefixer, cz-conventional-changelog, eslint, eslint-config-airbnb, eslint-config-next, eslint-config-prettier, eslint-plugin-import (+19 more)
 
-### Community 8 - "Stock Merge Duplicates Modal"
-Cohesion: 0.12
-Nodes (13): Props, MergeDuplicatesModalLayout(), Action, Stock(), handleDownload(), StockContextProps, StockLayout(), Action (+5 more)
+### Community 8 - "Stock/index.tsx"
+Cohesion: 0.16
+Nodes (9): Action, Stock(), handleDownload(), StockContextProps, StockLayout(), Action, productsReducer(), ProductsState (+1 more)
 
-### Community 9 - "TypeScript Configuration"
+### Community 9 - "compilerOptions"
 Cohesion: 0.08
 Nodes (25): compilerOptions, allowJs, allowUnreachableCode, allowUnusedLabels, baseUrl, declaration, esModuleInterop, forceConsistentCasingInFileNames (+17 more)
 
-### Community 10 - "Cashier Closing Flow"
-Cohesion: 0.18
-Nodes (13): luxon, CashierLayout(), CloseCashier(), Props, CloseCashierLayout(), Props, PayedCommands(), PayedCommandsLayout() (+5 more)
+### Community 10 - "luxon"
+Cohesion: 0.08
+Nodes (29): Applied Fix: Shared HTTP/Socket Backend Config & Reliability, luxon, socket.io-client, bitter, manrope, socket, SocketContext, socketContextValue (+21 more)
 
-### Community 11 - "Stock Filter Nav Header"
-Cohesion: 0.10
-Nodes (15): DropdownMenuContent, DropdownMenuItem, filterOptions, NavHeaderLayout(), Props, sortOptions, filterOptions, NavHeaderLayout() (+7 more)
+### Community 11 - "DropdownMenuContent"
+Cohesion: 0.17
+Nodes (9): DropdownMenuContent, DropdownMenuItem, filterOptions, NavHeaderLayout(), Props, sortOptions, filterOptions, Props (+1 more)
 
-### Community 12 - "Table UI Primitives"
-Cohesion: 0.25
+### Community 12 - "Order/layout.tsx"
+Cohesion: 0.24
 Nodes (15): Table, TableBody, TableCell, TableHead, TableHeader, TableRow, productColumns, listColumns (+7 more)
 
-### Community 13 - "iFood Orders Screen"
+### Community 13 - "IfoodOrder.ts"
+Cohesion: 0.18
+Nodes (10): IfoodBenefit, IfoodCustomer, IfoodDelivery, IfoodDeliveryAddress, IfoodOrderPayload, IfoodOrderTotal, IfoodPaymentCard, IfoodPaymentCash (+2 more)
+
+### Community 14 - "Product"
 Cohesion: 0.12
-Nodes (17): ItemSelection, SelectionsState, IfoodOrdersLayout(), Props, IfoodBenefit, IfoodCancellationReason, IfoodCustomer, IfoodDelivery (+9 more)
+Nodes (22): AllProductsAction, ProductNoAmount, Props, SetAmountModal(), Props, Props, DeleteCommandModalLayout(), Props (+14 more)
 
-### Community 14 - "Add Product Modal (Command)"
-Cohesion: 0.14
-Nodes (15): AllProductsAction, ProductNoAmount, Props, SetAmountModal(), Props, Props, State, Action (+7 more)
+### Community 15 - "Command/layout.tsx"
+Cohesion: 0.18
+Nodes (9): NavHeader(), AmountProduct, ProductsList(), handleActiveEditFishAmount(), handleUpdateProductAmount(), TODO: Verify if amount in stock is available, TODO: verify if when I'm decrementing the total will be less than total payed, CommandLayout() (+1 more)
 
-### Community 15 - "Command Products List"
-Cohesion: 0.12
-Nodes (14): @chakra-ui/react, NavHeader(), AmountProduct, ProductsList(), handleActiveEditFishAmount(), handleUpdateProductAmount(), TODO: Verify if amount in stock is available, TODO: verify if when I'm decrementing the total will be less than total payed (+6 more)
+### Community 16 - "Command/index.tsx"
+Cohesion: 0.28
+Nodes (7): DeleteCommandModal(), Command(), initialState, Props, StockProductsAction, productsReducer(), stockProductsReducer()
 
-### Community 16 - "Command Page & Printing"
+### Community 17 - "parseToBRL"
 Cohesion: 0.13
-Nodes (13): react-to-print, DeleteCommandModal(), DeleteProductModal(), handleCloseModal(), handleDeleteProduct(), Command(), initialState, Props (+5 more)
+Nodes (17): useClickOutsideToClose(), AddProductModalLayout(), FavoriteToggle(), filterOptions, ProductNoAmount, productsColumns, Props, ActiveEditFish (+9 more)
 
-### Community 17 - "Add Product Modal Layout"
+### Community 18 - "Commands/index.tsx"
+Cohesion: 0.24
+Nodes (7): Action, commandsReducer(), CommandsState, Action, State, stockProductsReducer(), ContextProps
+
+### Community 19 - "CommandsList/index.tsx"
+Cohesion: 0.38
+Nodes (4): CommandsList(), NavHeader(), CommandsLayout(), Props
+
+### Community 20 - "nookies"
 Cohesion: 0.13
-Nodes (14): AddProductModalLayout(), FavoriteToggle(), filterOptions, ProductNoAmount, productsColumns, Props, AddProductModalLayout(), FavoriteToggle() (+6 more)
+Nodes (8): nookies, Props, ReportError(), useCashierReport(), Cashier(), Props, Customers(), Props
 
-### Community 18 - "Commands State & Delete Modal"
+### Community 21 - "Order"
+Cohesion: 0.20
+Nodes (12): Props, CompletedOrdersList(), Props, Props, Props, Props, OrdersList(), Props (+4 more)
+
+### Community 22 - "IfoodOrders"
+Cohesion: 0.20
+Nodes (3): IfoodOrders(), handleCloseRejectModal(), handleConfirmReject()
+
+### Community 23 - "Reservations/layout.tsx"
 Cohesion: 0.15
-Nodes (14): Props, Props, DeleteCommandModalLayout(), Props, ContextProps, Props, Action, commandsReducer() (+6 more)
+Nodes (16): TabsContent, TabsList, TabsTrigger, canOpenCommand(), DATE_PRESET_OPTIONS, ENVIRONMENT_LABEL, formatDate(), formatTime() (+8 more)
 
-### Community 19 - "Commands List & Edit Modal"
-Cohesion: 0.18
-Nodes (11): CommandsList(), Props, DeleteCommandModalLayout(), EditCommandInputs, EditCommandModal(), Props, EditCommandModalLayout(), NavHeader() (+3 more)
+### Community 24 - "ItemsTable/index.tsx"
+Cohesion: 0.27
+Nodes (8): Props, EditModalLayout(), Props, FavoriteStatus, Item, EMPTY_MENU_CONFIG, MenuConfig, uploadFileToPresignedUrl()
 
-### Community 20 - "Cashier Report Page"
-Cohesion: 0.14
-Nodes (8): ReportError(), useCashierReport(), Cashier(), Props, Customers(), Props, contarNomesRepetidos(), CustomersLayout()
+### Community 25 - "Kitchen/index.tsx"
+Cohesion: 0.24
+Nodes (7): Kitchen(), reconcileOrder(), KitchenLayout(), allOrdersReducer(), State, AllOrdersReducerAction, KitchenContextProps
 
-### Community 21 - "Kitchen Completed Orders List"
-Cohesion: 0.16
-Nodes (14): Props, Props, CompletedOrdersList(), Props, Props, Props, Props, OrdersList() (+6 more)
+### Community 26 - "AppShell/layout.tsx"
+Cohesion: 0.24
+Nodes (7): AppShellLayout(), NavList(), Props, navItems, Phase, RouteProgressBar(), useRouteChanging()
 
-### Community 22 - "iFood Order Actions"
-Cohesion: 0.13
-Nodes (4): IfoodOrders(), handleCloseRejectModal(), handleConfirmReject(), IfoodOrdersService
-
-### Community 23 - "Reservations Filters & Tabs"
+### Community 27 - "SoldItems/layout.tsx"
 Cohesion: 0.20
-Nodes (12): @radix-ui/react-tabs, TabsContent, TabsList, TabsTrigger, HomeLayout(), Props, ENVIRONMENT_LABEL, formatDate() (+4 more)
+Nodes (6): Props, SoldItems(), columns, ProductRenderProps, SoldItemsLayout(), CashierProduct
 
-### Community 24 - "Stock Delete Item Modal"
-Cohesion: 0.20
-Nodes (11): DeleteItemModal(), handleCloseModal(), handleDeleteItem(), Props, DeleteItemModalLayout(), Props, EditModalLayout(), Props (+3 more)
-
-### Community 25 - "Kitchen Order Reducer"
-Cohesion: 0.22
-Nodes (8): react-scroll, use-sound, Kitchen(), reconcileOrder(), allOrdersReducer(), State, AllOrdersReducerAction, KitchenContextProps
-
-### Community 26 - "Route Navigation Progress Bar"
-Cohesion: 0.16
-Nodes (11): socket.io-client, NavList(), Phase, RouteProgressBar(), useRouteChanging(), bitter, manrope, socket (+3 more)
-
-### Community 27 - "Sold Items Page"
-Cohesion: 0.16
-Nodes (9): Props, Props, Props, SoldItems(), columns, ProductRenderProps, Props, SoldItemsLayout() (+1 more)
-
-### Community 28 - "Close Command Modal"
-Cohesion: 0.18
-Nodes (11): CloseCommandModal(), handleCloseCommand(), Props, CloseCommandModalLayout(), DiscountModal(), handleCloseModal(), handleEditDiscount(), Props (+3 more)
-
-### Community 29 - "Kitchen Order Actions & Service"
-Cohesion: 0.23
-Nodes (9): OrderActionsLayout(), DiminishOrder, Product, Store, CheckOneOrder, CheckOneProduct, ReorderPayload, UpdateOrderFlags (+1 more)
-
-### Community 30 - "Merge Duplicate Products Logic"
+### Community 28 - "PayProductModal/layout.tsx"
 Cohesion: 0.21
-Nodes (9): MergeDuplicatesModal(), extractSignature(), findSimilarProductGroups(), isSimilar(), levenshteinDistance(), normalize(), ProductLike, Signature (+1 more)
+Nodes (13): DiscountModal(), handleCloseModal(), handleEditDiscount(), Props, DiscountLayout(), PayProductModal(), handleCloseModal(), handlePayProduct() (+5 more)
 
-### Community 31 - "Sales Dashboard Stats Builder"
+### Community 29 - "Order/index.tsx"
+Cohesion: 0.39
+Nodes (5): CheckOneOrder, CheckOneProduct, ReorderPayload, UpdateOrderFlags, OrderProduct
+
+### Community 30 - "MergeDuplicatesModal/index.tsx"
+Cohesion: 0.18
+Nodes (11): MergeDuplicatesModal(), Props, MergeDuplicatesModalLayout(), extractSignature(), findSimilarProductGroups(), isSimilar(), levenshteinDistance(), normalize() (+3 more)
+
+### Community 31 - "buildSalesDashboardStats.ts"
 Cohesion: 0.22
 Nodes (13): allPayments(), buildSalesDashboardStats(), canonicalWaiterName(), HourStat, ItemStat, MonthStat, RepeatCustomerStat, round2() (+5 more)
 
-### Community 32 - "Send To Kitchen Modal"
-Cohesion: 0.18
-Nodes (8): categoriesToBarPrepare, categoriesToKitchenPrepare, Props, SendToKitchenModal(), StoreKitchen, SendToKitchenModalLayout(), OrderActions(), capitalizeFirstLetter()
+### Community 32 - "SendToKitchenModal/index.tsx"
+Cohesion: 0.15
+Nodes (10): categoriesToBarPrepare, categoriesToKitchenPrepare, Props, SendToKitchenModal(), StoreKitchen, SendToKitchenModalLayout(), OrderActions(), Props (+2 more)
 
-### Community 33 - "Commands Add Products Modal"
-Cohesion: 0.17
-Nodes (8): AddProductsModal(), handleAddProduct(), handleAddProductsInCommand(), handleCloseModal(), ProductNoAmount, Props, TODO: check if there are enough amount of product selected in stock, SetAmountModal()
+### Community 33 - "AddProductsModal"
+Cohesion: 0.33
+Nodes (4): AddProductsModal(), handleAddProduct(), handleAddProductsInCommand(), handleCloseModal()
 
-### Community 34 - "Sales Dashboard Charts"
-Cohesion: 0.19
-Nodes (9): CommandsListLayout(), PIE_PALETTE, PieChart(), Props, SalesDashboardLayout(), ItemsTableLayout(), SalesDashboardStats, ShareStat (+1 more)
+### Community 34 - "SalesDashboard/layout.tsx"
+Cohesion: 0.25
+Nodes (6): PIE_PALETTE, PieChart(), Props, SalesDashboardLayout(), SalesDashboardStats, ShareStat
 
-### Community 35 - "Command Payment Modal"
-Cohesion: 0.24
-Nodes (8): PaymentModal(), handleCloseConfirmModal(), handleOpenCloseCommandModal(), Props, PaymentModalLayout(), calculatePayment(), PaymentInput, getCommandBalance()
+### Community 35 - "PaymentModal/index.tsx"
+Cohesion: 0.16
+Nodes (12): CloseCommandModal(), handleCloseCommand(), Props, CloseCommandModalLayout(), PaymentModal(), handleCloseConfirmModal(), handleOpenCloseCommandModal(), Props (+4 more)
 
-### Community 36 - "App Shell Layout & Nav"
-Cohesion: 0.24
-Nodes (7): @radix-ui/react-avatar, AppShellLayout(), Props, navItems, Avatar, AvatarFallback, AvatarImage
+### Community 36 - "MenuUsers/layout.tsx"
+Cohesion: 0.43
+Nodes (6): Avatar, AvatarFallback, AvatarImage, formatDateTime(), initials(), MenuUsersLayout()
 
-### Community 37 - "Commands Page Entry"
-Cohesion: 0.22
+### Community 37 - "Commands"
+Cohesion: 0.20
 Nodes (3): DeleteCommandModal(), Commands(), CommandsService
 
-### Community 38 - "Command Products Service"
+### Community 40 - "AppShell/index.tsx"
 Cohesion: 0.18
-Nodes (5): DecreaseAmount, FavoriteStatus, IncreaseAmount, ProductsService, VerifyAmount
+Nodes (11): AppShell(), Props, CashierLayout(), Props, columns, contarNomesRepetidos(), CustomersLayout(), Props (+3 more)
 
-### Community 39 - "Commands Products Service"
-Cohesion: 0.18
-Nodes (5): DecreaseAmount, FavoriteStatus, IncreaseAmount, ProductsService, VerifyAmount
-
-### Community 40 - "Closed Cashiers List"
-Cohesion: 0.31
-Nodes (8): ClosedCashiersLayout(), formatDate(), renderRows(), columns, Props, NavHeader(), Props, Cashier
-
-### Community 41 - "Stock Add Item Modal"
+### Community 41 - "AddItemModal/index.tsx"
 Cohesion: 0.27
 Nodes (8): AddItemModal(), cleanFields(), handleChangeUnitPrice(), handleSubmit(), Props, AddItemModalLayout(), checkImageURL(), formatPrice()
 
-### Community 42 - "iFood Routing & Add Product"
-Cohesion: 0.22
-Nodes (7): IfoodController.js (backend, auto-routes accepted iFood orders), iFood Order-to-Command Naming Convention (table startsWith 'iFood #'), Kitchen/Bar Routing Category Lists Duplicated in Three Places, AddProductModal(), handleAddProduct(), handleAddProductsInCommand(), handleCloseModal()
+### Community 42 - "AddProductModal"
+Cohesion: 0.25
+Nodes (6): IfoodController.js (backend, auto-routes accepted iFood orders), Kitchen/Bar Routing Category Lists Duplicated in Three Places, AddProductModal(), handleAddProduct(), handleAddProductsInCommand(), handleCloseModal()
 
-### Community 43 - "Backend P1 Findings (Payments)"
+### Community 43 - "Backend Compatibility and Reliability Review"
 Cohesion: 0.22
 Nodes (10): Backend Compatibility and Reliability Review, P1: Cashier Closing Trusts Client-Supplied Payment Records, P1: Command Closing Is Neither Idempotent Nor Atomic, P1: Concurrent Payments Can Overwrite Each Other, P1: Payment Validation Can Be Bypassed Through Direct API Calls, Applied: Safer Command Closing in the Frontend (GET-before-close, request lock), MongoDB: Atomicity and Transactions (write operations), CashierController.js (backend) (+2 more)
 
-### Community 44 - "Applied Fixes (Reports & Payments)"
-Cohesion: 0.20
-Nodes (10): Applied Fix: Shared HTTP/Socket Backend Config & Reliability, Applied Fix: Monthly Reports Calculation Moved Out of Render, Repository Review, P3: Continue Maintainability Work (lint warnings, any types, CI, integration tests), Applied Fix: Payment History Query Deduplication & Stale-Response Handling, Applied Fix: Payment Validation, Cents-based Change Calculation, Resolved: Report Navigation Persistence (drop cashierByMonthObject localStorage), Validation Summary (17 regression tests, build, lint warnings) (+2 more)
+### Community 44 - "Repository Review"
+Cohesion: 0.22
+Nodes (9): Applied Fix: Monthly Reports Calculation Moved Out of Render, Repository Review, P3: Continue Maintainability Work (lint warnings, any types, CI, integration tests), Applied Fix: Payment History Query Deduplication & Stale-Response Handling, Applied Fix: Payment Validation, Cents-based Change Calculation, Resolved: Report Navigation Persistence (drop cashierByMonthObject localStorage), Validation Summary (17 regression tests, build, lint warnings), React useEffect Reference Guidance (+1 more)
 
-### Community 45 - "App Header Component"
+### Community 45 - "Header/layout.tsx"
 Cohesion: 0.22
 Nodes (5): Header(), Props, headerButtons, HeaderLayout(), Props
 
-### Community 46 - "Cashier Report Types & Hook"
+### Community 46 - "Cashier"
+Cohesion: 0.24
+Nodes (10): emptyCashier, Props, NavHeader(), Props, NavHeaderLayout(), getCashierReport(), Cashier, CashierByMonth (+2 more)
+
+### Community 47 - "Project Overview (CLAUDE.md)"
 Cohesion: 0.33
-Nodes (6): emptyCashier, getCashierReport(), CashierByMonth, CashierCommand, CashierProduct, groupCashiersByMonth()
+Nodes (6): Coding Style & Naming Conventions (AGENTS.md), index.tsx/layout.tsx Presentation Split (AGENTS.md), Two-Layer Auth Pattern (route-level cookie + role-level localStorage), Feature Module Pattern (index.tsx/layout.tsx/services/reducers), Project Overview (CLAUDE.md), Dual UI System: Tailwind/shadcn primitives + Chakra UI coexistence
 
-### Community 47 - "Coding Conventions & Command Service"
-Cohesion: 0.25
-Nodes (5): Coding Style & Naming Conventions (AGENTS.md), index.tsx/layout.tsx Presentation Split (AGENTS.md), Feature Module Pattern (index.tsx/layout.tsx/services/reducers), CommandService, API_URL
-
-### Community 48 - "iFood Product Name Matching"
+### Community 48 - "resolveIfoodItemProduct.ts"
 Cohesion: 0.39
 Nodes (6): iFood Item-to-Catalog-Product Matching (normalized name + remembered mapping), IfoodOrderItem, IfoodProductMapping, normalizeName(), stripIfoodToken(), resolveIfoodItemProduct()
 
-### Community 49 - "Admin Page"
+### Community 49 - "Admin"
 Cohesion: 0.28
 Nodes (5): Admin(), handleCloseConfirmationModal(), handleCloseResetModal(), handleOpenResetModal(), handleResetSystem()
 
-### Community 50 - "Admin & Payments Services"
-Cohesion: 0.22
-Nodes (4): AdminService, Pay, PaymentsService, serverApi
+### Community 50 - "serverApi.ts"
+Cohesion: 0.08
+Nodes (12): CashierService, Pay, PaymentsService, UpdateCommand, KitchenService, CashierService, AuthService, CommandService (+4 more)
 
-### Community 51 - "Login Feature"
-Cohesion: 0.25
-Nodes (3): Login(), LoginLayout(), LoginService
+### Community 51 - "MenuUsers/index.tsx"
+Cohesion: 0.23
+Nodes (7): axios, MenuUsers(), Props, api, MenuUsersService, MenuUser, MenuUserFilters
 
-### Community 52 - "NPM Scripts"
+### Community 52 - "scripts"
 Cohesion: 0.25
 Nodes (8): scripts, build, commit, dev, lint, start, test, typecheck
 
-### Community 53 - "Draggable Kitchen Order Card"
+### Community 53 - "OrdersList/layout.tsx"
 Cohesion: 0.32
 Nodes (6): @dnd-kit/core, @dnd-kit/sortable, @dnd-kit/utilities, DraggableOrder(), Props, Props
 
-### Community 56 - "Sales Dashboard Nav Header"
+### Community 54 - "@chakra-ui/react"
+Cohesion: 0.15
+Nodes (10): @chakra-ui/react, DeleteProductModal(), handleCloseModal(), handleDeleteProduct(), Props, DeleteProductModalLayout(), DecreaseAmount, FavoriteStatus (+2 more)
+
+### Community 56 - "SalesDashboard/NavHeader/index.tsx"
 Cohesion: 0.29
 Nodes (6): NavHeader(), Props, monthOptions, NavHeaderLayout(), Props, yearOptions
 
@@ -371,73 +381,125 @@ Nodes (6): NavHeader(), Props, monthOptions, NavHeaderLayout(), Props, yearOptio
 Cohesion: 0.33
 Nodes (7): Commit & Pull Request Guidelines (AGENTS.md), Project Structure & Module Organization, Repository Guidelines (AGENTS.md), Testing Guidelines (AGENTS.md), Regression Test Coverage Added (Node tests + typecheck script), Pesqueiro Arruda's Frontend README, Validation Commands (README)
 
-### Community 58 - "Architecture Overview (CLAUDE.md)"
-Cohesion: 0.29
-Nodes (7): Two-Layer Auth Pattern (route-level cookie + role-level localStorage), Project Overview (CLAUDE.md), Socket.IO Real-time Update Pattern (no central event bus), Dual UI System: Tailwind/shadcn primitives + Chakra UI coexistence, kitchen-order-* Socket Event Contracts (created/updated/deleted payload shapes), Applied Fix: Socket Lifecycle Management (connect/disconnect in effect, per-subscription cleanup), SocketContext / socket.io-client instance (_app.tsx)
+### Community 58 - "IfoodOrders/index.tsx"
+Cohesion: 0.23
+Nodes (11): iFood Order-to-Command Naming Convention (table startsWith 'iFood #'), use-sound, DeliveryStatusBadge(), ItemSelection, SelectionsState, IfoodOrdersLayout(), ItemSelection, PAYMENT_METHOD_LABEL (+3 more)
 
-### Community 59 - "Products List Layout & Hook"
-Cohesion: 0.38
-Nodes (5): useClickOutsideToClose(), ActiveEditFish, AmountProduct, columns, ProductsListLayout()
+### Community 61 - "AddCommandModal/index.tsx"
+Cohesion: 0.25
+Nodes (5): AddCommandInputs, AddCommandModal(), Props, AddCommandModalLayout(), CommandsContext
 
-### Community 61 - "Add Command Modal"
-Cohesion: 0.29
-Nodes (4): AddCommandInputs, AddCommandModal(), Props, AddCommandModalLayout()
+### Community 62 - "Commands/components/DeleteCommandModal/index.tsx"
+Cohesion: 0.25
+Nodes (6): Props, DeleteCommandModalLayout(), DecreaseAmount, FavoriteStatus, IncreaseAmount, VerifyAmount
 
-### Community 62 - "Cashier Report Download"
-Cohesion: 0.29
-Nodes (5): handleDownload(), ClosedCashiers(), handleDownloadCashiers(), downloadFile(), Props
+### Community 63 - "sheet.tsx"
+Cohesion: 0.33
+Nodes (6): class-variance-authority, @radix-ui/react-dialog, SheetContent, SheetContentProps, SheetOverlay, sheetVariants
 
-### Community 63 - "Sheet UI Primitive"
-Cohesion: 0.40
-Nodes (5): @radix-ui/react-dialog, SheetContent, SheetContentProps, SheetOverlay, sheetVariants
-
-### Community 64 - "Kitchen Check Order Modal"
+### Community 64 - "CheckOrderModal/index.tsx"
 Cohesion: 0.33
 Nodes (4): CheckOrderModal(), Props, CheckOrderModalLayout(), KitchenContext
 
-### Community 66 - "Backend Auth Gap Findings"
+### Community 66 - "P1: Operational HTTP Routes and Sockets Have No Application Authentication"
 Cohesion: 0.40
 Nodes (5): Security & Configuration (AGENTS.md), P1: Operational HTTP Routes and Sockets Have No Application Authentication, P1: Verify Server-Side Authorization (client-only isAuthorized/isAdmin checks insufficient), index.js (backend entrypoint, socket connections & error middleware), routes.js (backend)
 
-### Community 67 - "Frontend/Backend Contract Findings"
-Cohesion: 0.40
-Nodes (5): Frontend/Backend Compatibility Findings, Partial Payments Do Not Create a Payment Record (existing behavior), PUT /commands/:id?updateTotal=true contract, POST /kitchen/orders/reorder Declared by Frontend but Missing in Backend, PaymentsRepository.create (backend, Luxon UTC-3 DateTime)
+### Community 67 - "Frontend/Backend Compatibility Findings"
+Cohesion: 0.22
+Nodes (9): Socket.IO Real-time Update Pattern (no central event bus), Frontend/Backend Compatibility Findings, kitchen-order-* Socket Event Contracts (created/updated/deleted payload shapes), Partial Payments Do Not Create a Payment Record (existing behavior), PUT /commands/:id?updateTotal=true contract, POST /kitchen/orders/reorder Declared by Frontend but Missing in Backend, Applied Fix: Socket Lifecycle Management (connect/disconnect in effect, per-subscription cleanup), PaymentsRepository.create (backend, Luxon UTC-3 DateTime) (+1 more)
 
-### Community 69 - "Backend P2 Follow-ups"
+### Community 68 - "Command/services/KitchenService.ts"
+Cohesion: 0.22
+Nodes (4): DiminishOrder, KitchenService, Product, Store
+
+### Community 69 - "P2: Error Propagation, Dates, and Inventory Need Follow-up"
 Cohesion: 0.50
 Nodes (4): P2: Error Propagation, Dates, and Inventory Need Follow-up, /webhook/ifood/order Only Logs and Acknowledges, Does Not Persist or Authenticate, P2: Finish Asynchronous and Date Consistency Work ('pt-BR' used as zone, not locale), CashiersRepository.findAll(date) (backend)
 
-### Community 70 - "Dependency Security Findings"
+### Community 70 - "P1: Upgrade Dependencies and Assess Deployment Exposure (Next.js 13.5.11 unsupported)"
 Cohesion: 0.50
 Nodes (4): P1: Upgrade Dependencies and Assess Deployment Exposure (Next.js 13.5.11 unsupported), GHSA-2xp9-vwfh-vxw4 (AVIF Image Optimization RCE), GHSA-p293-qw3h-jr36 (Windows Server RCE), Next.js Support Policy
 
-### Community 71 - "Stock Edit Item Modal"
-Cohesion: 0.67
-Nodes (3): EditModal(), handleSubmit(), onClose()
+### Community 71 - "EditModal"
+Cohesion: 0.50
+Nodes (4): EditModal(), handleMenuImageChange(), handleSubmit(), onClose()
 
-### Community 74 - "Commitizen Config"
+### Community 72 - "Stock/components/NavHeader/index.tsx"
+Cohesion: 0.25
+Nodes (4): NavHeader(), Props, NavHeaderLayout(), StockContext
+
+### Community 74 - "config"
 Cohesion: 0.67
 Nodes (3): path, config, commitizen
 
+### Community 76 - "loadTypeScript.cjs"
+Cohesion: 0.29
+Nodes (6): typescript, { createRequire }, fs, path, ts, vm
+
+### Community 77 - "AddProductsModal/layout.tsx"
+Cohesion: 0.29
+Nodes (5): FavoriteToggle(), filterOptions, ProductNoAmount, productsColumns, Props
+
+### Community 78 - "EditCommandModal/index.tsx"
+Cohesion: 0.29
+Nodes (4): EditCommandInputs, EditCommandModal(), Props, EditCommandModalLayout()
+
+### Community 80 - "AddProductsModal/index.tsx"
+Cohesion: 0.33
+Nodes (4): ProductNoAmount, Props, TODO: check if there are enough amount of product selected in stock, SetAmountModal()
+
+### Community 89 - "DeleteItemModal/index.tsx"
+Cohesion: 0.40
+Nodes (5): DeleteItemModal(), handleCloseModal(), handleDeleteItem(), Props, DeleteItemModalLayout()
+
+### Community 90 - "cashiers.test.cjs"
+Cohesion: 0.33
+Nodes (5): assert, cashiers, { groupCashiersByMonth }, loadTypeScript, test
+
+### Community 91 - "findReservationConflicts.test.cjs"
+Cohesion: 0.33
+Nodes (4): assert, { findReservationConflicts }, loadTypeScript, test
+
+### Community 92 - "getReservationDatePreset.test.cjs"
+Cohesion: 0.33
+Nodes (5): assert, { DateTime }, { getReservationDatePreset }, loadTypeScript, test
+
+### Community 93 - "reports.test.cjs"
+Cohesion: 0.40
+Nodes (5): assert, createService(), grouping, loadTypeScript, test
+
+### Community 94 - "commandBalance.test.cjs"
+Cohesion: 0.40
+Nodes (4): assert, { getCommandBalance }, loadTypeScript, test
+
+### Community 95 - "findSimilarProductGroups.test.cjs"
+Cohesion: 0.40
+Nodes (4): assert, { findSimilarProductGroups }, loadTypeScript, test
+
+### Community 96 - "payments.test.cjs"
+Cohesion: 0.40
+Nodes (4): assert, { calculatePayment }, loadTypeScript, test
+
 ## Knowledge Gaps
-- **404 isolated node(s):** `root`, `browser`, `es2021`, `node`, `plugin:react/recommended` (+399 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 554 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **20 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **412 isolated node(s):** `root`, `browser`, `es2021`, `node`, `plugin:react/recommended` (+407 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 568 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `react` connect `UI Primitives & App Shell` to `Reservations Feature Module`, `Project Dependencies Manifest`, `Modal & UI Primitives`, `Stock Merge Duplicates Modal`, `Cashier Closing Flow`, `Stock Filter Nav Header`, `Table UI Primitives`, `iFood Orders Screen`, `Add Product Modal (Command)`, `Command Products List`, `Command Page & Printing`, `Add Product Modal Layout`, `Commands State & Delete Modal`, `Commands List & Edit Modal`, `Cashier Report Page`, `Kitchen Completed Orders List`, `Reservations Filters & Tabs`, `Stock Delete Item Modal`, `Kitchen Order Reducer`, `Route Navigation Progress Bar`, `Sold Items Page`, `Close Command Modal`, `Kitchen Order Actions & Service`, `Send To Kitchen Modal`, `Commands Add Products Modal`, `Sales Dashboard Charts`, `Command Payment Modal`, `App Shell Layout & Nav`, `Closed Cashiers List`, `Stock Add Item Modal`, `App Header Component`, `Cashier Report Types & Hook`, `Login Feature`, `Draggable Kitchen Order Card`, `Sales Dashboard Nav Header`, `Products List Layout & Hook`, `Add Command Modal`, `Sheet UI Primitive`, `Kitchen Check Order Modal`?**
-  _High betweenness centrality (0.296) - this node is a cross-community bridge._
-- **Why does `@chakra-ui/react` connect `Command Products List` to `UI Primitives & App Shell`, `Reservations Feature Module`, `Project Dependencies Manifest`, `Stock Merge Duplicates Modal`, `Cashier Closing Flow`, `iFood Orders Screen`, `Add Product Modal (Command)`, `Command Page & Printing`, `Commands State & Delete Modal`, `Commands List & Edit Modal`, `Stock Delete Item Modal`, `Kitchen Order Reducer`, `Route Navigation Progress Bar`, `Close Command Modal`, `Kitchen Order Actions & Service`, `Send To Kitchen Modal`, `Commands Add Products Modal`, `Command Payment Modal`, `Stock Add Item Modal`, `App Header Component`, `Login Feature`, `Add Command Modal`, `Kitchen Check Order Modal`?**
-  _High betweenness centrality (0.082) - this node is a cross-community bridge._
-- **Why does `Repository Review` connect `Applied Fixes (Reports & Payments)` to `Backend Auth Gap Findings`, `Backend P2 Follow-ups`, `Dependency Security Findings`, `Backend P1 Findings (Payments)`, `Repository Guidelines (AGENTS.md)`, `Architecture Overview (CLAUDE.md)`?**
-  _High betweenness centrality (0.069) - this node is a cross-community bridge._
+- **Why does `react` connect `react` to `Reservations/index.tsx`, `package.json`, `cn`, `Stock/index.tsx`, `luxon`, `DropdownMenuContent`, `Order/layout.tsx`, `Product`, `Command/layout.tsx`, `Command/index.tsx`, `parseToBRL`, `Commands/index.tsx`, `CommandsList/index.tsx`, `nookies`, `Order`, `Reservations/layout.tsx`, `ItemsTable/index.tsx`, `Kitchen/index.tsx`, `AppShell/layout.tsx`, `SoldItems/layout.tsx`, `PayProductModal/layout.tsx`, `Order/index.tsx`, `MergeDuplicatesModal/index.tsx`, `SendToKitchenModal/index.tsx`, `SalesDashboard/layout.tsx`, `PaymentModal/index.tsx`, `MenuUsers/layout.tsx`, `AppShell/index.tsx`, `AddItemModal/index.tsx`, `Header/layout.tsx`, `Cashier`, `MenuUsers/index.tsx`, `OrdersList/layout.tsx`, `@chakra-ui/react`, `SalesDashboard/NavHeader/index.tsx`, `IfoodOrders/index.tsx`, `AddCommandModal/index.tsx`, `Commands/components/DeleteCommandModal/index.tsx`, `sheet.tsx`, `CheckOrderModal/index.tsx`, `Stock/components/NavHeader/index.tsx`, `AddProductsModal/layout.tsx`, `EditCommandModal/index.tsx`, `AddProductsModal/index.tsx`, `DeleteItemModal/index.tsx`?**
+  _High betweenness centrality (0.310) - this node is a cross-community bridge._
+- **Why does `Repository Review` connect `Repository Review` to `P1: Operational HTTP Routes and Sockets Have No Application Authentication`, `Frontend/Backend Compatibility Findings`, `P2: Error Propagation, Dates, and Inventory Need Follow-up`, `P1: Upgrade Dependencies and Assess Deployment Exposure (Next.js 13.5.11 unsupported)`, `luxon`, `Backend Compatibility and Reliability Review`, `Repository Guidelines (AGENTS.md)`?**
+  _High betweenness centrality (0.085) - this node is a cross-community bridge._
+- **Why does `API_URL` connect `luxon` to `serverApi.ts`, `Project Overview (CLAUDE.md)`?**
+  _High betweenness centrality (0.085) - this node is a cross-community bridge._
 - **What connects `root`, `browser`, `es2021` to the rest of the system?**
-  _404 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `UI Primitives & App Shell` be split into smaller, more focused modules?**
-  _Cohesion score 0.06466916354556804 - nodes in this community are weakly interconnected._
-- **Should `Reservations Feature Module` be split into smaller, more focused modules?**
-  _Cohesion score 0.0647307924984876 - nodes in this community are weakly interconnected._
-- **Should `Test Suite` be split into smaller, more focused modules?**
-  _Cohesion score 0.041666666666666664 - nodes in this community are weakly interconnected._
+  _412 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `react` be split into smaller, more focused modules?**
+  _Cohesion score 0.05516596540439458 - nodes in this community are weakly interconnected._
+- **Should `Reservations/index.tsx` be split into smaller, more focused modules?**
+  _Cohesion score 0.05242566510172144 - nodes in this community are weakly interconnected._
+- **Should `package.json` be split into smaller, more focused modules?**
+  _Cohesion score 0.04081632653061224 - nodes in this community are weakly interconnected._
