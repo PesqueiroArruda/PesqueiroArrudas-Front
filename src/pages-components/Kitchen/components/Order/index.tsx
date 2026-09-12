@@ -2,7 +2,7 @@ import { useToast } from '@chakra-ui/react';
 import { KitchenContext } from 'pages-components/Kitchen';
 import KitchenOrdersService from 'pages-components/Kitchen/services/KitchenOrdersService';
 import { OrderProduct } from 'types/OrderProduct';
-import { useContext, useCallback } from 'react';
+import { useContext, useCallback, memo } from 'react';
 import { Order as OrderProps } from '../../../../types/Order';
 import { OrderLayout } from './layout';
 
@@ -12,7 +12,7 @@ interface Props {
   isDragging: boolean;
 }
 
-export const Order = ({ order, listeners, isDragging }: Props) => {
+export const Order = memo(({ order, listeners, isDragging }: Props) => {
   const { allOrdersDispatch, setIsCheckOrderModalOpen, setOrderToCheck } =
     useContext(KitchenContext);
 
@@ -105,4 +105,6 @@ export const Order = ({ order, listeners, isDragging }: Props) => {
       isDragging={isDragging}
     />
   );
-};
+});
+
+Order.displayName = 'Order';
