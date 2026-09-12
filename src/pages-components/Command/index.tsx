@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-no-constructed-context-values */
 import {
   createContext,
   Dispatch,
@@ -6,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
   useState,
 } from 'react';
@@ -163,25 +163,34 @@ export const Command = ({ commandId }: Props) => {
 
   useEffect(() => {
     let active = true;
-    const onKitchenOrderCreated = async (payload: any) => {
+    // Vários itens podem ser enviados pra cozinha em rajada (um evento por
+    // item) — sem debounce, cada um dispararia seu próprio refetch completo
+    // da comanda. Aqui só a última chamada dentro da janela realmente busca.
+    let refreshTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    const onKitchenOrderCreated = (payload: any) => {
       if (payload.commandId !== commandId) return;
-      try {
-        const { command: commandFound } = await CommandService.getOneCommand({
-          commandId,
-        });
-        if (active) {
-          setCommand(commandFound);
-          productsDispatch({
-            type: 'add-products',
-            payload: commandFound?.products,
+
+      if (refreshTimeout) clearTimeout(refreshTimeout);
+      refreshTimeout = setTimeout(async () => {
+        try {
+          const { command: commandFound } = await CommandService.getOneCommand({
+            commandId,
           });
-          setIsLoading(false);
+          if (active) {
+            setCommand(commandFound);
+            productsDispatch({
+              type: 'add-products',
+              payload: commandFound?.products,
+            });
+            setIsLoading(false);
+          }
+        } catch {
+          if (active) {
+            toast({ status: 'error', title: 'Unable to refresh the command.' });
+          }
         }
-      } catch {
-        if (active) {
-          toast({ status: 'error', title: 'Unable to refresh the command.' });
-        }
-      }
+      }, 300);
     };
     socket.on('kitchen-order-created', onKitchenOrderCreated);
 
@@ -221,6 +230,7 @@ export const Command = ({ commandId }: Props) => {
 
     return () => {
       active = false;
+      if (refreshTimeout) clearTimeout(refreshTimeout);
       socket.off('kitchen-order-created', onKitchenOrderCreated);
       socket.off('command-updated', onCommandUpdated);
       socket.off('command-deleted', onCommandDeleted);
@@ -451,30 +461,46 @@ export const Command = ({ commandId }: Props) => {
     ) / 100;
   const totalToBePayed = tempTotalToBePayed > 0 ? tempTotalToBePayed : 0;
 
+  const contextValue = useMemo(
+    () => ({
+      command,
+      setCommand,
+      productsDispatch,
+      products,
+      isDeleteProductModalOpen,
+      setIsDeleteProductModalOpen,
+      setIsAddProductModalOpen,
+      productIdToDelete,
+      setProductIdToDelete,
+      handleOpenDeleteModal,
+      filter,
+      setFilter,
+      orderBy,
+      setOrderBy,
+      orderByDir,
+      setOrderByDir,
+      searchContent,
+      setSearchContent,
+      stockProductsDispatch,
+    }),
+    [
+      command,
+      productsDispatch,
+      products,
+      isDeleteProductModalOpen,
+      setIsAddProductModalOpen,
+      productIdToDelete,
+      handleOpenDeleteModal,
+      filter,
+      orderBy,
+      orderByDir,
+      searchContent,
+      stockProductsDispatch,
+    ]
+  );
+
   return (
-    <CommandContext.Provider
-      value={{
-        command,
-        setCommand,
-        productsDispatch,
-        products,
-        isDeleteProductModalOpen,
-        setIsDeleteProductModalOpen,
-        setIsAddProductModalOpen,
-        productIdToDelete,
-        setProductIdToDelete,
-        handleOpenDeleteModal,
-        filter,
-        setFilter,
-        orderBy,
-        setOrderBy,
-        orderByDir,
-        setOrderByDir,
-        searchContent,
-        setSearchContent,
-        stockProductsDispatch,
-      }}
-    >
+    <CommandContext.Provider value={contextValue}>
       <CommandLayout
         command={command}
         isLoading={isLoading}
