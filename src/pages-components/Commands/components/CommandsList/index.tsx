@@ -44,7 +44,7 @@ export const CommandsList = () => {
     ({ commandId }: { commandId: string }) => {
       router.push(`/command/${commandId}`);
     },
-    []
+    [router]
   );
 
   const handleOpenAddProductsModal = useCallback((commandId: string) => {
@@ -121,13 +121,17 @@ export const CommandsList = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchContent, filteredBySort, orderByDir]);
 
-  const allSalesWorth = allCommands.reduce((acc: number, command) => {
-    if (!command.total) {
-      return acc;
-    }
+  const allSalesWorth = useMemo(
+    () =>
+      allCommands.reduce((acc: number, command) => {
+        if (!command.total) {
+          return acc;
+        }
 
-    return command.total - (command.discount || 0) + acc;
-  }, 0);
+        return command.total - (command.discount || 0) + acc;
+      }, 0),
+    [allCommands]
+  );
 
 
   return (
