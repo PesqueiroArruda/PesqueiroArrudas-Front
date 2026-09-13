@@ -1,12 +1,17 @@
 import { useCallback, useContext, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 
 import { CommandsContext } from 'pages-components/Commands';
 import { Command } from 'types/Command';
-import { AddProductsModal } from '../AddProductsModal';
 import { CommandsListLayout } from './layout';
 import { EditCommandModal } from '../EditCommandModal';
 import { DeleteCommandModal } from '../DeleteCommandModal';
+
+const AddProductsModal = dynamic(
+  () => import('../AddProductsModal').then((mod) => mod.AddProductsModal),
+  { ssr: false }
+);
 
 export const CommandsList = () => {
   const [commandIdToAddProducts, setCommandIdToAddProducts] = useState('');
