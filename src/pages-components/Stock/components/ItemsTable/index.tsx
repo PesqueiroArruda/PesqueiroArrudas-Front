@@ -1,15 +1,20 @@
 /* eslint-disable no-shadow */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useContext, useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
 
 import { StockContext } from 'pages-components/Stock';
 import { formatDecimalNum } from 'utils/formatDecimalNum';
 import { Item } from 'pages-components/Stock/types/Item';
 import { EMPTY_MENU_CONFIG, MenuConfig } from 'pages-components/Stock/types/Product';
 import { ItemsTableLayout } from './layout';
-import { EditModal } from '../EditModal';
 import { DeleteItemModal } from '../DeleteItemModal';
 import StockService from '../../services';
+
+const EditModal = dynamic(
+  () => import('../EditModal').then((mod) => mod.EditModal),
+  { ssr: false }
+);
 
 export const ItemsTable = () => {
   const [id, setId] = useState(null as null | number | string);
