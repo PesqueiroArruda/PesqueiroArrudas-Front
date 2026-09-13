@@ -2,6 +2,7 @@ import { createContext, useEffect } from 'react';
 import type { AppProps } from 'next/app';
 import { ChakraProvider } from '@chakra-ui/react';
 import { Bitter, Manrope } from 'next/font/google';
+import { useRouter } from 'next/router';
 import io, { Socket } from 'socket.io-client';
 import { API_URL } from 'services/apiConfig';
 import { RouteProgressBar } from 'components/RouteProgressBar';
@@ -32,12 +33,21 @@ const manrope = Manrope({
 });
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const router = useRouter();
+
+  // O login não usa nenhum listener de socket — evita manter uma conexão
+  // aberta com o backend enquanto a tela fica parada ali (ex.: um terminal
+  // deslogado). Conecta normalmente assim que sai do login.
   useEffect(() => {
+    if (router.pathname === '/login') {
+      return undefined;
+    }
+
     socket.connect();
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [router.pathname]);
 
   return (
     <div className={`${bitter.variable} ${manrope.variable}`}>
