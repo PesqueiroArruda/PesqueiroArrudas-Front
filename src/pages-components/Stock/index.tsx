@@ -11,15 +11,20 @@ import {
 } from 'react';
 
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import { SocketContext } from 'pages/_app';
 import { downloadFile } from 'utils/downloadFile';
 import StockService from './services/index';
 import { StockLayout } from './layout';
 import { AddItemModal } from './components/AddItemModal';
-import { MergeDuplicatesModal } from './components/MergeDuplicatesModal';
 import { AutoOrderMenuModal } from './components/AutoOrderMenuModal';
 import { productsReducer } from './reducers/productsReducer';
 import { Product } from './types/Product';
+
+const MergeDuplicatesModal = dynamic(
+  () => import('./components/MergeDuplicatesModal').then((mod) => mod.MergeDuplicatesModal),
+  { ssr: false }
+);
 
 interface Action {
   type:

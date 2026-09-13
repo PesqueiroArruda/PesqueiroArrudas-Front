@@ -11,6 +11,13 @@ const nextConfig = {
       'http2.mlstatic.com',
       'etecspgov-my.sharepoint.com',
     ],
+    formats: ['image/avif', 'image/webp'],
+  },
+  experimental: {
+    optimizePackageImports: ['@chakra-ui/react', 'react-icons', 'lucide-react'],
+  },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error'] } : false,
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   webpack(config, options) {
