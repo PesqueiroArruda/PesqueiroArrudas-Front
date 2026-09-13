@@ -28,25 +28,19 @@ export const MenuItemCard = ({ product, onRemove }: Props) => {
   return (
     <div
       ref={setNodeRef}
+      {...attributes}
+      {...listeners}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
         touchAction: 'none',
       }}
       className={cn(
-        'flex items-center gap-2 rounded-card border border-border bg-card p-2.5',
+        'flex cursor-grab items-center gap-2 rounded-card border border-border bg-card p-2.5 active:cursor-grabbing',
         isDragging ? 'shadow-lg' : 'shadow-sm'
       )}
     >
-      <button
-        type="button"
-        {...attributes}
-        {...listeners}
-        aria-label="Arrastar para reordenar"
-        className="flex h-8 w-8 shrink-0 cursor-grab items-center justify-center text-text-muted active:cursor-grabbing"
-      >
-        <GripVertical className="h-4 w-4" />
-      </button>
+      <GripVertical className="h-4 w-4 shrink-0 text-text-muted" />
 
       {imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -71,6 +65,7 @@ export const MenuItemCard = ({ product, onRemove }: Props) => {
       <button
         type="button"
         onClick={() => onRemove(product)}
+        onPointerDown={(e) => e.stopPropagation()}
         aria-label="Remover do cardápio"
         className="flex h-8 w-8 shrink-0 items-center justify-center text-text-muted hover:text-destructive"
       >

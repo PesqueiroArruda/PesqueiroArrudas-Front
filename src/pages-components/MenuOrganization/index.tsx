@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useToast } from '@chakra-ui/react';
-import { DragEndEvent } from '@dnd-kit/core';
+import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 
 import { SocketContext } from 'pages/_app';
@@ -27,6 +27,31 @@ function mergeCategoryOrder(savedOrder: string[]) {
   return [...valid, ...missing];
 }
 
+function normalizeCategoryText(value: string) {
+  return value.trim().toLowerCase();
+}
+
+const CANONICAL_CATEGORY_BY_NORMALIZED: Record<string, string> =
+  MENU_CATEGORIES.reduce(
+    (acc, category) => ({
+      ...acc,
+      [normalizeCategoryText(category)]: category,
+    }),
+    {} as Record<string, string>
+  );
+
+// Reconhece uma categoria salva mesmo com maiúsculas/espaços diferentes do
+// texto padronizado (ex.: "especialidades" ou "Especialidades " ainda contam
+// como "Especialidades") — evita que itens corretos caiam em "Sem categoria
+// padrão" só por causa de uma diferença de digitação.
+function resolveMenuCategory(rawCategory?: string): string {
+  if (!rawCategory) return UNCATEGORIZED;
+  return (
+    CANONICAL_CATEGORY_BY_NORMALIZED[normalizeCategoryText(rawCategory)] ||
+    UNCATEGORIZED
+  );
+}
+
 export const MenuOrganization = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categoryOrder, setCategoryOrder] = useState<string[]>([
@@ -34,6 +59,7 @@ export const MenuOrganization = () => {
   ]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [activeProduct, setActiveProduct] = useState<Product | null>(null);
 
   const { socket } = useContext(SocketContext);
   const router = useRouter();
@@ -41,13 +67,56 @@ export const MenuOrganization = () => {
 
   useEffect(() => {
     (async () => {
-      const [allProducts, savedCategoryOrder] = await Promise.all([
-        StockService.getAllProducts(),
-        MenuOrganizationService.getCategoryOrder(),
-      ]);
-      setProducts(allProducts);
-      setCategoryOrder(mergeCategoryOrder(savedCategoryOrder));
-      setIsLoading(false);
+      try {
+        const [allProducts, savedCategoryOrder] = await Promise.all([
+          StockService.getAllProducts(),
+          MenuOrganizationService.getCategoryOrder(),
+        ]);
+
+        // Autocorrige itens habilitados cuja categoria salva só difere da
+        // padronizada por maiúsculas/espaços (ex.: "especialidades" salva
+        // como "Especialidades"), tanto na tela quanto no banco.
+        const correctedProducts = allProducts.map((product: Product) => {
+          const rawCategory = product.menu?.category;
+          if (!product.menu?.enabled || !rawCategory) return product;
+
+          const canonical = resolveMenuCategory(rawCategory);
+          if (canonical === UNCATEGORIZED || canonical === rawCategory)
+            return product;
+
+          return { ...product, menu: { ...product.menu, category: canonical } };
+        });
+
+        setProducts(correctedProducts);
+        setCategoryOrder(mergeCategoryOrder(savedCategoryOrder));
+
+        const toFix = correctedProducts.filter(
+          (product: Product, index: number) =>
+            product.menu?.category !== allProducts[index].menu?.category
+        );
+        if (toFix.length > 0) {
+          Promise.all(
+            toFix.map((product: Product) => StockService.updateProduct(product))
+          ).catch(() => {
+            toast({
+              status: 'error',
+              title:
+                'Algumas categorias foram corrigidas só na tela — recarregue a página pra tentar salvar de novo.',
+              duration: 5000,
+              isClosable: true,
+            });
+          });
+        }
+      } catch {
+        toast({
+          status: 'error',
+          title: 'Falha ao carregar o cardápio. Recarregue a página.',
+          duration: 4000,
+          isClosable: true,
+        });
+      } finally {
+        setIsLoading(false);
+      }
     })();
   }, []);
 
@@ -103,11 +172,7 @@ export const MenuOrganization = () => {
     products
       .filter((product) => product.menu?.enabled)
       .forEach((product) => {
-        const category = product.menu?.category;
-        const key =
-          category && (MENU_CATEGORIES as readonly string[]).includes(category)
-            ? category
-            : UNCATEGORIZED;
+        const key = resolveMenuCategory(product.menu?.category);
         groups[key].push(product);
       });
 
@@ -186,8 +251,23 @@ export const MenuOrganization = () => {
     [applyLocalUpdates, persistUpdates]
   );
 
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const id = String(event.active.id);
+      const found = products.find((product) => product._id === id);
+      setActiveProduct(found || null);
+    },
+    [products]
+  );
+
+  const handleDragCancel = useCallback(() => {
+    setActiveProduct(null);
+  }, []);
+
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
+      setActiveProduct(null);
+
       const { active, over } = event;
       if (!over) return;
 
@@ -307,7 +387,10 @@ export const MenuOrganization = () => {
       categoryOrder={categoryOrder}
       groupedByCategory={groupedByCategory}
       itemsNotInMenu={itemsNotInMenu}
+      activeProduct={activeProduct}
+      handleDragStart={handleDragStart}
       handleDragEnd={handleDragEnd}
+      handleDragCancel={handleDragCancel}
       handleAddToMenu={handleAddToMenu}
       handleRemoveFromMenu={handleRemoveFromMenu}
       handleReorderCategories={handleReorderCategories}

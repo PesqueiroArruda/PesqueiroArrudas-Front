@@ -1,11 +1,18 @@
 import { Loader2 } from 'lucide-react';
-import { DndContext, DragEndEvent, closestCorners } from '@dnd-kit/core';
+import {
+  DndContext,
+  DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
+  closestCorners,
+} from '@dnd-kit/core';
 
 import { AppShell } from 'components/AppShell';
 import { Product } from 'pages-components/Stock/types/Product';
 import { AddToMenuPanel } from './components/AddToMenuPanel';
 import { CategoryColumn } from './components/CategoryColumn';
 import { CategoryOrderList } from './components/CategoryOrderList';
+import { MenuItemDragPreview } from './components/MenuItemDragPreview';
 import { UNCATEGORIZED } from './constants';
 
 interface Props {
@@ -13,7 +20,10 @@ interface Props {
   categoryOrder: string[];
   groupedByCategory: Record<string, Product[]>;
   itemsNotInMenu: Product[];
+  activeProduct: Product | null;
+  handleDragStart: (event: DragStartEvent) => void;
   handleDragEnd: (event: DragEndEvent) => void;
+  handleDragCancel: () => void;
   handleAddToMenu: (product: Product, category: string) => void;
   handleRemoveFromMenu: (product: Product) => void;
   handleReorderCategories: (categoryOrder: string[]) => void;
@@ -25,7 +35,10 @@ export const MenuOrganizationLayout = ({
   categoryOrder,
   groupedByCategory,
   itemsNotInMenu,
+  activeProduct,
+  handleDragStart,
   handleDragEnd,
+  handleDragCancel,
   handleAddToMenu,
   handleRemoveFromMenu,
   handleReorderCategories,
@@ -63,7 +76,9 @@ export const MenuOrganizationLayout = ({
         ) : (
           <DndContext
             collisionDetection={closestCorners}
+            onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
+            onDragCancel={handleDragCancel}
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {categoryOrder.map((category) => (
@@ -84,6 +99,9 @@ export const MenuOrganizationLayout = ({
                 />
               )}
             </div>
+            <DragOverlay>
+              {activeProduct && <MenuItemDragPreview product={activeProduct} />}
+            </DragOverlay>
           </DndContext>
         )}
       </div>
