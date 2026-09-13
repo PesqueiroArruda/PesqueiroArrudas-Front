@@ -10,6 +10,7 @@ import {
   useState,
 } from 'react';
 
+import dynamic from 'next/dynamic';
 import { useToast } from '@chakra-ui/react';
 import { Command as CommandType } from 'types/Command';
 import { useRouter } from 'next/router';
@@ -19,17 +20,25 @@ import { useReactToPrint } from 'react-to-print';
 import { DateTimeFormatOptions } from 'luxon';
 import { parseToBRL } from 'utils/parseToBRL';
 import { productsReducer } from './reducers/productsReducer';
-import { AddProductModal } from './components/AddProductModal';
 import { DeleteProductModal } from './components/DeleteProductModal';
 import { CommandLayout } from './layout';
 import CommandService from './services/CommandService';
-import { PaymentModal } from './components/PaymentModal';
 import ProductsService from './services/ProductsService';
 import { stockProductsReducer } from './reducers/stockProductsReducer';
 import { DeleteCommandModal } from './components/DeleteCommandModal';
 import { SendToKitchenModal } from './components/SendToKitchenModal';
 import { CloseCommandModal } from './components/CloseCommandModal';
 import { DiscountModal } from './components/DiscountModal';
+
+// Modais grandes que só importam quando abertos, não no carregamento da tela.
+const AddProductModal = dynamic(
+  () => import('./components/AddProductModal').then((mod) => mod.AddProductModal),
+  { ssr: false }
+);
+const PaymentModal = dynamic(
+  () => import('./components/PaymentModal').then((mod) => mod.PaymentModal),
+  { ssr: false }
+);
 
 interface StockProductsAction {
   type:
