@@ -11,11 +11,27 @@ import {
   MENU_CATEGORIES,
   Product,
 } from 'pages-components/Stock/types/Product';
+import MenuOrganizationService from './services';
 import { MenuOrganizationLayout } from './layout';
 import { UNCATEGORIZED } from './constants';
 
+// Preenche categorias padrão que ainda não constam na ordem salva (ex.: uma
+// categoria nova adicionada ao código depois do último salvamento) e ignora
+// entradas salvas que não são mais uma categoria padrão.
+function mergeCategoryOrder(savedOrder: string[]) {
+  const known = new Set<string>(MENU_CATEGORIES);
+  const valid = savedOrder.filter((category) => known.has(category));
+  const missing = MENU_CATEGORIES.filter(
+    (category) => !valid.includes(category)
+  );
+  return [...valid, ...missing];
+}
+
 export const MenuOrganization = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categoryOrder, setCategoryOrder] = useState<string[]>([
+    ...MENU_CATEGORIES,
+  ]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -25,11 +41,33 @@ export const MenuOrganization = () => {
 
   useEffect(() => {
     (async () => {
-      const allProducts = await StockService.getAllProducts();
+      const [allProducts, savedCategoryOrder] = await Promise.all([
+        StockService.getAllProducts(),
+        MenuOrganizationService.getCategoryOrder(),
+      ]);
       setProducts(allProducts);
+      setCategoryOrder(mergeCategoryOrder(savedCategoryOrder));
       setIsLoading(false);
     })();
   }, []);
+
+  const handleReorderCategories = useCallback(
+    async (newOrder: string[]) => {
+      setCategoryOrder(newOrder);
+
+      try {
+        await MenuOrganizationService.updateCategoryOrder(newOrder);
+      } catch {
+        toast({
+          status: 'error',
+          title: 'Falha ao salvar a ordem das categorias. Tente novamente.',
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    },
+    [toast]
+  );
 
   useEffect(() => {
     const isAdminUse = localStorage.getItem('isAdmin') === 'true';
@@ -266,11 +304,13 @@ export const MenuOrganization = () => {
   return (
     <MenuOrganizationLayout
       isLoading={isLoading}
+      categoryOrder={categoryOrder}
       groupedByCategory={groupedByCategory}
       itemsNotInMenu={itemsNotInMenu}
       handleDragEnd={handleDragEnd}
       handleAddToMenu={handleAddToMenu}
       handleRemoveFromMenu={handleRemoveFromMenu}
+      handleReorderCategories={handleReorderCategories}
       handleGoToStock={handleGoToStock}
     />
   );

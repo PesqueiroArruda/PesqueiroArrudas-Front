@@ -2,28 +2,33 @@ import { Loader2 } from 'lucide-react';
 import { DndContext, DragEndEvent, closestCorners } from '@dnd-kit/core';
 
 import { AppShell } from 'components/AppShell';
-import { MENU_CATEGORIES, Product } from 'pages-components/Stock/types/Product';
+import { Product } from 'pages-components/Stock/types/Product';
 import { AddToMenuPanel } from './components/AddToMenuPanel';
 import { CategoryColumn } from './components/CategoryColumn';
+import { CategoryOrderList } from './components/CategoryOrderList';
 import { UNCATEGORIZED } from './constants';
 
 interface Props {
   isLoading: boolean;
+  categoryOrder: string[];
   groupedByCategory: Record<string, Product[]>;
   itemsNotInMenu: Product[];
   handleDragEnd: (event: DragEndEvent) => void;
   handleAddToMenu: (product: Product, category: string) => void;
   handleRemoveFromMenu: (product: Product) => void;
+  handleReorderCategories: (categoryOrder: string[]) => void;
   handleGoToStock: () => void;
 }
 
 export const MenuOrganizationLayout = ({
   isLoading,
+  categoryOrder,
   groupedByCategory,
   itemsNotInMenu,
   handleDragEnd,
   handleAddToMenu,
   handleRemoveFromMenu,
+  handleReorderCategories,
   handleGoToStock,
 }: Props) => {
   const hasUncategorized = groupedByCategory[UNCATEGORIZED]?.length > 0;
@@ -46,6 +51,11 @@ export const MenuOrganizationLayout = ({
           onAdd={handleAddToMenu}
         />
 
+        <CategoryOrderList
+          categoryOrder={categoryOrder}
+          onReorder={handleReorderCategories}
+        />
+
         {isLoading ? (
           <div className="flex justify-center py-16">
             <Loader2 className="h-8 w-8 animate-spin text-gold" />
@@ -56,7 +66,7 @@ export const MenuOrganizationLayout = ({
             onDragEnd={handleDragEnd}
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {MENU_CATEGORIES.map((category) => (
+              {categoryOrder.map((category) => (
                 <CategoryColumn
                   key={category}
                   categoryKey={category}
