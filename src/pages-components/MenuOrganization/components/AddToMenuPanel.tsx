@@ -3,6 +3,7 @@ import { PackagePlus } from 'lucide-react';
 
 import { Button } from 'components/ui/button';
 import { MENU_CATEGORIES, Product } from 'pages-components/Stock/types/Product';
+import { StockItemSearch } from './StockItemSearch';
 
 interface Props {
   itemsNotInMenu: Product[];
@@ -13,37 +14,27 @@ const selectClassName =
   'h-10 w-full rounded-(--radius) border border-input bg-card px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
 export const AddToMenuPanel = ({ itemsNotInMenu, onAdd }: Props) => {
-  const [selectedProductId, setSelectedProductId] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>(
     MENU_CATEGORIES[0]
   );
 
   function handleAdd() {
-    const product = itemsNotInMenu.find(
-      (item) => item._id === selectedProductId
-    );
-    if (!product) return;
+    if (!selectedProduct) return;
 
-    onAdd(product, selectedCategory);
-    setSelectedProductId('');
+    onAdd(selectedProduct, selectedCategory);
+    setSelectedProduct(null);
   }
 
   return (
     <div className="flex flex-col gap-3 rounded-card border border-border bg-card p-4 shadow-sm sm:flex-row sm:items-end">
       <div className="flex-1">
         <span className="text-sm font-semibold text-navy">Item do estoque</span>
-        <select
-          value={selectedProductId}
-          onChange={(e) => setSelectedProductId(e.target.value)}
-          className={selectClassName}
-        >
-          <option value="">Selecione um item para adicionar ao cardápio</option>
-          {itemsNotInMenu.map((item) => (
-            <option key={item._id} value={item._id || ''}>
-              {item.name} ({item.category})
-            </option>
-          ))}
-        </select>
+        <StockItemSearch
+          items={itemsNotInMenu}
+          selectedProduct={selectedProduct}
+          onSelect={setSelectedProduct}
+        />
       </div>
 
       <div className="sm:w-56">
@@ -63,7 +54,7 @@ export const AddToMenuPanel = ({ itemsNotInMenu, onAdd }: Props) => {
         </select>
       </div>
 
-      <Button type="button" onClick={handleAdd} disabled={!selectedProductId}>
+      <Button type="button" onClick={handleAdd} disabled={!selectedProduct}>
         <PackagePlus className="h-4 w-4" />
         Adicionar ao Cardápio
       </Button>
