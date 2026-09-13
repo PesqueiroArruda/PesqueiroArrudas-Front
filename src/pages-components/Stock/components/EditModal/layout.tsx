@@ -6,6 +6,7 @@ import { Input } from 'components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from 'components/ui/tabs';
 import { MENU_CATEGORIES } from '../../types/Product';
 import type { Item } from '../../types/Item';
+import { MenuImageUpload } from './components/MenuImageUpload';
 
 interface Props {
   isEditModalOpen: boolean;
@@ -15,7 +16,8 @@ interface Props {
   handleSubmit: any;
   handleChangeUnitPrice: any;
   isSubmitting: boolean;
-  handleMenuImageChange: any;
+  handleMenuImageChange: (file: File) => void;
+  handleRemoveMenuImage: () => void;
   isUploadingImage: boolean;
   localPreviewUrl: string;
 }
@@ -44,6 +46,7 @@ export const EditModalLayout = ({
   handleChangeUnitPrice,
   isSubmitting,
   handleMenuImageChange,
+  handleRemoveMenuImage,
   isUploadingImage,
   localPreviewUrl,
 }: Props) => {
@@ -153,25 +156,15 @@ export const EditModalLayout = ({
             <span className="text-sm font-semibold text-navy">
               Foto do cardápio
             </span>
-            {currentImageUrl && (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={currentImageUrl}
-                alt="Foto atual do cardápio"
-                className="h-24 w-24 rounded-lg object-cover"
-              />
-            )}
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              disabled={isUploadingImage}
-              onChange={handleMenuImageChange}
+            <MenuImageUpload
+              imageUrl={currentImageUrl}
+              isUploading={isUploadingImage}
+              onFileSelected={handleMenuImageChange}
+              onRemove={handleRemoveMenuImage}
             />
-            {isUploadingImage && (
-              <span className="flex items-center gap-2 text-sm text-text-muted">
-                <Loader2 className="h-4 w-4 animate-spin" /> Enviando imagem...
-              </span>
-            )}
+            <p className="text-xs text-text-muted">
+              JPEG, PNG ou WebP, até 5MB.
+            </p>
           </TabsContent>
         </Tabs>
 

@@ -9,6 +9,9 @@ import StockService from '../../services/index';
 import { EditModalLayout } from './layout';
 import type { Item } from '../../types/Item';
 
+const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+
 interface Props {
   itemInfos: Item;
   isEditModalOpen: boolean;
@@ -26,9 +29,15 @@ export const EditModal = ({
   const [localPreviewUrl, setLocalPreviewUrl] = useState('');
   const toast = useToast();
 
-  async function handleMenuImageChange(e: any) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  async function handleMenuImageChange(file: File) {
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      toast({ status: 'error', title: 'Use uma imagem JPEG, PNG ou WebP.' });
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      toast({ status: 'error', title: 'A imagem precisa ter até 5MB.' });
+      return;
+    }
 
     // Preview instantâneo a partir do próprio arquivo escolhido — evita
     // depender de buscar a imagem pela URL pública do R2 assim que o
@@ -44,7 +53,11 @@ export const EditModal = ({
         contentType: file.type,
       });
 
-      await uploadFileToPresignedUrl({ uploadUrl, file, contentType: file.type });
+      await uploadFileToPresignedUrl({
+        uploadUrl,
+        file,
+        contentType: file.type,
+      });
 
       itemInfos.setMenu((prev) => ({ ...prev, imageKey }));
       toast({ status: 'success', title: 'Imagem enviada!' });
@@ -56,6 +69,12 @@ export const EditModal = ({
     } finally {
       setIsUploadingImage(false);
     }
+  }
+
+  function handleRemoveMenuImage() {
+    if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+    setLocalPreviewUrl('');
+    itemInfos.setMenu((prev) => ({ ...prev, imageKey: '' }));
   }
 
   async function handleSubmit(e: any) {
@@ -165,6 +184,7 @@ export const EditModal = ({
       handleChangeUnitPrice={handleChangeUnitPrice}
       isSubmitting={isSubmitting}
       handleMenuImageChange={handleMenuImageChange}
+      handleRemoveMenuImage={handleRemoveMenuImage}
       isUploadingImage={isUploadingImage}
       localPreviewUrl={localPreviewUrl}
     />
