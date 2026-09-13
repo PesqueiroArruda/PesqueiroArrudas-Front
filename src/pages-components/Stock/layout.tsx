@@ -1,5 +1,6 @@
 import { SetStateAction, Dispatch } from 'react';
-import { Merge, PackagePlus, ArrowUpDown } from 'lucide-react';
+import { useRouter } from 'next/router';
+import { Merge, PackagePlus, ArrowUpDown, UtensilsCrossed } from 'lucide-react';
 
 import { AppShell } from 'components/AppShell';
 import { Button } from 'components/ui/button';
@@ -28,31 +29,55 @@ export const StockLayout = ({
   setIsAutoOrderModalOpen,
   handleGoToHome,
   handleDownload,
-}: Props) => (
-  <AppShell hasBackPageBtn handleBackPage={handleGoToHome}>
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="font-heading text-xl font-extrabold text-navy sm:text-2xl">Estoque</h1>
-        <div className="flex gap-3">
-          <Button onClick={handleDownload} variant="secondary">
-            Baixar Dados
-          </Button>
-          <Button onClick={() => setIsMergeDuplicatesModalOpen(true)} variant="secondary">
-            <Merge className="h-4 w-4" />
-            Juntar Duplicados
-          </Button>
-          <Button onClick={() => setIsAutoOrderModalOpen(true)} variant="secondary">
-            <ArrowUpDown className="h-4 w-4" />
-            Ordenar Cardápio
-          </Button>
-          <Button onClick={() => setIsAddItemModalOpen(true)}>
-            <PackagePlus className="h-4 w-4" />
-            Adicionar Item
-          </Button>
+}: Props) => {
+  const router = useRouter();
+
+  return (
+    <AppShell hasBackPageBtn handleBackPage={handleGoToHome}>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <h1 className="font-heading text-xl font-extrabold text-navy sm:text-2xl">
+            Estoque
+          </h1>
+          <div className="flex gap-3">
+            <Button onClick={handleDownload} variant="secondary">
+              Baixar Dados
+            </Button>
+            <Button
+              onClick={() => setIsMergeDuplicatesModalOpen(true)}
+              variant="secondary"
+            >
+              <Merge className="h-4 w-4" />
+              Juntar Duplicados
+            </Button>
+            <Button
+              onClick={() => setIsAutoOrderModalOpen(true)}
+              variant="secondary"
+            >
+              <ArrowUpDown className="h-4 w-4" />
+              Auto-ordenar Cardápio
+            </Button>
+            <Button
+              onClick={() => router.push('/menu-organization')}
+              variant="secondary"
+            >
+              <UtensilsCrossed className="h-4 w-4" />
+              Organizar Cardápio
+            </Button>
+            <Button onClick={() => setIsAddItemModalOpen(true)}>
+              <PackagePlus className="h-4 w-4" />
+              Adicionar Item
+            </Button>
+          </div>
         </div>
+        <NavHeader
+          filters={filters}
+          setFilters={setFilters}
+          orderBy={orderBy}
+          setOrderBy={setOrderBy}
+        />
+        <ItemsTable />
       </div>
-      <NavHeader filters={filters} setFilters={setFilters} orderBy={orderBy} setOrderBy={setOrderBy} />
-      <ItemsTable />
-    </div>
-  </AppShell>
-);
+    </AppShell>
+  );
+};

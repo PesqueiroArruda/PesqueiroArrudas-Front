@@ -1,3 +1,14 @@
+export const MENU_CATEGORIES = [
+  'Especialidades',
+  'Porções',
+  'Prato Kids',
+  'Acompanhamentos',
+  'Bebidas',
+  'Sobremesas',
+] as const;
+
+export type MenuCategory = (typeof MENU_CATEGORIES)[number];
+
 export interface MenuConfig {
   enabled: boolean;
   description: string;

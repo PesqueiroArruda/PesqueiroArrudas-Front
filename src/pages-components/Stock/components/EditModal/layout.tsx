@@ -3,8 +3,8 @@ import { Loader2 } from 'lucide-react';
 import { Modal } from 'components/Modal';
 import { Button } from 'components/ui/button';
 import { Input } from 'components/ui/input';
-import { Label } from 'components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from 'components/ui/tabs';
+import { MENU_CATEGORIES } from '../../types/Product';
 import type { Item } from '../../types/Item';
 
 interface Props {
@@ -64,7 +64,11 @@ export const EditModalLayout = ({
 
           <TabsContent value="produto" className="flex flex-col gap-3">
             <span className="text-sm font-semibold text-navy">Nome</span>
-            <Input placeholder="Nome" value={itemInfos.name} onChange={(e) => itemInfos.setName(e.target.value)} />
+            <Input
+              placeholder="Nome"
+              value={itemInfos.name}
+              onChange={(e) => itemInfos.setName(e.target.value)}
+            />
 
             <span className="text-sm font-semibold text-navy">Categoria</span>
             <select
@@ -77,8 +81,14 @@ export const EditModalLayout = ({
               ))}
             </select>
 
-            <span className="text-sm font-semibold text-navy">Preço da unidade</span>
-            <Input placeholder="Preço da Unidade" value={itemInfos.unitPrice || ''} onChange={(e) => handleChangeUnitPrice(e)} />
+            <span className="text-sm font-semibold text-navy">
+              Preço da unidade
+            </span>
+            <Input
+              placeholder="Preço da Unidade"
+              value={itemInfos.unitPrice || ''}
+              onChange={(e) => handleChangeUnitPrice(e)}
+            />
 
             <span className="text-sm font-semibold text-navy">Quantidade</span>
             <Input
@@ -90,44 +100,66 @@ export const EditModalLayout = ({
           </TabsContent>
 
           <TabsContent value="cardapio" className="flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <input
-                id="menu-enabled"
-                type="checkbox"
-                checked={!!itemInfos.menu?.enabled}
-                onChange={(e) =>
-                  itemInfos.setMenu((prev) => ({ ...prev, enabled: e.target.checked }))
+            <span className="text-sm font-semibold text-navy">
+              Categoria no cardápio digital
+            </span>
+            <select
+              value={
+                itemInfos.menu?.enabled ? itemInfos.menu.category || '' : ''
+              }
+              onChange={(e) => {
+                const { value } = e.target;
+                if (!value) {
+                  itemInfos.setMenu((prev) => ({ ...prev, enabled: false }));
+                  return;
                 }
-              />
-              <Label htmlFor="menu-enabled">Aparece no cardápio digital</Label>
-            </div>
+                itemInfos.setMenu((prev) => ({
+                  ...prev,
+                  enabled: true,
+                  category: value,
+                }));
+              }}
+              className={selectClassName}
+            >
+              <option value="">Não exibir no cardápio</option>
+              {MENU_CATEGORIES.map((menuCategory) => (
+                <option
+                  key={`edit-menu-categorie-${menuCategory}`}
+                  value={menuCategory}
+                >
+                  {menuCategory}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-text-muted">
+              A posição do item dentro da categoria é definida na tela de
+              Organização do Cardápio.
+            </p>
 
-            <span className="text-sm font-semibold text-navy">Categoria do cardápio</span>
-            <Input
-              placeholder="Ex.: Hambúrgueres, Bebidas"
-              value={itemInfos.menu?.category || ''}
-              onChange={(e) => itemInfos.setMenu((prev) => ({ ...prev, category: e.target.value }))}
-            />
-
-            <span className="text-sm font-semibold text-navy">Descrição do cardápio</span>
+            <span className="text-sm font-semibold text-navy">
+              Descrição do cardápio
+            </span>
             <Input
               placeholder="Descrição pro cliente final"
               value={itemInfos.menu?.description || ''}
-              onChange={(e) => itemInfos.setMenu((prev) => ({ ...prev, description: e.target.value }))}
+              onChange={(e) =>
+                itemInfos.setMenu((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
             />
 
-            <span className="text-sm font-semibold text-navy">Ordem de exibição</span>
-            <Input
-              type="number"
-              placeholder="0"
-              value={itemInfos.menu?.order ?? 0}
-              onChange={(e) => itemInfos.setMenu((prev) => ({ ...prev, order: Number(e.target.value) }))}
-            />
-
-            <span className="text-sm font-semibold text-navy">Foto do cardápio</span>
+            <span className="text-sm font-semibold text-navy">
+              Foto do cardápio
+            </span>
             {currentImageUrl && (
               /* eslint-disable-next-line @next/next/no-img-element */
-              <img src={currentImageUrl} alt="Foto atual do cardápio" className="h-24 w-24 rounded-lg object-cover" />
+              <img
+                src={currentImageUrl}
+                alt="Foto atual do cardápio"
+                className="h-24 w-24 rounded-lg object-cover"
+              />
             )}
             <input
               type="file"
