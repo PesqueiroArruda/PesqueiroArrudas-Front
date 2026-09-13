@@ -1,10 +1,13 @@
 import { Loader2 } from 'lucide-react';
 import {
+  CollisionDetection,
   DndContext,
   DragEndEvent,
   DragStartEvent,
   DragOverlay,
   closestCorners,
+  pointerWithin,
+  rectIntersection,
 } from '@dnd-kit/core';
 
 import { AppShell } from 'components/AppShell';
@@ -14,6 +17,20 @@ import { CategoryColumn } from './components/CategoryColumn';
 import { CategoryOrderList } from './components/CategoryOrderList';
 import { MenuItemDragPreview } from './components/MenuItemDragPreview';
 import { UNCATEGORIZED } from './constants';
+
+// closestCorners sozinho pode "perder" o destino em grades de várias
+// colunas lado a lado (o item volta pro lugar de origem mesmo depois de
+// solto sobre outra categoria). Prioriza onde o ponteiro está de fato,
+// caindo pra interseção de retângulos e só depois pra distância de cantos.
+const collisionDetectionStrategy: CollisionDetection = (args) => {
+  const pointerCollisions = pointerWithin(args);
+  if (pointerCollisions.length > 0) return pointerCollisions;
+
+  const intersections = rectIntersection(args);
+  if (intersections.length > 0) return intersections;
+
+  return closestCorners(args);
+};
 
 interface Props {
   isLoading: boolean;
@@ -75,7 +92,7 @@ export const MenuOrganizationLayout = ({
           </div>
         ) : (
           <DndContext
-            collisionDetection={closestCorners}
+            collisionDetection={collisionDetectionStrategy}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onDragCancel={handleDragCancel}
