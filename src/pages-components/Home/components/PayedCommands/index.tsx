@@ -6,6 +6,7 @@ import { DateTime } from 'luxon';
 import { get10PastDays } from 'utils/get10PastDays';
 import { Payment } from 'pages-components/Home/types/Payment';
 import PaymentsService from 'pages-components/Home/services/PaymentsService';
+import CommandService from 'pages-components/Home/services/CommandService';
 import { SocketContext } from 'pages/_app';
 import { PayedCommandsLayout } from './layout';
 import { CloseCashier } from '../CloseCahier';
@@ -15,6 +16,7 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
     get10PastDays()[0].formatted
   );
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [pendingCommandsDates, setPendingCommandsDates] = useState<string[]>([]);
 
   const [isGettingPayments, setIsGettingPayments] = useState(true);
   const [isCloseCashierModalOpen, setIsCloseCashierModalOpen] = useState(false);
@@ -73,6 +75,33 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
     };
     loadPayments();
 
+    const loadPendingCommandsDates = async () => {
+      try {
+        const activeCommands = await CommandService.getTodayCommands({
+          isActive: 'true',
+        });
+        if (!active) return;
+
+        const otherDates = new Set<string>();
+        activeCommands?.forEach(({ createdAt }: { createdAt: string }) => {
+          const formatted = DateTime.fromISO(createdAt, {
+            zone: 'America/Sao_Paulo',
+            setZone: true,
+          })
+            .setLocale('pt-BR')
+            .toLocaleString(DateTime.DATE_FULL);
+
+          if (formatted && formatted !== payedCommandsDate) {
+            otherDates.add(formatted);
+          }
+        });
+        setPendingCommandsDates([...otherDates]);
+      } catch {
+        if (active) setPendingCommandsDates([]);
+      }
+    };
+    loadPendingCommandsDates();
+
     return () => {
       active = false;
       socket.off('payment-created', onPaymentCreated);
@@ -101,6 +130,7 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
         payedCommandsDate={payedCommandsDate}
         setPayedCommandsDate={setPayedCommandsDate}
         payments={payments}
+        pendingCommandsDates={pendingCommandsDates}
         handleGoToCommandPage={handleGoToCommandPage}
         handleCloseCashier={handleCloseCashier}
         isGettingPayments={isGettingPayments}

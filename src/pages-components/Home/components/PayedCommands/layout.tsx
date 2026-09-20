@@ -1,5 +1,5 @@
 /* eslint-disable react/destructuring-assignment */
-import { Wallet, Loader2, ArrowRight } from 'lucide-react';
+import { Wallet, Loader2, ArrowRight, AlertTriangle } from 'lucide-react';
 import { DateTime } from 'luxon';
 
 import { Button } from 'components/ui/button';
@@ -12,6 +12,7 @@ interface Props {
   payedCommandsDate: any;
   setPayedCommandsDate: any;
   payments: Payment[];
+  pendingCommandsDates: string[];
   handleGoToCommandPage: (commandId: string) => void;
   handleCloseCashier: () => void;
   isGettingPayments: boolean;
@@ -23,6 +24,7 @@ export const PayedCommandsLayout = ({
   payedCommandsDate,
   setPayedCommandsDate,
   payments,
+  pendingCommandsDates,
   handleGoToCommandPage,
   handleCloseCashier,
   isGettingPayments,
@@ -32,6 +34,16 @@ export const PayedCommandsLayout = ({
   const past10Days = get10PastDays();
   return (
     <div className="flex flex-col gap-5">
+      {pendingCommandsDates.length > 0 && (
+        <div className="flex items-start gap-2 rounded-card border border-gold bg-gold/10 px-4 py-3 text-sm text-navy">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+          <p>
+            Há comandas em aberto de <span className="font-bold">{pendingCommandsDates.join(', ')}</span>. Confira
+            antes de fechar o caixa.
+          </p>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="font-heading text-xl font-extrabold text-navy sm:text-2xl">Comandas Pagas</h2>
 
