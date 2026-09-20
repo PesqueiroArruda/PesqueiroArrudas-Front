@@ -1,5 +1,5 @@
 /* eslint-disable react/destructuring-assignment */
-import { Wallet, Loader2, ArrowRight, AlertTriangle } from 'lucide-react';
+import { Wallet, Loader2, ArrowRight, AlertTriangle, Pencil } from 'lucide-react';
 import { DateTime } from 'luxon';
 
 import { Button } from 'components/ui/button';
@@ -18,6 +18,13 @@ interface Props {
   isGettingPayments: boolean;
   total: number;
   isAdmin: boolean;
+  editingPaymentId: string | null;
+  editingDate: string;
+  setEditingDate: (value: string) => void;
+  isSavingDate: boolean;
+  handleStartEditDate: (payment: { _id: string; createdAt: string }) => void;
+  handleCancelEditDate: () => void;
+  handleSaveEditDate: () => void;
 }
 
 export const PayedCommandsLayout = ({
@@ -30,6 +37,13 @@ export const PayedCommandsLayout = ({
   isGettingPayments,
   total,
   isAdmin,
+  editingPaymentId,
+  editingDate,
+  setEditingDate,
+  isSavingDate,
+  handleStartEditDate,
+  handleCancelEditDate,
+  handleSaveEditDate,
 }: Props) => {
   const past10Days = get10PastDays();
   return (
@@ -94,14 +108,52 @@ export const PayedCommandsLayout = ({
                       {formatPaymentTypes(paymentTypes) || paymentTypes[0]}
                     </span>
                   </p>
-                  <p>
-                    Criada em:{' '}
-                    <span className="font-bold text-navy">
-                      {DateTime.fromISO(createdAt, { zone: 'pt-BR', setZone: true })
-                        .setLocale('pt-BR')
-                        .toLocaleString(DateTime.DATETIME_MED)}
-                    </span>
-                  </p>
+                  {editingPaymentId === _id ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="datetime-local"
+                        value={editingDate}
+                        onChange={(e) => setEditingDate(e.target.value)}
+                        disabled={isSavingDate}
+                        className="h-9 flex-1 rounded-(--radius) border border-input bg-card px-2 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleSaveEditDate}
+                        disabled={isSavingDate}
+                        className="rounded-(--radius) border-2 border-cyan px-2 py-1 text-xs font-bold text-cyan hover:bg-cyan hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Salvar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCancelEditDate}
+                        disabled={isSavingDate}
+                        className="rounded-(--radius) border-2 border-border px-2 py-1 text-xs font-bold text-text-muted hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="flex items-center gap-1.5">
+                      Criada em:{' '}
+                      <span className="font-bold text-navy">
+                        {DateTime.fromISO(createdAt, { zone: 'pt-BR', setZone: true })
+                          .setLocale('pt-BR')
+                          .toLocaleString(DateTime.DATETIME_MED)}
+                      </span>
+                      {isAdmin && (
+                        <button
+                          type="button"
+                          onClick={() => handleStartEditDate({ _id, createdAt })}
+                          title="Editar data do pagamento"
+                          className="text-text-muted hover:text-cyan"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </p>
+                  )}
                   <p>
                     Caixinha {command?.waiter}:{' '}
                     <span className="font-bold text-navy">{parseToBRL(waiterExtra || 0)}</span>

@@ -20,6 +20,9 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
 
   const [isGettingPayments, setIsGettingPayments] = useState(true);
   const [isCloseCashierModalOpen, setIsCloseCashierModalOpen] = useState(false);
+  const [editingPaymentId, setEditingPaymentId] = useState<string | null>(null);
+  const [editingDate, setEditingDate] = useState('');
+  const [isSavingDate, setIsSavingDate] = useState(false);
 
   const { socket } = useContext(SocketContext);
 
@@ -118,6 +121,66 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
     setIsCloseCashierModalOpen(true);
   }, []);
 
+  const handleStartEditDate = useCallback(
+    ({ _id, createdAt }: { _id: string; createdAt: string }) => {
+      setEditingPaymentId(_id);
+      setEditingDate(
+        DateTime.fromISO(createdAt, {
+          zone: 'America/Sao_Paulo',
+          setZone: true,
+        }).toFormat("yyyy-MM-dd'T'HH:mm")
+      );
+    },
+    []
+  );
+
+  const handleCancelEditDate = useCallback(() => {
+    setEditingPaymentId(null);
+    setEditingDate('');
+  }, []);
+
+  const handleSaveEditDate = useCallback(async () => {
+    if (!editingPaymentId || !editingDate) return;
+    setIsSavingDate(true);
+    try {
+      const { paymentInfos } = await PaymentsService.updateDate({
+        id: editingPaymentId,
+        paymentDate: editingDate,
+      });
+
+      const newFormatted = DateTime.fromISO(paymentInfos.createdAt, {
+        zone: 'America/Sao_Paulo',
+        setZone: true,
+      })
+        .setLocale('pt-BR')
+        .toLocaleString(DateTime.DATE_FULL);
+
+      setPayments((previous) => {
+        if (newFormatted !== payedCommandsDate) {
+          return previous.filter((payment) => payment._id !== editingPaymentId);
+        }
+        return previous.map((payment) =>
+          payment._id === editingPaymentId
+            ? { ...payment, createdAt: paymentInfos.createdAt }
+            : payment
+        );
+      });
+
+      toast.closeAll();
+      toast({ status: 'success', title: 'Data do pagamento atualizada.', duration: 1500 });
+      handleCancelEditDate();
+    } catch (err: any) {
+      toast.closeAll();
+      toast({
+        status: 'error',
+        title: err?.response?.data?.message || 'Não foi possível atualizar a data.',
+        duration: 2000,
+      });
+    } finally {
+      setIsSavingDate(false);
+    }
+  }, [editingPaymentId, editingDate, payedCommandsDate, toast, handleCancelEditDate]);
+
   const tempTotal = payments.reduce(
     (total, payment) =>
       Math.round((total + payment.totalPayed + Number.EPSILON) * 100) / 100,
@@ -136,6 +199,13 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
         isGettingPayments={isGettingPayments}
         total={tempTotal}
         isAdmin={isAdmin}
+        editingPaymentId={editingPaymentId}
+        editingDate={editingDate}
+        setEditingDate={setEditingDate}
+        isSavingDate={isSavingDate}
+        handleStartEditDate={handleStartEditDate}
+        handleCancelEditDate={handleCancelEditDate}
+        handleSaveEditDate={handleSaveEditDate}
       />
       <CloseCashier
         isModalOpen={isCloseCashierModalOpen}
