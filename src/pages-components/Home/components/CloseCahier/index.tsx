@@ -1,7 +1,6 @@
 import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import CashierService from 'pages-components/Home/services/CashierService';
 import { Payment } from 'pages-components/Home/types/Payment';
-import { get10PastDays } from 'utils/get10PastDays';
 import { useToast } from '@chakra-ui/react';
 import CommandService from 'pages-components/Home/services/CommandService';
 import { DateTime } from 'luxon';
@@ -11,14 +10,14 @@ interface Props {
   isModalOpen: boolean;
   setIsModalOpen: Dispatch<SetStateAction<boolean>>;
   payments: Payment[];
-  payedCommandsDate: any;
+  payedCommandsDateISO: string;
 }
 
 export const CloseCashier = ({
   isModalOpen,
   setIsModalOpen,
   payments,
-  payedCommandsDate,
+  payedCommandsDateISO,
 }: Props) => {
   const [isSending, setIsSending] = useState(false);
 
@@ -41,13 +40,9 @@ export const CloseCashier = ({
         isActive: 'true',
       });
 
-      const todayDate = DateTime.local().setZone('UTC-3').setLocale('pt-BR');
-      const todayDateFormatted = todayDate.toLocaleString(DateTime.DATE_FULL);
+      const todayISODate = DateTime.local().setZone('America/Sao_Paulo').toISODate();
 
-      if (
-        activeCommands?.length > 0 &&
-        todayDateFormatted === payedCommandsDate
-      ) {
+      if (activeCommands?.length > 0 && todayISODate === payedCommandsDateISO) {
         toast.closeAll();
         handleCloseModal();
         toast({
@@ -59,11 +54,11 @@ export const CloseCashier = ({
         return;
       }
 
-      const currentDate = get10PastDays().find(
-        ({ formatted }) => formatted === payedCommandsDate
-      )?.date;
+      const currentDate = DateTime.fromISO(payedCommandsDateISO, {
+        zone: 'America/Sao_Paulo',
+      });
 
-      const currentDateISO = currentDate?.toISO();
+      const currentDateISO = currentDate.toISO();
 
       const { message } = await CashierService.closeCashier({
         date: currentDateISO,
@@ -87,7 +82,7 @@ export const CloseCashier = ({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [payedCommandsDate, payments]);
+  }, [payedCommandsDateISO, payments]);
 
   return (
     <CloseCashierLayout

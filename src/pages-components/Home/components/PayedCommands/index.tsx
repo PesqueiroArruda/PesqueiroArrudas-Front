@@ -12,8 +12,8 @@ import { PayedCommandsLayout } from './layout';
 import { CloseCashier } from '../CloseCahier';
 
 export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
-  const [payedCommandsDate, setPayedCommandsDate] = useState(
-    get10PastDays()[0].formatted
+  const [payedCommandsDateISO, setPayedCommandsDateISO] = useState(
+    get10PastDays()[0].date.toISODate() as string
   );
   const [payments, setPayments] = useState<Payment[]>([]);
   const [pendingCommandsDates, setPendingCommandsDates] = useState<string[]>([]);
@@ -31,16 +31,16 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
 
   useEffect(() => {
     let active = true;
-    const currentDate = get10PastDays().find(
-      ({ formatted }) => formatted === payedCommandsDate
-    )?.date;
+    const currentDate = DateTime.fromISO(payedCommandsDateISO, {
+      zone: 'America/Sao_Paulo',
+    });
     const receivedPayments = new Map<string, Payment>();
 
     const onPaymentCreated = (paymentCreated: Payment) => {
       const paymentDate = DateTime.fromISO(paymentCreated.createdAt)
         .setZone('UTC-3')
         .toISODate();
-      if (!currentDate || paymentDate !== currentDate.toISODate()) return;
+      if (paymentDate !== currentDate.toISODate()) return;
 
       receivedPayments.set(paymentCreated._id, paymentCreated);
       setPayments((previous) =>
@@ -56,7 +56,6 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
 
     const loadPayments = async () => {
       try {
-        if (!currentDate) return;
         const paymentsOfDate: Payment[] = await PaymentsService.getAll({
           date: currentDate.toISO(),
         });
@@ -87,15 +86,13 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
 
         const otherDates = new Set<string>();
         activeCommands?.forEach(({ createdAt }: { createdAt: string }) => {
-          const formatted = DateTime.fromISO(createdAt, {
+          const commandDt = DateTime.fromISO(createdAt, {
             zone: 'America/Sao_Paulo',
             setZone: true,
-          })
-            .setLocale('pt-BR')
-            .toLocaleString(DateTime.DATE_FULL);
+          });
 
-          if (formatted && formatted !== payedCommandsDate) {
-            otherDates.add(formatted);
+          if (commandDt.toISODate() && commandDt.toISODate() !== payedCommandsDateISO) {
+            otherDates.add(commandDt.setLocale('pt-BR').toLocaleString(DateTime.DATE_FULL));
           }
         });
         setPendingCommandsDates([...otherDates]);
@@ -109,7 +106,7 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
       active = false;
       socket.off('payment-created', onPaymentCreated);
     };
-  }, [payedCommandsDate, socket, toast]);
+  }, [payedCommandsDateISO, socket, toast]);
   const handleGoToCommandPage = useCallback(
     (commandId: string) => {
       router.push(`/command/${commandId}`);
@@ -148,15 +145,13 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
         paymentDate: editingDate,
       });
 
-      const newFormatted = DateTime.fromISO(paymentInfos.createdAt, {
+      const newISODate = DateTime.fromISO(paymentInfos.createdAt, {
         zone: 'America/Sao_Paulo',
         setZone: true,
-      })
-        .setLocale('pt-BR')
-        .toLocaleString(DateTime.DATE_FULL);
+      }).toISODate();
 
       setPayments((previous) => {
-        if (newFormatted !== payedCommandsDate) {
+        if (newISODate !== payedCommandsDateISO) {
           return previous.filter((payment) => payment._id !== editingPaymentId);
         }
         return previous.map((payment) =>
@@ -179,7 +174,7 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
     } finally {
       setIsSavingDate(false);
     }
-  }, [editingPaymentId, editingDate, payedCommandsDate, toast, handleCancelEditDate]);
+  }, [editingPaymentId, editingDate, payedCommandsDateISO, toast, handleCancelEditDate]);
 
   const tempTotal = payments.reduce(
     (total, payment) =>
@@ -190,8 +185,8 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
   return (
     <>
       <PayedCommandsLayout
-        payedCommandsDate={payedCommandsDate}
-        setPayedCommandsDate={setPayedCommandsDate}
+        payedCommandsDateISO={payedCommandsDateISO}
+        setPayedCommandsDateISO={setPayedCommandsDateISO}
         payments={payments}
         pendingCommandsDates={pendingCommandsDates}
         handleGoToCommandPage={handleGoToCommandPage}
@@ -211,7 +206,7 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
         isModalOpen={isCloseCashierModalOpen}
         setIsModalOpen={setIsCloseCashierModalOpen}
         payments={payments}
-        payedCommandsDate={payedCommandsDate}
+        payedCommandsDateISO={payedCommandsDateISO}
       />
     </>
   );

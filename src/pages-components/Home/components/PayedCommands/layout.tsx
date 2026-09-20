@@ -9,8 +9,8 @@ import { formatPaymentTypes } from 'utils/formatPaymentTypes';
 import { parseToBRL } from 'utils/parseToBRL';
 
 interface Props {
-  payedCommandsDate: any;
-  setPayedCommandsDate: any;
+  payedCommandsDateISO: string;
+  setPayedCommandsDateISO: (value: string) => void;
   payments: Payment[];
   pendingCommandsDates: string[];
   handleGoToCommandPage: (commandId: string) => void;
@@ -28,8 +28,8 @@ interface Props {
 }
 
 export const PayedCommandsLayout = ({
-  payedCommandsDate,
-  setPayedCommandsDate,
+  payedCommandsDateISO,
+  setPayedCommandsDateISO,
   payments,
   pendingCommandsDates,
   handleGoToCommandPage,
@@ -61,16 +61,32 @@ export const PayedCommandsLayout = ({
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="font-heading text-xl font-extrabold text-navy sm:text-2xl">Comandas Pagas</h2>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <select
-            value={payedCommandsDate}
-            onChange={(e) => setPayedCommandsDate(e.target.value)}
+            value={payedCommandsDateISO}
+            onChange={(e) => setPayedCommandsDateISO(e.target.value)}
             className="h-10 rounded-(--radius) border border-input bg-card px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            {past10Days.map(({ formatted }) => (
-              <option key={`10-days-${formatted}`}>{formatted}</option>
+            {past10Days.map(({ formatted, date }) => (
+              <option key={`10-days-${formatted}`} value={date.toISODate() as string}>
+                {formatted}
+              </option>
             ))}
+            {!past10Days.some(({ date }) => date.toISODate() === payedCommandsDateISO) && (
+              <option value={payedCommandsDateISO}>
+                {DateTime.fromISO(payedCommandsDateISO, { zone: 'America/Sao_Paulo' })
+                  .setLocale('pt-BR')
+                  .toLocaleString(DateTime.DATE_FULL)}
+              </option>
+            )}
           </select>
+          <input
+            type="date"
+            value={payedCommandsDateISO}
+            onChange={(e) => e.target.value && setPayedCommandsDateISO(e.target.value)}
+            title="Escolher outra data"
+            className="h-10 rounded-(--radius) border border-input bg-card px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          />
           <Button onClick={handleCloseCashier} disabled={!isAdmin}>
             Fechar Caixa
             <Wallet className="h-4 w-4" />
