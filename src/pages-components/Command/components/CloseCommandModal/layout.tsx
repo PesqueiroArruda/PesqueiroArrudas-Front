@@ -18,6 +18,8 @@ interface Props {
   setWaiterExtraPercent: Dispatch<SetStateAction<number>>;
   command: Command;
   observation: { current: string };
+  paymentDate: string;
+  setPaymentDate: Dispatch<SetStateAction<string>>;
   handleCloseCommand: () => void;
 }
 
@@ -37,6 +39,8 @@ export const CloseCommandModalLayout = ({
   setWaiterExtraPercent,
   command,
   observation,
+  paymentDate,
+  setPaymentDate,
   handleCloseCommand,
 }: Props) => (
   <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Fechar Comanda" size="2xl">
@@ -86,6 +90,20 @@ export const CloseCommandModalLayout = ({
           onChange={(e) => {
             observation.current = e.target.value;
           }}
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-sm text-navy">
+          Data do pagamento{' '}
+          <span className="font-normal text-text-muted">(deixe em branco para usar agora)</span>
+        </span>
+        <input
+          type="datetime-local"
+          disabled={isClosing}
+          value={paymentDate}
+          onChange={(e) => setPaymentDate(e.target.value)}
+          className="h-10 rounded-(--radius) border border-input bg-card px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
         />
       </div>
 

@@ -22,6 +22,7 @@ interface Props {
 export const CloseCommandModal = ({ isModalOpen, setIsModalOpen }: Props) => {
   const [waiterExtra, setWaiterExtra] = useState('');
   const [waiterExtraPercent, setWaiterExtraPercent] = useState(0);
+  const [paymentDate, setPaymentDate] = useState('');
   const [isClosing, setIsClosing] = useState(false);
   const closingRequest = useRef(false);
   const observation = useRef('');
@@ -91,6 +92,7 @@ export const CloseCommandModal = ({ isModalOpen, setIsModalOpen }: Props) => {
         waiterExtra: waiterExtraFormatted,
         observation: observation.current,
         discount: latestCommand.discount || 0,
+        paymentDate: paymentDate || undefined,
       });
 
       toast.closeAll();
@@ -100,6 +102,7 @@ export const CloseCommandModal = ({ isModalOpen, setIsModalOpen }: Props) => {
         duration: 2000,
       });
       setIsModalOpen(false);
+      setPaymentDate('');
 
       setCommand(paymentInfos.command);
     } catch (err: any) {
@@ -130,6 +133,8 @@ export const CloseCommandModal = ({ isModalOpen, setIsModalOpen }: Props) => {
       setWaiterExtraPercent={setWaiterExtraPercent}
       command={command}
       observation={observation}
+      paymentDate={paymentDate}
+      setPaymentDate={setPaymentDate}
       handleCloseCommand={handleCloseCommand}
     />
   );
