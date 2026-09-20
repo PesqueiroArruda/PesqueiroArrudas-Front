@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react';
+import { DateTime } from 'luxon';
 import { CommandContext } from 'pages-components/Command';
 import PaymentsService from 'pages-components/Command/services/PaymentsService';
 import CommandService from 'pages-components/Command/services/CommandService';
@@ -44,6 +45,22 @@ export const CloseCommandModal = ({ isModalOpen, setIsModalOpen }: Props) => {
       })
     );
   }, [waiterExtraPercent, command.total]);
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+    if (!command?.createdAt) {
+      setPaymentDate('');
+      return;
+    }
+    // Default to the comanda's own opening date — the sale belongs to the
+    // day the table was served, not necessarily whenever it gets paid.
+    setPaymentDate(
+      DateTime.fromISO(command.createdAt, {
+        zone: 'America/Sao_Paulo',
+        setZone: true,
+      }).toFormat("yyyy-MM-dd'T'HH:mm")
+    );
+  }, [isModalOpen, command?.createdAt]);
 
   function handleCloseModal() {
     if (closingRequest.current) return;

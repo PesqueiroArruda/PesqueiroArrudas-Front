@@ -96,7 +96,9 @@ export const CloseCommandModalLayout = ({
       <div className="flex flex-col gap-2">
         <span className="text-sm text-navy">
           Data do pagamento{' '}
-          <span className="font-normal text-text-muted">(deixe em branco para usar agora)</span>
+          <span className="font-normal text-text-muted">
+            (preenchida com a abertura da comanda — altere se necessário)
+          </span>
         </span>
         <input
           type="datetime-local"
