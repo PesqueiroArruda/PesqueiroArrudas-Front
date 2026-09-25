@@ -7,6 +7,7 @@ import {
   Inbox,
   List,
   Loader2,
+  Plus,
   ReceiptText,
   Users,
 } from 'lucide-react';
@@ -27,13 +28,27 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from 'components/ui/dropdown-menu';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from 'components/ui/table';
 import { ReservationPaymentStatusBadge } from 'components/ReservationPaymentStatusBadge';
 import { ReservationOperationalStatusBadge } from 'components/ReservationOperationalStatusBadge';
-import { Reservation, ReservationFilters, ReservationOperationalStatus } from 'types/Reservation';
+import {
+  Reservation,
+  ReservationFilters,
+  ReservationOperationalStatus,
+} from 'types/Reservation';
 import { cn } from 'lib/utils';
 import { parseToBRL } from 'utils/parseToBRL';
-import { getReservationDatePreset, ReservationDatePresetKey } from 'utils/getReservationDatePreset';
+import {
+  getReservationDatePreset,
+  ReservationDatePresetKey,
+} from 'utils/getReservationDatePreset';
 
 interface Props {
   reservations: Reservation[];
@@ -45,11 +60,18 @@ interface Props {
   handleFilterChange: (patch: Partial<ReservationFilters>) => void;
   handleOpenDetail: (reservation: Reservation) => void;
   handleCloseDetail: () => void;
-  handleChangeOperationalStatus: (id: string, status: ReservationOperationalStatus) => void;
+  handleChangeOperationalStatus: (
+    id: string,
+    status: ReservationOperationalStatus
+  ) => void;
   handleOpenCommandModal: (reservation: Reservation) => void;
+  handleOpenAddModal: () => void;
 }
 
-const OPERATIONAL_STATUS_OPTIONS: { value: ReservationOperationalStatus; label: string }[] = [
+const OPERATIONAL_STATUS_OPTIONS: {
+  value: ReservationOperationalStatus;
+  label: string;
+}[] = [
   { value: 'pendente', label: 'Pendente' },
   { value: 'compareceu', label: 'Compareceu' },
   { value: 'nao_compareceu', label: 'Não compareceu' },
@@ -58,11 +80,14 @@ const OPERATIONAL_STATUS_OPTIONS: { value: ReservationOperationalStatus; label: 
 
 const ENVIRONMENT_LABEL: Record<Reservation['environment'], string> = {
   interno: 'Interno',
+  quiosque: 'Quiosque',
   externo: 'Externo',
 };
 
 function formatDate(isoDate: string) {
-  return DateTime.fromISO(isoDate).setLocale('pt-BR').toLocaleString(DateTime.DATE_MED);
+  return DateTime.fromISO(isoDate)
+    .setLocale('pt-BR')
+    .toLocaleString(DateTime.DATE_MED);
 }
 
 function formatTime(time: string) {
@@ -70,7 +95,10 @@ function formatTime(time: string) {
 }
 
 function canOpenCommand(reservation: Reservation) {
-  return reservation.paymentStatus === 'paid' && reservation.reservationDate === DateTime.now().toISODate();
+  return (
+    reservation.paymentStatus === 'paid' &&
+    reservation.reservationDate === DateTime.now().toISODate()
+  );
 }
 
 interface OpenCommandButtonProps {
@@ -94,7 +122,11 @@ interface OperationalStatusMenuProps {
   onChange: (status: ReservationOperationalStatus) => void;
 }
 
-const OperationalStatusMenu = ({ reservation, isUpdating, onChange }: OperationalStatusMenuProps) => (
+const OperationalStatusMenu = ({
+  reservation,
+  isUpdating,
+  onChange,
+}: OperationalStatusMenuProps) => (
   <DropdownMenu>
     <DropdownMenuTrigger asChild>
       <button
@@ -102,13 +134,22 @@ const OperationalStatusMenu = ({ reservation, isUpdating, onChange }: Operationa
         disabled={isUpdating}
         className="flex items-center gap-1 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        <ReservationOperationalStatusBadge status={reservation.operationalStatus} />
-        {isUpdating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ChevronDown className="h-3.5 w-3.5" />}
+        <ReservationOperationalStatusBadge
+          status={reservation.operationalStatus}
+        />
+        {isUpdating ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        ) : (
+          <ChevronDown className="h-3.5 w-3.5" />
+        )}
       </button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="start">
       {OPERATIONAL_STATUS_OPTIONS.map((option) => (
-        <DropdownMenuItem key={option.value} onSelect={() => onChange(option.value)}>
+        <DropdownMenuItem
+          key={option.value}
+          onSelect={() => onChange(option.value)}
+        >
           {option.label}
         </DropdownMenuItem>
       ))}
@@ -116,7 +157,10 @@ const OperationalStatusMenu = ({ reservation, isUpdating, onChange }: Operationa
   </DropdownMenu>
 );
 
-const DATE_PRESET_OPTIONS: { value: ReservationDatePresetKey; label: string }[] = [
+const DATE_PRESET_OPTIONS: {
+  value: ReservationDatePresetKey;
+  label: string;
+}[] = [
   { value: 'today', label: 'Hoje' },
   { value: 'next7days', label: 'Próximos 7 dias' },
   { value: 'thisMonth', label: 'Este mês' },
@@ -134,9 +178,12 @@ export const ReservationsLayout = ({
   handleCloseDetail,
   handleChangeOperationalStatus,
   handleOpenCommandModal,
+  handleOpenAddModal,
 }: Props) => {
   const [viewMode, setViewMode] = useState<'list' | 'byDay'>('list');
-  const [datePreset, setDatePreset] = useState<ReservationDatePresetKey | 'custom'>('custom');
+  const [datePreset, setDatePreset] = useState<
+    ReservationDatePresetKey | 'custom'
+  >('custom');
 
   function handleDatePresetChange(value: string) {
     if (value === 'custom') {
@@ -154,17 +201,24 @@ export const ReservationsLayout = ({
     return (
       <TableRow
         key={reservation.id}
-        className={cn('cursor-pointer', hasConflict && 'bg-destructive/10 hover:bg-destructive/20')}
+        className={cn(
+          'cursor-pointer',
+          hasConflict && 'bg-destructive/10 hover:bg-destructive/20'
+        )}
         onClick={() => handleOpenDetail(reservation)}
       >
         <TableCell>
           <div className="flex items-center gap-1.5">
-            {hasConflict && <AlertTriangle className="h-4 w-4 shrink-0 text-destructive" />}
+            {hasConflict && (
+              <AlertTriangle className="h-4 w-4 shrink-0 text-destructive" />
+            )}
             {formatDate(reservation.reservationDate)}
           </div>
         </TableCell>
         <TableCell>{formatTime(reservation.reservationTime)}</TableCell>
-        <TableCell className="font-semibold">{reservation.customerName}</TableCell>
+        <TableCell className="font-semibold">
+          {reservation.customerName}
+        </TableCell>
         <TableCell>{reservation.customerPhone}</TableCell>
         <TableCell>{reservation.partySize}</TableCell>
         <TableCell>{ENVIRONMENT_LABEL[reservation.environment]}</TableCell>
@@ -175,21 +229,29 @@ export const ReservationsLayout = ({
           <OperationalStatusMenu
             reservation={reservation}
             isUpdating={updatingId === reservation.id}
-            onChange={(status) => handleChangeOperationalStatus(reservation.id, status)}
+            onChange={(status) =>
+              handleChangeOperationalStatus(reservation.id, status)
+            }
           />
         </TableCell>
         <TableCell onClick={(e) => e.stopPropagation()}>
-          <OpenCommandButton reservation={reservation} onOpen={handleOpenCommandModal} />
+          <OpenCommandButton
+            reservation={reservation}
+            onOpen={handleOpenCommandModal}
+          />
         </TableCell>
       </TableRow>
     );
   }
 
-  const reservationsByDay = reservations.reduce<Record<string, Reservation[]>>((acc, reservation) => {
-    acc[reservation.reservationDate] = acc[reservation.reservationDate] || [];
-    acc[reservation.reservationDate].push(reservation);
-    return acc;
-  }, {});
+  const reservationsByDay = reservations.reduce<Record<string, Reservation[]>>(
+    (acc, reservation) => {
+      acc[reservation.reservationDate] = acc[reservation.reservationDate] || [];
+      acc[reservation.reservationDate].push(reservation);
+      return acc;
+    },
+    {}
+  );
   const sortedDays = Object.keys(reservationsByDay).sort();
 
   return (
@@ -198,29 +260,40 @@ export const ReservationsLayout = ({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-3">
             <CalendarDays className="h-6 w-6 text-navy" />
-            <h1 className="font-heading text-xl font-extrabold text-navy sm:text-2xl">Reservas</h1>
+            <h1 className="font-heading text-xl font-extrabold text-navy sm:text-2xl">
+              Reservas
+            </h1>
           </div>
-          <div className="flex items-center gap-1 rounded-(--radius) border border-border bg-card p-1">
-            <button
-              type="button"
-              onClick={() => setViewMode('list')}
-              className={cn(
-                'flex items-center gap-1.5 rounded-(--radius-sm) px-3 py-1.5 text-sm font-bold',
-                viewMode === 'list' ? 'bg-secondary text-navy' : 'text-text-muted',
-              )}
-            >
-              <List className="h-4 w-4" /> Lista
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('byDay')}
-              className={cn(
-                'flex items-center gap-1.5 rounded-(--radius-sm) px-3 py-1.5 text-sm font-bold',
-                viewMode === 'byDay' ? 'bg-secondary text-navy' : 'text-text-muted',
-              )}
-            >
-              <CalendarDays className="h-4 w-4" /> Por dia
-            </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-1 rounded-(--radius) border border-border bg-card p-1">
+              <button
+                type="button"
+                onClick={() => setViewMode('list')}
+                className={cn(
+                  'flex items-center gap-1.5 rounded-(--radius-sm) px-3 py-1.5 text-sm font-bold',
+                  viewMode === 'list'
+                    ? 'bg-secondary text-navy'
+                    : 'text-text-muted'
+                )}
+              >
+                <List className="h-4 w-4" /> Lista
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('byDay')}
+                className={cn(
+                  'flex items-center gap-1.5 rounded-(--radius-sm) px-3 py-1.5 text-sm font-bold',
+                  viewMode === 'byDay'
+                    ? 'bg-secondary text-navy'
+                    : 'text-text-muted'
+                )}
+              >
+                <CalendarDays className="h-4 w-4" /> Por dia
+              </button>
+            </div>
+            <Button size="sm" onClick={handleOpenAddModal}>
+              <Plus className="h-4 w-4" /> Nova reserva
+            </Button>
           </div>
         </div>
 
@@ -245,19 +318,27 @@ export const ReservationsLayout = ({
           {datePreset === 'custom' && (
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-semibold text-text-muted">De</span>
+                <span className="text-xs font-semibold text-text-muted">
+                  De
+                </span>
                 <Input
                   type="date"
                   value={filters.from || ''}
-                  onChange={(e) => handleFilterChange({ from: e.target.value || undefined })}
+                  onChange={(e) =>
+                    handleFilterChange({ from: e.target.value || undefined })
+                  }
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-semibold text-text-muted">Até</span>
+                <span className="text-xs font-semibold text-text-muted">
+                  Até
+                </span>
                 <Input
                   type="date"
                   value={filters.to || ''}
-                  onChange={(e) => handleFilterChange({ to: e.target.value || undefined })}
+                  onChange={(e) =>
+                    handleFilterChange({ to: e.target.value || undefined })
+                  }
                 />
               </div>
             </div>
@@ -265,7 +346,11 @@ export const ReservationsLayout = ({
 
           <Tabs
             value={filters.paymentStatus || 'all'}
-            onValueChange={(value) => handleFilterChange({ paymentStatus: value === 'all' ? undefined : value })}
+            onValueChange={(value) =>
+              handleFilterChange({
+                paymentStatus: value === 'all' ? undefined : value,
+              })
+            }
           >
             <TabsList>
               <TabsTrigger value="all">Todas</TabsTrigger>
@@ -277,11 +362,16 @@ export const ReservationsLayout = ({
 
           <Tabs
             value={filters.environment || 'all'}
-            onValueChange={(value) => handleFilterChange({ environment: value === 'all' ? undefined : value })}
+            onValueChange={(value) =>
+              handleFilterChange({
+                environment: value === 'all' ? undefined : value,
+              })
+            }
           >
             <TabsList>
               <TabsTrigger value="all">Todos os ambientes</TabsTrigger>
               <TabsTrigger value="interno">Interno</TabsTrigger>
+              <TabsTrigger value="quiosque">Quiosque</TabsTrigger>
               <TabsTrigger value="externo">Externo</TabsTrigger>
             </TabsList>
           </Tabs>
@@ -325,7 +415,9 @@ export const ReservationsLayout = ({
           <div className="flex flex-col gap-5">
             {sortedDays.map((day) => (
               <div key={day} className="flex flex-col gap-2">
-                <h2 className="font-heading text-base font-bold text-navy">{formatDate(day)}</h2>
+                <h2 className="font-heading text-base font-bold text-navy">
+                  {formatDate(day)}
+                </h2>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -342,37 +434,59 @@ export const ReservationsLayout = ({
                   <TableBody>
                     {reservationsByDay[day]
                       .slice()
-                      .sort((a, b) => a.reservationTime.localeCompare(b.reservationTime))
+                      .sort((a, b) =>
+                        a.reservationTime.localeCompare(b.reservationTime)
+                      )
                       .map((reservation) => {
                         const hasConflict = conflictIds.has(reservation.id);
                         return (
                           <TableRow
                             key={reservation.id}
-                            className={cn('cursor-pointer', hasConflict && 'bg-destructive/10 hover:bg-destructive/20')}
+                            className={cn(
+                              'cursor-pointer',
+                              hasConflict &&
+                                'bg-destructive/10 hover:bg-destructive/20'
+                            )}
                             onClick={() => handleOpenDetail(reservation)}
                           >
                             <TableCell>
                               <div className="flex items-center gap-1.5">
-                                {hasConflict && <AlertTriangle className="h-4 w-4 shrink-0 text-destructive" />}
+                                {hasConflict && (
+                                  <AlertTriangle className="h-4 w-4 shrink-0 text-destructive" />
+                                )}
                                 {formatTime(reservation.reservationTime)}
                               </div>
                             </TableCell>
-                            <TableCell className="font-semibold">{reservation.customerName}</TableCell>
+                            <TableCell className="font-semibold">
+                              {reservation.customerName}
+                            </TableCell>
                             <TableCell>{reservation.customerPhone}</TableCell>
                             <TableCell>{reservation.partySize}</TableCell>
-                            <TableCell>{ENVIRONMENT_LABEL[reservation.environment]}</TableCell>
                             <TableCell>
-                              <ReservationPaymentStatusBadge status={reservation.paymentStatus} />
+                              {ENVIRONMENT_LABEL[reservation.environment]}
+                            </TableCell>
+                            <TableCell>
+                              <ReservationPaymentStatusBadge
+                                status={reservation.paymentStatus}
+                              />
                             </TableCell>
                             <TableCell onClick={(e) => e.stopPropagation()}>
                               <OperationalStatusMenu
                                 reservation={reservation}
                                 isUpdating={updatingId === reservation.id}
-                                onChange={(status) => handleChangeOperationalStatus(reservation.id, status)}
+                                onChange={(status) =>
+                                  handleChangeOperationalStatus(
+                                    reservation.id,
+                                    status
+                                  )
+                                }
                               />
                             </TableCell>
                             <TableCell onClick={(e) => e.stopPropagation()}>
-                              <OpenCommandButton reservation={reservation} onOpen={handleOpenCommandModal} />
+                              <OpenCommandButton
+                                reservation={reservation}
+                                onOpen={handleOpenCommandModal}
+                              />
                             </TableCell>
                           </TableRow>
                         );
@@ -385,7 +499,10 @@ export const ReservationsLayout = ({
         )}
       </div>
 
-      <Dialog open={!!selectedReservation} onOpenChange={(open) => !open && handleCloseDetail()}>
+      <Dialog
+        open={!!selectedReservation}
+        onOpenChange={(open) => !open && handleCloseDetail()}
+      >
         <DialogContent>
           {selectedReservation && (
             <>
@@ -397,44 +514,62 @@ export const ReservationsLayout = ({
                 <div className="flex items-start gap-2 rounded-(--radius) border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
                   <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                   <span>
-                    Existe(m) outra(s) reserva(s) paga(s) para o mesmo dia, horário e ambiente. Resolva o
-                    conflito manualmente com o cliente.
+                    Existe(m) outra(s) reserva(s) paga(s) para o mesmo dia,
+                    horário e ambiente. Resolva o conflito manualmente com o
+                    cliente.
                   </span>
                 </div>
               )}
 
               <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm text-navy">
                 <span className="text-text-muted">Telefone</span>
-                <span className="font-semibold">{selectedReservation.customerPhone}</span>
+                <span className="font-semibold">
+                  {selectedReservation.customerPhone}
+                </span>
 
                 <span className="text-text-muted">Data</span>
-                <span className="font-semibold">{formatDate(selectedReservation.reservationDate)}</span>
+                <span className="font-semibold">
+                  {formatDate(selectedReservation.reservationDate)}
+                </span>
 
                 <span className="text-text-muted">Hora</span>
-                <span className="font-semibold">{formatTime(selectedReservation.reservationTime)}</span>
+                <span className="font-semibold">
+                  {formatTime(selectedReservation.reservationTime)}
+                </span>
 
                 <span className="text-text-muted">Pessoas</span>
                 <span className="flex items-center gap-1 font-semibold">
-                  <Users className="h-3.5 w-3.5" /> {selectedReservation.partySize}
+                  <Users className="h-3.5 w-3.5" />{' '}
+                  {selectedReservation.partySize}
                 </span>
 
                 <span className="text-text-muted">Ambiente</span>
-                <span className="font-semibold">{ENVIRONMENT_LABEL[selectedReservation.environment]}</span>
+                <span className="font-semibold">
+                  {ENVIRONMENT_LABEL[selectedReservation.environment]}
+                </span>
 
                 <span className="text-text-muted">Sinal</span>
-                <span className="font-semibold">{parseToBRL(selectedReservation.depositAmountCents / 100)}</span>
+                <span className="font-semibold">
+                  {parseToBRL(selectedReservation.depositAmountCents / 100)}
+                </span>
 
                 <span className="text-text-muted">Status do pagamento</span>
                 <span>
-                  <ReservationPaymentStatusBadge status={selectedReservation.paymentStatus} />
+                  <ReservationPaymentStatusBadge
+                    status={selectedReservation.paymentStatus}
+                  />
                 </span>
 
-                <span className="text-text-muted">Comprovante InfinitePay (NSU)</span>
+                <span className="text-text-muted">
+                  Comprovante InfinitePay (NSU)
+                </span>
                 <span className="break-all font-mono text-xs">
                   {selectedReservation.infinitepayTransactionNsu || '—'}
                 </span>
 
-                <span className="text-text-muted">Slug da fatura InfinitePay</span>
+                <span className="text-text-muted">
+                  Slug da fatura InfinitePay
+                </span>
                 <span className="break-all font-mono text-xs">
                   {selectedReservation.infinitepayInvoiceSlug || '—'}
                 </span>
@@ -442,26 +577,40 @@ export const ReservationsLayout = ({
                 {selectedReservation.notes && (
                   <>
                     <span className="text-text-muted">Observações</span>
-                    <span className="font-semibold">{selectedReservation.notes}</span>
+                    <span className="font-semibold">
+                      {selectedReservation.notes}
+                    </span>
                   </>
                 )}
 
                 <span className="text-text-muted">Criada em</span>
                 <span className="font-semibold">
-                  {DateTime.fromISO(selectedReservation.createdAt).setLocale('pt-BR').toLocaleString(DateTime.DATETIME_MED)}
+                  {DateTime.fromISO(selectedReservation.createdAt)
+                    .setLocale('pt-BR')
+                    .toLocaleString(DateTime.DATETIME_MED)}
                 </span>
               </div>
 
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-navy">Status:</span>
+                  <span className="text-sm font-semibold text-navy">
+                    Status:
+                  </span>
                   <OperationalStatusMenu
                     reservation={selectedReservation}
                     isUpdating={updatingId === selectedReservation.id}
-                    onChange={(status) => handleChangeOperationalStatus(selectedReservation.id, status)}
+                    onChange={(status) =>
+                      handleChangeOperationalStatus(
+                        selectedReservation.id,
+                        status
+                      )
+                    }
                   />
                 </div>
-                <OpenCommandButton reservation={selectedReservation} onOpen={handleOpenCommandModal} />
+                <OpenCommandButton
+                  reservation={selectedReservation}
+                  onOpen={handleOpenCommandModal}
+                />
               </div>
             </>
           )}

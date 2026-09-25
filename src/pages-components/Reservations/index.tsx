@@ -3,8 +3,13 @@ import { useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { DateTime } from 'luxon';
 
-import { Reservation, ReservationFilters, ReservationOperationalStatus } from 'types/Reservation';
+import {
+  Reservation,
+  ReservationFilters,
+  ReservationOperationalStatus,
+} from 'types/Reservation';
 import { findReservationConflicts } from 'utils/findReservationConflicts';
+import { AddReservationModal } from './components/AddReservationModal';
 import { OpenCommandModal } from './components/OpenCommandModal';
 import { ReservationsLayout } from './layout';
 import ReservationsService from './services/ReservationsService';
@@ -18,12 +23,20 @@ export const Reservations = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filters, setFilters] = useState<ReservationFilters>({ from: DateTime.now().toISODate() as string });
-  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [filters, setFilters] = useState<ReservationFilters>({
+    from: DateTime.now().toISODate() as string,
+  });
+  const [selectedReservation, setSelectedReservation] =
+    useState<Reservation | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [openCommandReservation, setOpenCommandReservation] = useState<Reservation | null>(null);
+  const [openCommandReservation, setOpenCommandReservation] =
+    useState<Reservation | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const conflictIds = useMemo(() => findReservationConflicts(reservations), [reservations]);
+  const conflictIds = useMemo(
+    () => findReservationConflicts(reservations),
+    [reservations]
+  );
 
   const reloadReservations = useCallback(async () => {
     try {
@@ -85,11 +98,33 @@ export const Reservations = () => {
     setOpenCommandReservation(null);
   }
 
-  async function handleChangeOperationalStatus(id: string, operationalStatus: ReservationOperationalStatus) {
+  function handleOpenAddModal() {
+    setIsAddModalOpen(true);
+  }
+
+  function handleCloseAddModal() {
+    setIsAddModalOpen(false);
+  }
+
+  function handleReservationCreated() {
+    reloadReservations();
+  }
+
+  async function handleChangeOperationalStatus(
+    id: string,
+    operationalStatus: ReservationOperationalStatus
+  ) {
     try {
       setUpdatingId(id);
-      const updated = await ReservationsService.updateOperationalStatus(id, operationalStatus);
-      setReservations((prev) => prev.map((reservation) => (reservation.id === id ? updated : reservation)));
+      const updated = await ReservationsService.updateOperationalStatus(
+        id,
+        operationalStatus
+      );
+      setReservations((prev) =>
+        prev.map((reservation) =>
+          reservation.id === id ? updated : reservation
+        )
+      );
       setSelectedReservation((prev) => (prev?.id === id ? updated : prev));
     } catch (error: any) {
       toast({
@@ -118,11 +153,17 @@ export const Reservations = () => {
           handleCloseDetail={handleCloseDetail}
           handleChangeOperationalStatus={handleChangeOperationalStatus}
           handleOpenCommandModal={handleOpenCommandModal}
+          handleOpenAddModal={handleOpenAddModal}
         />
         <OpenCommandModal
           isOpen={!!openCommandReservation}
           reservation={openCommandReservation}
           onClose={handleCloseCommandModal}
+        />
+        <AddReservationModal
+          isModalOpen={isAddModalOpen}
+          onClose={handleCloseAddModal}
+          onCreated={handleReservationCreated}
         />
       </>
     );
