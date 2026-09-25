@@ -5,6 +5,11 @@ class PaymentsService {
     const { data } = await serverApi.get(`/payments?date=${date}`);
     return data;
   }
+
+  async updateDate({ id, paymentDate }: { id: string; paymentDate: string }) {
+    const { data } = await serverApi.put(`/payments/${id}/date`, { paymentDate });
+    return data;
+  }
 }
 
 export default new PaymentsService();
