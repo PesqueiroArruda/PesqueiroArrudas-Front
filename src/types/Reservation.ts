@@ -1,6 +1,10 @@
-export type ReservationEnvironment = 'interno' | 'externo';
+export type ReservationEnvironment = 'interno' | 'quiosque' | 'externo';
 export type ReservationPaymentStatus = 'pending' | 'paid' | 'failed';
-export type ReservationOperationalStatus = 'pendente' | 'compareceu' | 'nao_compareceu' | 'cancelada_cliente';
+export type ReservationOperationalStatus =
+  | 'pendente'
+  | 'compareceu'
+  | 'nao_compareceu'
+  | 'cancelada_cliente';
 
 export interface Reservation {
   id: string;
@@ -27,4 +31,15 @@ export interface ReservationFilters {
   from?: string;
   to?: string;
   q?: string;
+}
+
+export interface ReservationCreateInput {
+  customerName: string;
+  customerPhone: string;
+  reservationDate: string;
+  reservationTime: string;
+  partySize: number;
+  environment: ReservationEnvironment;
+  paymentStatus: 'paid' | 'pending';
+  notes?: string;
 }
