@@ -12,7 +12,10 @@ const VALID_OPERATIONAL_STATUSES: ReservationOperationalStatus[] = [
   'cancelada_cliente',
 ];
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (!isAuthorizedRequest(req)) {
     return res.status(401).json({ message: 'Not authorized' });
   }
@@ -23,18 +26,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === 'GET') {
-    const { data, error } = await supabaseAdmin.from('reservations').select('*').eq('id', id).single();
+    const { data, error } = await supabaseAdmin
+      .from('reservations')
+      .select('*')
+      .eq('id', id)
+      .single();
 
     if (error || !data) {
       return res.status(404).json({ message: 'Reservation not found' });
     }
 
-    return res.status(200).json({ reservation: mapReservationRow(data as ReservationRow) });
+    return res
+      .status(200)
+      .json({ reservation: mapReservationRow(data as ReservationRow) });
   }
 
   if (req.method === 'PATCH') {
     // Only operational_status is mutable through this API by design — do not add other writable
-    // fields here. Creating/paying reservations stays exclusively the institutional site's job.
+    // fields here. Editing customer/date/payment data of an existing reservation stays out of
+    // scope; creating a new one from scratch is handled separately by POST /api/reservations.
     const { operationalStatus } = req.body || {};
 
     if (!VALID_OPERATIONAL_STATUSES.includes(operationalStatus)) {
@@ -43,16 +53,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { data, error } = await supabaseAdmin
       .from('reservations')
-      .update({ operational_status: operationalStatus, updated_at: new Date().toISOString() })
+      .update({
+        operational_status: operationalStatus,
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', id)
       .select()
       .single();
 
     if (error || !data) {
-      return res.status(500).json({ message: error?.message || 'Failed to update reservation' });
+      return res
+        .status(500)
+        .json({ message: error?.message || 'Failed to update reservation' });
     }
 
-    return res.status(200).json({ reservation: mapReservationRow(data as ReservationRow) });
+    return res
+      .status(200)
+      .json({ reservation: mapReservationRow(data as ReservationRow) });
   }
 
   return res.status(405).json({ message: 'Method not allowed' });
