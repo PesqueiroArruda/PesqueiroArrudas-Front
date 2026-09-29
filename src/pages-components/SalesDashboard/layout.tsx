@@ -149,6 +149,38 @@ export const SalesDashboardLayout = ({ stats, isLoading, month, setMonth, year, 
         </SectionCard>
       </div>
 
+      <SectionCard title="Itens mais vendidos por dia">
+        {stats.bestSellingItemsByDay.length === 0 ? (
+          <EmptyHint text="Nenhuma venda no período." />
+        ) : (
+          <div className="flex flex-col divide-y divide-border">
+            {stats.bestSellingItemsByDay.map((day) => (
+              <div key={`day-${day.date}`} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0">
+                <h3 className="font-heading text-sm font-bold text-navy">{day.label}</h3>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Produto</TableHead>
+                      <TableHead>Qtd.</TableHead>
+                      <TableHead>Receita estimada</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {day.items.map((item) => (
+                      <TableRow key={`day-${day.date}-${item.name}`}>
+                        <TableCell>{item.name}</TableCell>
+                        <TableCell>{item.quantity}</TableCell>
+                        <TableCell>{parseToBRL(item.estimatedRevenue)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ))}
+          </div>
+        )}
+      </SectionCard>
+
       <SectionCard title="Produtos que não venderam no período">
         {stats.neverSoldProducts.length === 0 ? (
           <EmptyHint text="Todos os produtos do catálogo venderam ao menos uma vez." />
