@@ -35,18 +35,39 @@ export const AddCommandModalLayout = ({
   rhfErrors,
   isAdding,
 }: Props) => (
-  <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Adicionar Comanda">
-    <form onSubmit={rhfHandleSubmit(handleAddCommand)} className="flex flex-col gap-4">
+  <Modal
+    isOpen={isModalOpen}
+    onClose={handleCloseModal}
+    title="Adicionar Comanda"
+  >
+    <form
+      onSubmit={rhfHandleSubmit(handleAddCommand)}
+      className="flex flex-col gap-4"
+    >
       <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-semibold text-navy">Mesa:</span>
-        <Input placeholder="João" {...rhfRegister('table', { required: true })} />
-        {rhfErrors?.table && <span className="text-sm text-destructive">Esse campo é necessário</span>}
+        <span className="text-sm font-semibold text-navy">Mesa</span>
+        <Input
+          placeholder="João"
+          {...rhfRegister('table', { required: true })}
+        />
+        {rhfErrors?.table && (
+          <span className="text-sm text-destructive">
+            Esse campo é necessário
+          </span>
+        )}
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-semibold text-navy">Garçom:</span>
-        <Input placeholder="Fulano..." {...rhfRegister('waiter', { required: true })} />
-        {rhfErrors?.waiter && <span className="text-sm text-destructive">Esse campo é necessário</span>}
+        <span className="text-sm font-semibold text-navy">Garçom</span>
+        <Input
+          placeholder="Fulano..."
+          {...rhfRegister('waiter', { required: true })}
+        />
+        {rhfErrors?.waiter && (
+          <span className="text-sm text-destructive">
+            Esse campo é necessário
+          </span>
+        )}
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -59,7 +80,9 @@ export const AddCommandModalLayout = ({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-semibold text-navy">Quantidade de pessoas</span>
+        <span className="text-sm font-semibold text-navy">
+          Quantidade de pessoas
+        </span>
         <Input
           type="number"
           min={1}
