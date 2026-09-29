@@ -16,7 +16,9 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
     get10PastDays()[0].date.toISODate() as string
   );
   const [payments, setPayments] = useState<Payment[]>([]);
-  const [pendingCommandsDates, setPendingCommandsDates] = useState<string[]>([]);
+  const [pendingCommandsDates, setPendingCommandsDates] = useState<string[]>(
+    []
+  );
 
   const [isGettingPayments, setIsGettingPayments] = useState(true);
   const [isCloseCashierModalOpen, setIsCloseCashierModalOpen] = useState(false);
@@ -91,8 +93,13 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
             setZone: true,
           });
 
-          if (commandDt.toISODate() && commandDt.toISODate() !== payedCommandsDateISO) {
-            otherDates.add(commandDt.setLocale('pt-BR').toLocaleString(DateTime.DATE_FULL));
+          if (
+            commandDt.toISODate() &&
+            commandDt.toISODate() !== payedCommandsDateISO
+          ) {
+            otherDates.add(
+              commandDt.setLocale('pt-BR').toLocaleString(DateTime.DATE_FULL)
+            );
           }
         });
         setPendingCommandsDates([...otherDates]);
@@ -162,19 +169,30 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
       });
 
       toast.closeAll();
-      toast({ status: 'success', title: 'Data do pagamento atualizada.', duration: 1500 });
+      toast({
+        status: 'success',
+        title: 'Data do pagamento atualizada.',
+        duration: 1500,
+      });
       handleCancelEditDate();
     } catch (err: any) {
       toast.closeAll();
       toast({
         status: 'error',
-        title: err?.response?.data?.message || 'Não foi possível atualizar a data.',
+        title:
+          err?.response?.data?.message || 'Não foi possível atualizar a data.',
         duration: 2000,
       });
     } finally {
       setIsSavingDate(false);
     }
-  }, [editingPaymentId, editingDate, payedCommandsDateISO, toast, handleCancelEditDate]);
+  }, [
+    editingPaymentId,
+    editingDate,
+    payedCommandsDateISO,
+    toast,
+    handleCancelEditDate,
+  ]);
 
   const tempTotal = payments.reduce(
     (total, payment) =>
@@ -207,6 +225,7 @@ export const PayedCommands = ({ isAdmin }: { isAdmin: boolean }) => {
         setIsModalOpen={setIsCloseCashierModalOpen}
         payments={payments}
         payedCommandsDateISO={payedCommandsDateISO}
+        total={tempTotal}
       />
     </>
   );
