@@ -1,6 +1,7 @@
-import { Dispatch, ReactNode, SetStateAction } from 'react';
+import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react';
 import { LayoutDashboard, Loader2 } from 'lucide-react';
 
+import { Button } from 'components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'components/ui/table';
 import { parseToBRL } from 'utils/parseToBRL';
 import { SalesDashboardStats, ShareStat } from 'utils/buildSalesDashboardStats';
@@ -16,6 +17,10 @@ interface Props {
 }
 
 const PIE_PALETTE = ['#c8a24d', '#1c2b4a', '#2f855a', '#3182ce', '#c53030', '#805ad5', '#dd6b20'];
+
+// Com "Todos"/"Todos" selecionado, bestSellingItemsByDay pode ter centenas de
+// dias — mostra só um lote por vez pra não virar scroll infinito.
+const DAYS_PAGE_SIZE = 7;
 
 const SectionCard = ({ title, children }: { title: string; children: ReactNode }) => (
   <div className="flex flex-col gap-3 rounded-card border border-border bg-secondary p-4">
@@ -61,6 +66,12 @@ const PieChart = ({ data }: { data: ShareStat[] }) => {
 };
 
 export const SalesDashboardLayout = ({ stats, isLoading, month, setMonth, year, setYear }: Props) => {
+  const [visibleDaysCount, setVisibleDaysCount] = useState(DAYS_PAGE_SIZE);
+
+  useEffect(() => {
+    setVisibleDaysCount(DAYS_PAGE_SIZE);
+  }, [month, year]);
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-16">
@@ -153,31 +164,42 @@ export const SalesDashboardLayout = ({ stats, isLoading, month, setMonth, year, 
         {stats.bestSellingItemsByDay.length === 0 ? (
           <EmptyHint text="Nenhuma venda no período." />
         ) : (
-          <div className="flex flex-col divide-y divide-border">
-            {stats.bestSellingItemsByDay.map((day) => (
-              <div key={`day-${day.date}`} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0">
-                <h3 className="font-heading text-sm font-bold text-navy">{day.label}</h3>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Produto</TableHead>
-                      <TableHead>Qtd.</TableHead>
-                      <TableHead>Receita estimada</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {day.items.map((item) => (
-                      <TableRow key={`day-${day.date}-${item.name}`}>
-                        <TableCell>{item.name}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>{parseToBRL(item.estimatedRevenue)}</TableCell>
+          <>
+            <div className="flex flex-col divide-y divide-border">
+              {stats.bestSellingItemsByDay.slice(0, visibleDaysCount).map((day) => (
+                <div key={`day-${day.date}`} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0">
+                  <h3 className="font-heading text-sm font-bold text-navy">{day.label}</h3>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Produto</TableHead>
+                        <TableHead>Qtd.</TableHead>
+                        <TableHead>Receita estimada</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            ))}
-          </div>
+                    </TableHeader>
+                    <TableBody>
+                      {day.items.map((item) => (
+                        <TableRow key={`day-${day.date}-${item.name}`}>
+                          <TableCell>{item.name}</TableCell>
+                          <TableCell>{item.quantity}</TableCell>
+                          <TableCell>{parseToBRL(item.estimatedRevenue)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ))}
+            </div>
+            {stats.bestSellingItemsByDay.length > visibleDaysCount && (
+              <Button
+                variant="secondary"
+                className="self-center"
+                onClick={() => setVisibleDaysCount((prev) => prev + DAYS_PAGE_SIZE)}
+              >
+                Mostrar mais dias ({stats.bestSellingItemsByDay.length - visibleDaysCount} restantes)
+              </Button>
+            )}
+          </>
         )}
       </SectionCard>
 
