@@ -183,7 +183,7 @@ export const ReservationsLayout = ({
   const [viewMode, setViewMode] = useState<'list' | 'byDay'>('list');
   const [datePreset, setDatePreset] = useState<
     ReservationDatePresetKey | 'custom'
-  >('custom');
+  >('today');
 
   function handleDatePresetChange(value: string) {
     if (value === 'custom') {

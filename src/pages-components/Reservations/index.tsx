@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import { DateTime } from 'luxon';
 
 import {
   Reservation,
@@ -9,6 +8,8 @@ import {
   ReservationOperationalStatus,
 } from 'types/Reservation';
 import { findReservationConflicts } from 'utils/findReservationConflicts';
+import { getReservationDatePreset } from 'utils/getReservationDatePreset';
+import { AppShellLoading } from 'components/AppShellLoading';
 import { AddReservationModal } from './components/AddReservationModal';
 import { OpenCommandModal } from './components/OpenCommandModal';
 import { ReservationsLayout } from './layout';
@@ -23,9 +24,9 @@ export const Reservations = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filters, setFilters] = useState<ReservationFilters>({
-    from: DateTime.now().toISODate() as string,
-  });
+  const [filters, setFilters] = useState<ReservationFilters>(
+    getReservationDatePreset('today')
+  );
   const [selectedReservation, setSelectedReservation] =
     useState<Reservation | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -169,5 +170,5 @@ export const Reservations = () => {
     );
   }
 
-  return null;
+  return <AppShellLoading />;
 };
