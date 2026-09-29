@@ -42,4 +42,11 @@ interface CashierByMonth {
   payments: CashierPayment[];
 }
 
-export type { Cashier, CashierPayment, CashierByMonth };
+interface CashierByDay {
+  _id: string;
+  date: string;
+  total: number;
+  payments: CashierPayment[];
+}
+
+export type { Cashier, CashierPayment, CashierByMonth, CashierByDay };
