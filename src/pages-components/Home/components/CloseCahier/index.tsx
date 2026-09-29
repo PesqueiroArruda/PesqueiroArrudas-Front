@@ -11,6 +11,7 @@ interface Props {
   setIsModalOpen: Dispatch<SetStateAction<boolean>>;
   payments: Payment[];
   payedCommandsDateISO: string;
+  total: number;
 }
 
 export const CloseCashier = ({
@@ -18,6 +19,7 @@ export const CloseCashier = ({
   setIsModalOpen,
   payments,
   payedCommandsDateISO,
+  total,
 }: Props) => {
   const [isSending, setIsSending] = useState(false);
 
@@ -40,7 +42,9 @@ export const CloseCashier = ({
         isActive: 'true',
       });
 
-      const todayISODate = DateTime.local().setZone('America/Sao_Paulo').toISODate();
+      const todayISODate = DateTime.local()
+        .setZone('America/Sao_Paulo')
+        .toISODate();
 
       if (activeCommands?.length > 0 && todayISODate === payedCommandsDateISO) {
         toast.closeAll();
@@ -90,6 +94,7 @@ export const CloseCashier = ({
       handleCloseModal={handleCloseModal}
       handleCloseCashier={handleCloseCashier}
       isSending={isSending}
+      total={total}
     />
   );
 };
