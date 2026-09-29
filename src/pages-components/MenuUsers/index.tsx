@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 
+import { AppShellLoading } from 'components/AppShellLoading';
 import { MenuUser, MenuUserFilters } from 'types/MenuUser';
 import { MenuUsersLayout } from './layout';
 import MenuUsersService from './services/MenuUsersService';
@@ -50,8 +51,15 @@ export const MenuUsers = () => {
   }
 
   if (isAdmin) {
-    return <MenuUsersLayout menuUsers={menuUsers} isLoading={isLoading} filters={filters} handleFilterChange={handleFilterChange} />;
+    return (
+      <MenuUsersLayout
+        menuUsers={menuUsers}
+        isLoading={isLoading}
+        filters={filters}
+        handleFilterChange={handleFilterChange}
+      />
+    );
   }
 
-  return null;
+  return <AppShellLoading />;
 };
