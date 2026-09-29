@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon';
 import { Cashier, CashierPayment } from 'types/Cashier';
 import { Product } from 'types/Product';
+import { groupCashiersByDay } from './groupCashiersByDay';
 import { groupCashiersByMonth } from './groupCashiersByMonth';
 import { normalizeName, stripStrayPunctuation } from './normalizeName';
 
@@ -8,6 +9,12 @@ export interface ItemStat {
   name: string;
   quantity: number;
   estimatedRevenue: number;
+}
+
+export interface DayBestSellers {
+  date: string;
+  label: string;
+  items: ItemStat[];
 }
 
 export interface MonthStat {
@@ -44,6 +51,7 @@ export interface SalesDashboardStats {
   averageTicketPerPerson: number;
   bestSellingItems: ItemStat[];
   worstSellingItems: ItemStat[];
+  bestSellingItemsByDay: DayBestSellers[];
   neverSoldProducts: { name: string; category?: string }[];
   monthsRanked: MonthStat[];
   repeatCustomers: RepeatCustomerStat[];
@@ -148,6 +156,39 @@ export function buildSalesDashboardStats(cashiers: Cashier[], products: Product[
   const neverSoldProducts = products
     .filter((product) => !quantityByName.has(product.name))
     .map((product) => ({ name: product.name, category: product.category }));
+
+  // Mesma lógica de itemStats acima, mas escopada a um único dia (um grupo de
+  // groupCashiersByDay), pra listar o top 5 de cada dia em vez do agregado do
+  // período inteiro.
+  const cashiersByDay = groupCashiersByDay(cashiers);
+  const bestSellingItemsByDay: DayBestSellers[] = cashiersByDay
+    .map((day) => {
+      const dayQuantityByName = new Map<string, number>();
+      day.payments.forEach((payment) => {
+        payment.command?.products?.forEach((product) => {
+          dayQuantityByName.set(
+            product.name,
+            (dayQuantityByName.get(product.name) || 0) + product.amount
+          );
+        });
+      });
+
+      const items: ItemStat[] = [...dayQuantityByName.entries()]
+        .map(([name, quantity]) => ({
+          name,
+          quantity: round2(quantity),
+          estimatedRevenue: round2(quantity * (productByName.get(name)?.unitPrice || 0)),
+        }))
+        .sort((a, b) => b.quantity - a.quantity)
+        .slice(0, 5);
+
+      const label = DateTime.fromISO(day.date, { zone: 'America/Sao_Paulo', setZone: true })
+        .setLocale('pt-BR')
+        .toLocaleString(DateTime.DATE_FULL);
+
+      return { date: day._id, label, items };
+    })
+    .filter((day) => day.items.length > 0);
 
   const cashiersByMonth = groupCashiersByMonth(cashiers);
 
@@ -277,6 +318,7 @@ export function buildSalesDashboardStats(cashiers: Cashier[], products: Product[
     averageTicketPerPerson,
     bestSellingItems,
     worstSellingItems,
+    bestSellingItemsByDay,
     neverSoldProducts,
     monthsRanked,
     repeatCustomers,
