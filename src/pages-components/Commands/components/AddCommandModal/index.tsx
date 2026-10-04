@@ -13,6 +13,7 @@ type Props = {
 
 type AddCommandInputs = {
   table: string;
+  location: string;
   waiter: string;
   fishingType: string;
   peopleCount: number;
@@ -38,6 +39,7 @@ export const AddCommandModal = ({ isModalOpen, setIsModalOpen }: Props) => {
 
   const handleAddCommand: SubmitHandler<AddCommandInputs> = async ({
     table,
+    location,
     waiter,
     fishingType,
     peopleCount,
@@ -48,7 +50,7 @@ export const AddCommandModal = ({ isModalOpen, setIsModalOpen }: Props) => {
       }
       setIsAdding(true);
       const { message, command } = await CommandsService.storeCommand({
-        table,
+        table: `${table.trim()} (${location})`,
         waiter,
         fishingType,
         peopleCount: Number(peopleCount) || 1,
@@ -56,6 +58,7 @@ export const AddCommandModal = ({ isModalOpen, setIsModalOpen }: Props) => {
 
       allCommandsDispatch({ type: 'ADD-ONE-COMMAND', payload: { command } });
       setValue('table', '');
+      setValue('location', '');
       setValue('waiter', '');
 
       toast.closeAll();

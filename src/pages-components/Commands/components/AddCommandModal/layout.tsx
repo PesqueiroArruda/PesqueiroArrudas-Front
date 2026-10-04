@@ -8,6 +8,7 @@ import { Input } from 'components/ui/input';
 
 type AddCommandInputs = {
   table: string;
+  location: string;
   waiter: string;
   fishingType: string;
   peopleCount: number;
@@ -51,6 +52,27 @@ export const AddCommandModalLayout = ({
           {...rhfRegister('table', { required: true })}
         />
         {rhfErrors?.table && (
+          <span className="text-sm text-destructive">
+            Esse campo é necessário
+          </span>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm font-semibold text-navy">Local</span>
+        <select
+          defaultValue=""
+          {...rhfRegister('location', { required: true })}
+          className={selectClassName}
+        >
+          <option value="" disabled>
+            Selecione o local
+          </option>
+          <option>Salão</option>
+          <option>Deck</option>
+          <option>Lago</option>
+        </select>
+        {rhfErrors?.location && (
           <span className="text-sm text-destructive">
             Esse campo é necessário
           </span>
