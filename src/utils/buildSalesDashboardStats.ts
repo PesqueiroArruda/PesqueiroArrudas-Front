@@ -122,7 +122,11 @@ function withPercentages(entries: { label: string; total: number }[]): ShareStat
     .sort((a, b) => b.total - a.total);
 }
 
-export function buildSalesDashboardStats(cashiers: Cashier[], products: Product[]): SalesDashboardStats {
+export function buildSalesDashboardStats(
+  cashiers: Cashier[],
+  products: Product[],
+  openCashier?: Cashier
+): SalesDashboardStats {
   const payments = allPayments(cashiers);
 
   const totalRevenue = round2(cashiers.reduce((sum, cashier) => sum + (cashier.total || 0), 0));
@@ -158,9 +162,13 @@ export function buildSalesDashboardStats(cashiers: Cashier[], products: Product[
     .map((product) => ({ name: product.name, category: product.category }));
 
   // Mesma lógica de itemStats acima, mas escopada a um único dia (um grupo de
-  // groupCashiersByDay), pra listar o top 5 de cada dia em vez do agregado do
-  // período inteiro.
-  const cashiersByDay = groupCashiersByDay(cashiers);
+  // groupCashiersByDay), pra listar todos os itens de cada dia em vez do
+  // agregado do período inteiro. O caixa aberto (ainda não fechado) entra só
+  // aqui, pra não misturar números provisórios nos totais do período.
+  const openDayId = openCashier
+    ? DateTime.fromISO(openCashier.date, { zone: 'America/Sao_Paulo', setZone: true }).toFormat('yyyy-MM-dd')
+    : '';
+  const cashiersByDay = groupCashiersByDay(openCashier ? [...cashiers, openCashier] : cashiers);
   const bestSellingItemsByDay: DayBestSellers[] = cashiersByDay
     .map((day) => {
       const dayQuantityByName = new Map<string, number>();
@@ -179,12 +187,12 @@ export function buildSalesDashboardStats(cashiers: Cashier[], products: Product[
           quantity: round2(quantity),
           estimatedRevenue: round2(quantity * (productByName.get(name)?.unitPrice || 0)),
         }))
-        .sort((a, b) => b.quantity - a.quantity)
-        .slice(0, 5);
+        .sort((a, b) => b.quantity - a.quantity);
 
-      const label = DateTime.fromISO(day.date, { zone: 'America/Sao_Paulo', setZone: true })
+      const dateLabel = DateTime.fromISO(day.date, { zone: 'America/Sao_Paulo', setZone: true })
         .setLocale('pt-BR')
         .toLocaleString(DateTime.DATE_FULL);
+      const label = day._id === openDayId ? `${dateLabel} (em aberto)` : dateLabel;
 
       return { date: day._id, label, items };
     })

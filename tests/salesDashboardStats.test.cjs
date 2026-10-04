@@ -62,7 +62,7 @@ test('breaks best sellers down per day instead of only the aggregated period', (
   assert.equal(oldest.items[0].estimatedRevenue, 100);
 });
 
-test('caps each day at the top 5 items sorted by quantity', () => {
+test('lists every item sold in a day sorted by quantity', () => {
   const dayProducts = Array.from({ length: 7 }, (_, index) => ({
     _id: String(index),
     name: `Produto ${index}`,
@@ -73,9 +73,20 @@ test('caps each day at the top 5 items sorted by quantity', () => {
 
   assert.equal(stats.bestSellingItemsByDay.length, 1);
   const { items } = stats.bestSellingItemsByDay[0];
-  assert.equal(items.length, 5);
+  assert.equal(items.length, 7);
   assert.equal(items[0].name, 'Produto 6');
-  assert.equal(items[4].name, 'Produto 2');
+  assert.equal(items[6].name, 'Produto 0');
+});
+
+test('includes the open cashier only in the by-day list, flagged as open', () => {
+  const closed = [makeCashier('2031-04-01T12:00:00-03:00', [{ _id: '1', name: 'Cerveja', amount: 2 }])];
+  const open = makeCashier('2031-04-02T12:00:00-03:00', [{ _id: '2', name: 'Cerveja', amount: 5 }]);
+  const stats = buildSalesDashboardStats(closed, products, open);
+
+  assert.equal(stats.bestSellingItemsByDay.length, 2);
+  assert.equal(stats.bestSellingItemsByDay[0].date, '2031-04-02');
+  assert.match(stats.bestSellingItemsByDay[0].label, /\(em aberto\)/);
+  assert.equal(stats.bestSellingItems[0].quantity, 2);
 });
 
 test('excludes days without any items sold', () => {
