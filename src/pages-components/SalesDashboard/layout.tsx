@@ -185,24 +185,26 @@ export const SalesDashboardLayout = ({ stats, isLoading, month, setMonth, year, 
               const selected = stats.bestSellingItemsByDay.find((day) => day.date === selectedDay);
               if (!selected) return null;
               return (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Produto</TableHead>
-                      <TableHead>Qtd.</TableHead>
-                      <TableHead>Receita estimada</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {selected.items.map((item) => (
-                      <TableRow key={`day-${selected.date}-${item.name}`}>
-                        <TableCell>{item.name}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>{parseToBRL(item.estimatedRevenue)}</TableCell>
+                <div className="max-h-96 overflow-y-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Produto</TableHead>
+                        <TableHead>Qtd.</TableHead>
+                        <TableHead>Receita estimada</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {selected.items.map((item) => (
+                        <TableRow key={`day-${selected.date}-${item.name}`}>
+                          <TableCell>{item.name}</TableCell>
+                          <TableCell>{item.quantity}</TableCell>
+                          <TableCell>{parseToBRL(item.estimatedRevenue)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               );
             })()}
           </>

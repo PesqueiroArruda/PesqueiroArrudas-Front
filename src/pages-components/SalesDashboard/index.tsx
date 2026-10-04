@@ -10,6 +10,8 @@ import { Input } from 'components/ui/input';
 import { Cashier } from 'types/Cashier';
 import { Product } from 'types/Product';
 import CashierService from 'pages-components/Home/services/CashierService';
+import PaymentsService from 'pages-components/Home/services/PaymentsService';
+import { Payment } from 'pages-components/Home/types/Payment';
 import AuthService from 'pages-components/Home/services/AuthService';
 import ProductsService from 'pages-components/Commands/services/ProductsService';
 import { SocketContext } from 'pages/_app';
@@ -24,6 +26,7 @@ export const SalesDashboard = () => {
 
   const [allCashiers, setAllCashiers] = useState<Cashier[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [todayPayments, setTodayPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const [month, setMonth] = useState('Todos');
@@ -78,12 +81,16 @@ export const SalesDashboard = () => {
     if (!isPermitted) return;
     (async () => {
       try {
-        const [cashiers, allProducts] = await Promise.all([
+        const [cashiers, allProducts, openPayments] = await Promise.all([
           CashierService.getAll(),
           ProductsService.getAllProducts(),
+          PaymentsService.getAll({ date: DateTime.now().setZone('America/Sao_Paulo').toISO() }).catch(
+            () => []
+          ),
         ]);
         setAllCashiers(cashiers);
         setProducts(allProducts);
+        setTodayPayments(openPayments);
       } finally {
         setIsLoading(false);
       }
@@ -111,10 +118,20 @@ export const SalesDashboard = () => {
         return [...prevCashiers, newCashier];
       });
     };
+    const onPaymentCreated = (payment: Payment) => {
+      const paymentDate = DateTime.fromISO(payment.createdAt).setZone('America/Sao_Paulo').toISODate();
+      const today = DateTime.now().setZone('America/Sao_Paulo').toISODate();
+      if (paymentDate !== today) return;
+      setTodayPayments((previous) =>
+        previous.some((p) => p._id === payment._id) ? previous : [...previous, payment]
+      );
+    };
     socket.on('cashier-created', onCashierCreated);
+    socket.on('payment-created', onPaymentCreated);
 
     return () => {
       socket.off('cashier-created', onCashierCreated);
+      socket.off('payment-created', onPaymentCreated);
     };
   }, [socket, isPermitted]);
 
@@ -133,9 +150,31 @@ export const SalesDashboard = () => {
     [allCashiers, month, year]
   );
 
+  // Vendas de hoje ainda sem caixa fechado. Ignora pagamentos que já constam
+  // em algum caixa fechado (evita contar duas vezes após fechar o caixa) e
+  // respeita o filtro de mês/ano.
+  const openCashier = useMemo<Cashier | undefined>(() => {
+    const today = DateTime.now().setZone('America/Sao_Paulo').setLocale('pt-BR');
+    const inPeriod =
+      (month === 'Todos' || today.toFormat('LLLL') === month.toLowerCase()) &&
+      (year === 'Todos' || String(today.year) === year);
+    if (!inPeriod) return undefined;
+
+    const closedIds = new Set(allCashiers.flatMap((cashier) => (cashier.payments || []).map((p) => p._id)));
+    const payments = todayPayments.filter((payment) => !closedIds.has(payment._id));
+    if (payments.length === 0) return undefined;
+
+    return {
+      _id: 'today-open',
+      date: today.toISO(),
+      total: payments.reduce((sum, payment) => sum + (payment.totalPayed || 0), 0),
+      payments: payments as any,
+    };
+  }, [allCashiers, todayPayments, month, year]);
+
   const stats = useMemo(
-    () => buildSalesDashboardStats(filteredCashiers, products),
-    [filteredCashiers, products]
+    () => buildSalesDashboardStats(filteredCashiers, products, openCashier),
+    [filteredCashiers, products, openCashier]
   );
 
   if (!isAdmin) {
