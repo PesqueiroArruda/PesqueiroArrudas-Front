@@ -343,7 +343,7 @@ export const IfoodOrdersLayout = ({
           <div className="flex max-h-72 flex-col gap-2 overflow-y-auto">
             {cancellationReasons.map((reason, index) => (
               <label
-                key={reason.cancelCodeId}
+                key={reason.code}
                 htmlFor={`cancellation-reason-${index}`}
                 className="flex cursor-pointer items-center gap-2 rounded-(--radius) border border-border bg-card px-3 py-2 text-sm font-semibold text-navy"
               >

@@ -88,7 +88,7 @@ export interface ResolvedIfoodItem {
 }
 
 export interface IfoodCancellationReason {
-  cancelCodeId: string;
+  code: string;
   description: string;
 }
 
@@ -103,5 +103,13 @@ export interface IfoodOrder {
   deliveryStatus?: IfoodDeliveryStatus;
   commandId?: string | null;
   rejectionReason?: string;
+  cancellationRequest?: {
+    disputeId: string;
+    action: string;
+    expiresAt?: string | null;
+    timeoutAction?: string | null;
+    acceptReasons?: string[];
+    eventId?: string;
+  } | null;
   createdAt?: string;
 }

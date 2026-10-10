@@ -249,7 +249,7 @@ export const IfoodOrders = () => {
       setProcessingId(rejectingOrderId);
       await IfoodOrdersService.reject(
         rejectingOrderId,
-        reason.cancelCodeId,
+        reason.code,
         reason.description
       );
       setIfoodOrders((prev) =>
