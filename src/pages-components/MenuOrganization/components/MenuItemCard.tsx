@@ -1,4 +1,5 @@
-import { GripVertical, X } from 'lucide-react';
+import { ChangeEvent, useRef } from 'react';
+import { GripVertical, Loader2, Pencil, X } from 'lucide-react';
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 
@@ -8,10 +9,18 @@ import { Product } from 'pages-components/Stock/types/Product';
 
 interface Props {
   product: Product;
+  isUploadingImage: boolean;
   onRemove: (product: Product) => void;
+  onChangeImage: (product: Product, file: File) => void;
 }
 
-export const MenuItemCard = ({ product, onRemove }: Props) => {
+export const MenuItemCard = ({
+  product,
+  isUploadingImage,
+  onRemove,
+  onChangeImage,
+}: Props) => {
+  const inputRef = useRef<HTMLInputElement>(null);
   const {
     attributes,
     listeners,
@@ -24,6 +33,12 @@ export const MenuItemCard = ({ product, onRemove }: Props) => {
   const imageUrl = product.menu?.imageKey
     ? `${process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL}/${product.menu.imageKey}`
     : product.imageURL;
+
+  function handleFileInputChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) onChangeImage(product, file);
+    e.target.value = '';
+  }
 
   return (
     <div
@@ -42,16 +57,44 @@ export const MenuItemCard = ({ product, onRemove }: Props) => {
     >
       <GripVertical className="h-4 w-4 shrink-0 text-text-muted" />
 
-      {imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={imageUrl}
-          alt={product.name}
-          className="h-10 w-10 shrink-0 rounded-md object-cover"
-        />
-      ) : (
-        <div className="h-10 w-10 shrink-0 rounded-md bg-secondary" />
-      )}
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        onPointerDown={(e) => e.stopPropagation()}
+        disabled={isUploadingImage}
+        aria-label="Trocar foto do item"
+        className="group relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-secondary"
+      >
+        {imageUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={imageUrl}
+            alt={product.name}
+            className="h-full w-full object-cover"
+          />
+        )}
+        <span
+          className={cn(
+            'absolute inset-0 flex items-center justify-center bg-black/50 transition-opacity',
+            isUploadingImage
+              ? 'opacity-100'
+              : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'
+          )}
+        >
+          {isUploadingImage ? (
+            <Loader2 className="h-4 w-4 animate-spin text-white" />
+          ) : (
+            <Pencil className="h-4 w-4 text-white" />
+          )}
+        </span>
+      </button>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        className="hidden"
+        onChange={handleFileInputChange}
+      />
 
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-navy">

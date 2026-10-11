@@ -1,4 +1,11 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import { useToast } from '@chakra-ui/react';
 import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
@@ -11,9 +18,13 @@ import {
   MENU_CATEGORIES,
   Product,
 } from 'pages-components/Stock/types/Product';
+import { uploadFileToPresignedUrl } from 'utils/uploadFileToPresignedUrl';
 import MenuOrganizationService from './services';
 import { MenuOrganizationLayout } from './layout';
 import { UNCATEGORIZED } from './constants';
+
+const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
 // Preenche categorias padrão que ainda não constam na ordem salva (ex.: uma
 // categoria nova adicionada ao código depois do último salvamento) e ignora
@@ -59,6 +70,9 @@ export const MenuOrganization = () => {
   ]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [uploadingImageIds, setUploadingImageIds] = useState<string[]>([]);
+  const productsRef = useRef<Product[]>([]);
+  productsRef.current = products;
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
 
   const { socket } = useContext(SocketContext);
@@ -373,6 +387,56 @@ export const MenuOrganization = () => {
     [applyLocalUpdates, toast]
   );
 
+  const handleChangeImage = useCallback(
+    async (product: Product, file: File) => {
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        toast({ status: 'error', title: 'Use uma imagem JPEG, PNG ou WebP.' });
+        return;
+      }
+      if (file.size > MAX_IMAGE_SIZE_BYTES) {
+        toast({ status: 'error', title: 'A imagem precisa ter até 5MB.' });
+        return;
+      }
+
+      const productId = product._id as string;
+      setUploadingImageIds((prev) => [...prev, productId]);
+
+      try {
+        const { uploadUrl, imageKey } =
+          await StockService.getPresignedUploadUrl({
+            productId,
+            contentType: file.type,
+          });
+        await uploadFileToPresignedUrl({
+          uploadUrl,
+          file,
+          contentType: file.type,
+        });
+
+        // Usa a versão mais recente do produto: ele pode ter sido movido de
+        // categoria/ordem enquanto o upload acontecia.
+        const latest =
+          productsRef.current.find((item) => item._id === product._id) ||
+          product;
+        const updated: Product = {
+          ...latest,
+          menu: { ...(latest.menu || EMPTY_MENU_CONFIG), imageKey },
+        };
+        await StockService.updateProduct(updated);
+        applyLocalUpdates([updated]);
+        toast({ status: 'success', title: 'Foto atualizada!' });
+      } catch (err: any) {
+        toast({
+          status: 'error',
+          title: err?.response?.data?.message || 'Falha ao enviar a foto.',
+        });
+      } finally {
+        setUploadingImageIds((prev) => prev.filter((id) => id !== productId));
+      }
+    },
+    [applyLocalUpdates, toast]
+  );
+
   function handleGoToStock() {
     router.push('/stock');
   }
@@ -387,12 +451,14 @@ export const MenuOrganization = () => {
       categoryOrder={categoryOrder}
       groupedByCategory={groupedByCategory}
       itemsNotInMenu={itemsNotInMenu}
+      uploadingImageIds={uploadingImageIds}
       activeProduct={activeProduct}
       handleDragStart={handleDragStart}
       handleDragEnd={handleDragEnd}
       handleDragCancel={handleDragCancel}
       handleAddToMenu={handleAddToMenu}
       handleRemoveFromMenu={handleRemoveFromMenu}
+      handleChangeImage={handleChangeImage}
       handleReorderCategories={handleReorderCategories}
       handleGoToStock={handleGoToStock}
     />

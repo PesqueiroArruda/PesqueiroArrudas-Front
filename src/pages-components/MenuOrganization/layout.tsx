@@ -37,12 +37,14 @@ interface Props {
   categoryOrder: string[];
   groupedByCategory: Record<string, Product[]>;
   itemsNotInMenu: Product[];
+  uploadingImageIds: string[];
   activeProduct: Product | null;
   handleDragStart: (event: DragStartEvent) => void;
   handleDragEnd: (event: DragEndEvent) => void;
   handleDragCancel: () => void;
   handleAddToMenu: (product: Product, category: string) => void;
   handleRemoveFromMenu: (product: Product) => void;
+  handleChangeImage: (product: Product, file: File) => void;
   handleReorderCategories: (categoryOrder: string[]) => void;
   handleGoToStock: () => void;
 }
@@ -52,12 +54,14 @@ export const MenuOrganizationLayout = ({
   categoryOrder,
   groupedByCategory,
   itemsNotInMenu,
+  uploadingImageIds,
   activeProduct,
   handleDragStart,
   handleDragEnd,
   handleDragCancel,
   handleAddToMenu,
   handleRemoveFromMenu,
+  handleChangeImage,
   handleReorderCategories,
   handleGoToStock,
 }: Props) => {
@@ -104,7 +108,9 @@ export const MenuOrganizationLayout = ({
                   categoryKey={category}
                   title={category}
                   items={groupedByCategory[category] || []}
+                  uploadingImageIds={uploadingImageIds}
                   onRemove={handleRemoveFromMenu}
+                  onChangeImage={handleChangeImage}
                 />
               ))}
               {hasUncategorized && (
@@ -112,7 +118,9 @@ export const MenuOrganizationLayout = ({
                   categoryKey={UNCATEGORIZED}
                   title="Sem categoria padrão"
                   items={groupedByCategory[UNCATEGORIZED] || []}
+                  uploadingImageIds={uploadingImageIds}
                   onRemove={handleRemoveFromMenu}
+                  onChangeImage={handleChangeImage}
                 />
               )}
             </div>

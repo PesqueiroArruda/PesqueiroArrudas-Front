@@ -12,14 +12,18 @@ interface Props {
   categoryKey: string;
   title: string;
   items: Product[];
+  uploadingImageIds: string[];
   onRemove: (product: Product) => void;
+  onChangeImage: (product: Product, file: File) => void;
 }
 
 export const CategoryColumn = ({
   categoryKey,
   title,
   items,
+  uploadingImageIds,
   onRemove,
+  onChangeImage,
 }: Props) => {
   const { setNodeRef, isOver } = useDroppable({ id: categoryKey });
   const itemIds = items.map((item) => item._id as string);
@@ -44,7 +48,13 @@ export const CategoryColumn = ({
       >
         <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
           {items.map((item) => (
-            <MenuItemCard key={item._id} product={item} onRemove={onRemove} />
+            <MenuItemCard
+              key={item._id}
+              product={item}
+              isUploadingImage={uploadingImageIds.includes(item._id as string)}
+              onRemove={onRemove}
+              onChangeImage={onChangeImage}
+            />
           ))}
         </SortableContext>
 
