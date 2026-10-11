@@ -7,6 +7,7 @@ import { StockContext } from 'pages-components/Stock';
 import { formatDecimalNum } from 'utils/formatDecimalNum';
 import { Item } from 'pages-components/Stock/types/Item';
 import { EMPTY_MENU_CONFIG, MenuConfig } from 'pages-components/Stock/types/Product';
+import { normalizeSearch } from 'utils/normalizeSearch';
 import { ItemsTableLayout } from './layout';
 import { DeleteItemModal } from '../DeleteItemModal';
 import StockService from '../../services';
@@ -75,8 +76,8 @@ export const ItemsTable = () => {
   const filteredBySearch = useMemo(
     () =>
       filteredBySort.filter((item) => {
-        const itemsArr = Object.values(item).join('').toLowerCase();
-        if (itemsArr.includes(searchContent.toLowerCase())) {
+        const itemsArr = normalizeSearch(Object.values(item).join(''));
+        if (itemsArr.includes(normalizeSearch(searchContent))) {
           return true;
         }
         return false;

@@ -14,6 +14,7 @@ import {
 } from 'react';
 import { Product } from 'types/Product';
 import { formatAmount } from 'utils/formatAmount';
+import { normalizeSearch } from 'utils/normalizeSearch';
 import { AddProductModalLayout } from './layout';
 import { SetAmountModal } from './SetAmountModal';
 
@@ -302,8 +303,8 @@ export const AddProductsModal = ({
 
   const filteredBySearch = useMemo(() => {
     const filtered = filteredByFilter.filter((product: any) => {
-      const productObjStr = Object.values(product).join('').toLocaleLowerCase();
-      if (productObjStr.includes(searchContent.toLowerCase())) {
+      const productObjStr = normalizeSearch(Object.values(product).join(''));
+      if (productObjStr.includes(normalizeSearch(searchContent))) {
         return true;
       }
       return false;

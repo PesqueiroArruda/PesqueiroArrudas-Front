@@ -4,6 +4,7 @@ import { Search, X } from 'lucide-react';
 import { cn } from 'lib/utils';
 import { Input } from 'components/ui/input';
 import { Product } from 'pages-components/Stock/types/Product';
+import { normalizeSearch } from 'utils/normalizeSearch';
 
 interface Props {
   items: Product[];
@@ -39,10 +40,10 @@ export const StockItemSearch = ({
   }, []);
 
   const results = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
+    const normalizedQuery = normalizeSearch(query);
     const matches = normalizedQuery
       ? items.filter((item) =>
-          item.name.toLowerCase().includes(normalizedQuery)
+          normalizeSearch(item.name).includes(normalizedQuery)
         )
       : items;
     return matches.slice(0, MAX_RESULTS);

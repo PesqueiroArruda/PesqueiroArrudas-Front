@@ -5,6 +5,7 @@ import CommandService from 'pages-components/Command/services/CommandService';
 import { formatAmount } from 'utils/formatAmount';
 import { Product } from 'types/Product';
 import ProductsService from 'pages-components/Command/services/ProductsService';
+import { normalizeSearch } from 'utils/normalizeSearch';
 import { CommandContext } from '../../index';
 import { ProductsListLayout } from './layout';
 import { PayProductModal } from './PayProductModal';
@@ -331,8 +332,8 @@ export const ProductsList = ({isAdmin} : {isAdmin: boolean}) => {
 
   const filteredBySearch = useMemo(() => {
     const filtered = filteredByFilter?.filter((product: any) => {
-      const productValuesStr = Object.values(product).join('').toLowerCase();
-      if (productValuesStr.includes(searchContent.toLowerCase())) {
+      const productValuesStr = normalizeSearch(Object.values(product).join(''));
+      if (productValuesStr.includes(normalizeSearch(searchContent))) {
         return true;
       }
       return false;

@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 
 import { CommandsContext } from 'pages-components/Commands';
 import { Command } from 'types/Command';
+import { normalizeSearch } from 'utils/normalizeSearch';
 import { CommandsListLayout } from './layout';
 import { EditCommandModal } from '../EditCommandModal';
 import { DeleteCommandModal } from '../DeleteCommandModal';
@@ -115,8 +116,8 @@ export const CommandsList = () => {
 
   const filteredBySearch = useMemo(() => {
     const filtered = filteredBySort.filter((command) => {
-      const commandStr = Object?.values(command)?.join('')?.toLowerCase();
-      if (commandStr.includes(searchContent.toLowerCase())) {
+      const commandStr = normalizeSearch(Object?.values(command)?.join(''));
+      if (commandStr.includes(normalizeSearch(searchContent))) {
         return true;
       }
       return false;
