@@ -56,6 +56,11 @@ export const OrderLayout = ({
         <span className="text-base font-semibold text-navy sm:text-lg">
           Mesa: <span className="font-bold">{order?.table}</span>
         </span>
+        {order?.peopleCount ? (
+          <span className="text-base font-semibold text-navy sm:text-lg">
+            Pessoas: <span className="font-bold">{order.peopleCount}</span>
+          </span>
+        ) : null}
         <span className="text-base font-semibold text-navy sm:text-lg">
           Pedido por: <span className="font-bold">{order?.orderWaiter}</span>
         </span>

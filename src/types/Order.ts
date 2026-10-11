@@ -11,4 +11,5 @@ export interface Order {
   orderCategory: string;
   orderWaiter: string;
   isMade?: boolean;
+  peopleCount?: number;
 }
