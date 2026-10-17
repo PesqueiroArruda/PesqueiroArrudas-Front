@@ -1,7 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import useSound from 'use-sound';
 import { SocketContext } from 'pages/_app';
 
 import { AppShellLoading } from 'components/AppShellLoading';
@@ -14,7 +13,6 @@ import { Product } from 'types/Product';
 import { IfoodProductMapping } from 'types/IfoodProductMapping';
 import ProductsService from 'pages-components/Commands/services/ProductsService';
 import { resolveIfoodItemProduct } from 'utils/resolveIfoodItemProduct';
-import NotifySound from '../../../public/kitchenalarm.mp3';
 import { IfoodOrdersLayout } from './layout';
 import IfoodOrdersService from './services/IfoodOrdersService';
 
@@ -30,7 +28,6 @@ export const IfoodOrders = () => {
   const router = useRouter();
   const toast = useToast();
   const { socket } = useContext(SocketContext);
-  const [playNotify] = useSound<any>(NotifySound);
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [ifoodOrders, setIfoodOrders] = useState<IfoodOrder[]>([]);
@@ -118,7 +115,6 @@ export const IfoodOrders = () => {
         if (prev.some((order) => order._id === payload._id)) return prev;
         return [payload, ...prev];
       });
-      playNotify();
     };
 
     const onIfoodOrderUpdated = (payload: IfoodOrder) => {
@@ -146,7 +142,7 @@ export const IfoodOrders = () => {
       socket.off('ifood-order-received', onIfoodOrderReceived);
       socket.off('ifood-order-updated', onIfoodOrderUpdated);
     };
-  }, [socket, playNotify]);
+  }, [socket]);
 
   const handleSelectProduct = useCallback(
     (orderId: string, itemId: string, productId: string) => {

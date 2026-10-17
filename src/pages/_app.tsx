@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import io, { Socket } from 'socket.io-client';
 import { API_URL } from 'services/apiConfig';
 import { RouteProgressBar } from 'components/RouteProgressBar';
+import { IfoodOrderAlert } from 'components/IfoodOrderAlert';
 
 import 'styles/globals.css';
 
@@ -55,6 +56,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <RouteProgressBar />
         <SocketContext.Provider value={socketContextValue}>
           <Component {...pageProps} />
+          {router.pathname !== '/login' && <IfoodOrderAlert />}
         </SocketContext.Provider>
       </ChakraProvider>
     </div>

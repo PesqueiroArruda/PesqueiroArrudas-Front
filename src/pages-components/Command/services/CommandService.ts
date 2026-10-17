@@ -81,6 +81,11 @@ class CommandService {
     return data;
   }
 
+  async markIfoodOrderReady(commandId: string) {
+    const { data } = await serverApi.post(`/ifood/commands/${commandId}/ready`);
+    return data;
+  }
+
   async dispatchIfoodOrder(commandId: string) {
     const { data } = await serverApi.post(`/ifood/commands/${commandId}/dispatch`);
     return data;

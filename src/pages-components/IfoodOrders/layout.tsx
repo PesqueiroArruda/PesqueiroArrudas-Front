@@ -16,6 +16,7 @@ import { AppShell } from 'components/AppShell';
 import { Button } from 'components/ui/button';
 import { DeliveryStatusBadge } from 'components/DeliveryStatusBadge';
 import { Modal } from 'components/Modal';
+import { ProductCombobox } from 'components/ProductCombobox';
 import { IfoodCancellationReason, IfoodOrder } from 'types/IfoodOrder';
 import { Product } from 'types/Product';
 import { parseToBRL } from 'utils/parseToBRL';
@@ -46,9 +47,6 @@ interface Props {
   handleConfirmReject: () => void;
   handleCloseRejectModal: () => void;
 }
-
-const selectClassName =
-  'h-9 w-full rounded-(--radius) border border-input bg-card px-2 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
 const PAYMENT_METHOD_LABEL: Record<string, string> = {
   CREDIT: 'Crédito',
@@ -261,19 +259,12 @@ export const IfoodOrdersLayout = ({
                             <p className="text-xs font-semibold text-destructive">Obs: {item.observations}</p>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 sm:w-64">
-                          <select
-                            value={selection?.productId || ''}
-                            onChange={(e) => handleSelectProduct(order._id, item.id, e.target.value)}
-                            className={selectClassName}
-                          >
-                            <option value="">Sem produto vinculado</option>
-                            {products.map((product) => (
-                              <option key={product._id} value={product._id}>
-                                {product.name}
-                              </option>
-                            ))}
-                          </select>
+                        <div className="flex items-center gap-2 sm:w-72">
+                          <ProductCombobox
+                            products={products}
+                            value={selection?.productId || null}
+                            onChange={(productId) => handleSelectProduct(order._id, item.id, productId)}
+                          />
                         </div>
                         <label
                           htmlFor={`ifood-remember-${order._id}-${item.id}`}

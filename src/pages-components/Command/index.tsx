@@ -103,6 +103,7 @@ export const Command = ({ commandId }: Props) => {
 
   const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
   const [isDispatchingIfoodOrder, setIsDispatchingIfoodOrder] = useState(false);
+  const [isMarkingIfoodOrderReady, setIsMarkingIfoodOrderReady] = useState(false);
 
   const [filter, setFilter] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
@@ -304,6 +305,31 @@ export const Command = ({ commandId }: Props) => {
     },
     [command._id, toast]
   );
+
+  const handleMarkIfoodOrderReady = useCallback(async () => {
+    if (!command._id) return;
+    try {
+      setIsMarkingIfoodOrderReady(true);
+      const { ifoodOrder } = await CommandService.markIfoodOrderReady(command._id);
+      setCommand((prev) => ({ ...prev, deliveryStatus: ifoodOrder.deliveryStatus }));
+      toast.closeAll();
+      toast({
+        status: 'success',
+        title: 'Pedido marcado como pronto no iFood',
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (error: any) {
+      toast({
+        status: 'error',
+        title: error?.response?.data?.message || 'Não foi possível marcar o pedido como pronto no iFood.',
+        duration: null,
+        isClosable: true,
+      });
+    } finally {
+      setIsMarkingIfoodOrderReady(false);
+    }
+  }, [command._id, toast]);
 
   const handleDispatchIfoodOrder = useCallback(async () => {
     if (!command._id) return;
@@ -523,6 +549,8 @@ export const Command = ({ commandId }: Props) => {
         handlePrintCommand={handlePrintCommand}
         isAdmin={isAdmin}
         handleUpdatePeopleCount={handleUpdatePeopleCount}
+        handleMarkIfoodOrderReady={handleMarkIfoodOrderReady}
+        isMarkingIfoodOrderReady={isMarkingIfoodOrderReady}
         handleDispatchIfoodOrder={handleDispatchIfoodOrder}
         isDispatchingIfoodOrder={isDispatchingIfoodOrder}
       />

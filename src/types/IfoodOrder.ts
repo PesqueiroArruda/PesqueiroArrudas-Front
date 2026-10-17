@@ -92,7 +92,7 @@ export interface IfoodCancellationReason {
   description: string;
 }
 
-export type IfoodDeliveryStatus = 'confirmed' | 'dispatched' | 'concluded' | null;
+export type IfoodDeliveryStatus = 'confirmed' | 'ready' | 'dispatched' | 'concluded' | null;
 
 export interface IfoodOrder {
   _id: string;

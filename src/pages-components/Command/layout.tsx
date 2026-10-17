@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { BadgeCheck, Bike, ChefHat, Loader2, Minus, MoreVertical, Percent, Plus, Printer, Trash2, Wallet } from 'lucide-react';
+import { BadgeCheck, Bike, ChefHat, Loader2, Minus, MoreVertical, PackageCheck, Percent, Plus, Printer, Trash2, Wallet } from 'lucide-react';
 
 import { AppShell } from 'components/AppShell';
 import { Button } from 'components/ui/button';
@@ -28,6 +28,8 @@ interface Props {
   handlePrintCommand: () => void;
   isAdmin: boolean;
   handleUpdatePeopleCount: (peopleCount: number) => void;
+  handleMarkIfoodOrderReady: () => void;
+  isMarkingIfoodOrderReady: boolean;
   handleDispatchIfoodOrder: () => void;
   isDispatchingIfoodOrder: boolean;
 }
@@ -45,6 +47,8 @@ export const CommandLayout = ({
   handlePrintCommand,
   isAdmin,
   handleUpdatePeopleCount,
+  handleMarkIfoodOrderReady,
+  isMarkingIfoodOrderReady,
   handleDispatchIfoodOrder,
   isDispatchingIfoodOrder,
 }: Props) => {
@@ -85,6 +89,25 @@ export const CommandLayout = ({
               </div>
               <span className="text-sm text-text-muted">{createdAtFormatted}</span>
               <DeliveryStatusBadge status={command?.deliveryStatus} />
+              {isAdmin &&
+                command?.isActive !== false &&
+                command?.table?.startsWith('iFood #') &&
+                command?.deliveryStatus !== 'ready' &&
+                command?.deliveryStatus !== 'dispatched' &&
+                command?.deliveryStatus !== 'concluded' && (
+                  <Button
+                    variant="secondary"
+                    disabled={isMarkingIfoodOrderReady}
+                    onClick={handleMarkIfoodOrderReady}
+                  >
+                    {isMarkingIfoodOrderReady ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <PackageCheck className="h-4 w-4" />
+                    )}
+                    Marcar como pronto
+                  </Button>
+                )}
               {isAdmin &&
                 command?.isActive !== false &&
                 command?.table?.startsWith('iFood #') &&

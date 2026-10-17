@@ -1,10 +1,11 @@
-import { BadgeCheck, PackageCheck, Truck } from 'lucide-react';
+import { BadgeCheck, PackageCheck, PackageOpen, Truck } from 'lucide-react';
 
 import { Badge } from 'components/ui/badge';
 import { IfoodDeliveryStatus } from 'types/IfoodOrder';
 
-const CONFIG: Record<Exclude<IfoodDeliveryStatus, null | undefined>, { label: string; variant: 'default' | 'cyan' | 'success'; Icon: typeof Truck }> = {
+const CONFIG: Record<Exclude<IfoodDeliveryStatus, null | undefined>, { label: string; variant: 'default' | 'gold' | 'cyan' | 'success'; Icon: typeof Truck }> = {
   confirmed: { label: 'Confirmado', variant: 'default', Icon: PackageCheck },
+  ready: { label: 'Pronto', variant: 'gold', Icon: PackageOpen },
   dispatched: { label: 'Despachado', variant: 'cyan', Icon: Truck },
   concluded: { label: 'Concluído', variant: 'success', Icon: BadgeCheck },
 };
