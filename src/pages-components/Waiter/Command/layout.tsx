@@ -26,6 +26,13 @@ interface Props {
   handleBack: () => void;
 }
 
+// Aviso curto de estoque ao lado do preço.
+function stockHint(stock: number | null, isOut: boolean) {
+  if (isOut) return ' · Esgotado';
+  if (stock !== null && stock <= 5) return ` · Restam ${stock}`;
+  return '';
+}
+
 const formatPrice = (value: number) =>
   value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -76,7 +83,7 @@ const ProductRow = ({
         <span className="truncate text-sm font-bold text-navy">{product.name}</span>
         <span className="text-xs text-text-muted">
           {formatPrice(product.unitPrice)}
-          {isOut ? ' · Esgotado' : stock !== null && stock <= 5 ? ` · Restam ${stock}` : ''}
+          {stockHint(stock, isOut)}
         </span>
       </div>
 

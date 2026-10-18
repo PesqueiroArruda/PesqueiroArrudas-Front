@@ -55,7 +55,7 @@ const NewCommandDialog = ({
   handleCreate,
 }: {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: (isOpen: boolean) => void;
   isCreating: boolean;
   handleCreate: Props['handleCreate'];
 }) => {
@@ -85,16 +85,17 @@ const NewCommandDialog = ({
             });
           }}
         >
-          <label className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5">
             <span className="text-sm font-semibold text-navy">Mesa ou nome</span>
             <Input
+              aria-label="Mesa ou nome"
               value={table}
               onChange={(e) => setTable(e.target.value)}
               placeholder="Ex.: 12 ou Família Silva"
               className="h-12 text-base"
               autoFocus
             />
-          </label>
+          </div>
 
           <div className="flex flex-col gap-1.5">
             <span className="text-sm font-semibold text-navy">Local</span>

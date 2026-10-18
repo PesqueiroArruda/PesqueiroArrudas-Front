@@ -123,7 +123,7 @@ export const Users = () => {
       handleRevokeDevice={handleRevokeDevice}
       handleUseCurrentIp={() =>
         handleNetworkAction(
-          () => UsersService.useCurrentIp(),
+          () => UsersService.allowCurrentIp(),
           'Esta rede agora é a do pesqueiro'
         )
       }

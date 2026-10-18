@@ -105,6 +105,7 @@ export const WaiterCommandPage = ({ commandId }: { commandId?: string }) => {
     let leftNetwork = false;
 
     // Um item por vez: o servidor baixa estoque e avisa cozinha/bar em cada um.
+    // eslint-disable-next-line no-restricted-syntax
     for (const [productId, amount] of cartEntries) {
       try {
         // eslint-disable-next-line no-await-in-loop

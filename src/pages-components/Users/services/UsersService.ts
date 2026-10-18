@@ -79,7 +79,7 @@ class UsersService {
     return data;
   }
 
-  async useCurrentIp(): Promise<NetworkSettings> {
+  async allowCurrentIp(): Promise<NetworkSettings> {
     const { data } = await serverApi.post('/security/network/use-current-ip');
     return data;
   }

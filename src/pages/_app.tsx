@@ -41,7 +41,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   // deslogado). Conecta normalmente assim que sai do login.
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      navigator.serviceWorker.register('/sw.js').catch(() => undefined);
     }
   }, []);
 
