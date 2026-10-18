@@ -1,4 +1,4 @@
-import { useContext, useState, useMemo, useCallback } from 'react';
+import { useContext, useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useToast } from '@chakra-ui/react';
 
 import CommandService from 'pages-components/Command/services/CommandService';
@@ -6,6 +6,7 @@ import { formatAmount } from 'utils/formatAmount';
 import { Product } from 'types/Product';
 import ProductsService from 'pages-components/Command/services/ProductsService';
 import { normalizeSearch } from 'utils/normalizeSearch';
+import { planAmountChange } from 'utils/planAmountChange';
 import { CommandContext } from '../../index';
 import { ProductsListLayout } from './layout';
 import { PayProductModal } from './PayProductModal';
@@ -16,6 +17,9 @@ interface AmountProduct {
   totalPayed: number;
   amount: number;
 }
+
+// Tempo parado sem clicar em + ou - antes de mandar a quantidade final pra API.
+const AMOUNT_CLICKS_DEBOUNCE_MS = 500;
 
 export const ProductsList = ({isAdmin} : {isAdmin: boolean}) => {
   const [fishIdToEditAmount, setFishIdToEditAmount] = useState('');
@@ -173,56 +177,135 @@ export const ProductsList = ({isAdmin} : {isAdmin: boolean}) => {
     setProductToPay(product);
   }
 
-  const handleIncrementProductAmount = useCallback(
-    async ({ productId, amount }: { productId: string; amount: number }) => {
+  // Cliques em + e - só mexem na tela na hora. A API é chamada uma vez, com a
+  // quantidade final, depois de AMOUNT_CLICKS_DEBOUNCE_MS sem novos cliques.
+  // pendingAmounts guarda a quantidade desejada por produto (absoluta, então
+  // repetir a chamada não soma duas vezes).
+  const [pendingAmounts, setPendingAmounts] = useState<Record<string, number>>({});
+  const pendingRef = useRef<Record<string, number>>({});
+  const timersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  // Fila única: cada envio troca o array de produtos da comanda inteiro, então
+  // dois produtos não podem sair ao mesmo tempo a partir do mesmo snapshot.
+  const queueRef = useRef<Promise<void>>(Promise.resolve());
+  const isMountedRef = useRef(true);
+  const commandRef = useRef(command);
+  const isAdminRef = useRef(isAdmin);
+
+  useEffect(() => {
+    commandRef.current = command;
+  }, [command]);
+
+  useEffect(() => {
+    isAdminRef.current = isAdmin;
+  }, [isAdmin]);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const setPending = useCallback((productId: string, amount: number | null) => {
+    const next = { ...pendingRef.current };
+    if (amount === null) delete next[productId];
+    else next[productId] = amount;
+    pendingRef.current = next;
+    if (isMountedRef.current) setPendingAmounts(next);
+  }, []);
+
+  const notify = useCallback(
+    (options: Parameters<typeof toast>[0]) => {
+      if (!isMountedRef.current) return;
+      toast.closeAll();
+      toast(options);
+    },
+    [toast]
+  );
+
+  const flushAmountChange = useCallback(
+    async (productId: string) => {
+      const target = pendingRef.current[productId];
+      if (target === undefined) return;
+
+      const findServerAmount = () =>
+        commandRef.current?.products?.find((product: Product) => product._id === productId)
+          ?.amount;
+
+      const firstAmount = findServerAmount();
+      if (!commandRef.current?._id || firstAmount === undefined) {
+        setPending(productId, null);
+        notify({ status: 'warning', title: 'O produto não está mais na comanda', duration: 2000 });
+        return;
+      }
+
+      const firstPlan = planAmountChange(firstAmount, target);
+      if (!firstPlan.operation) {
+        setPending(productId, null);
+        return;
+      }
+
       try {
-        // TODO: Verify if amount in stock is available
-        const { isInStock } = await ProductsService.verifyAmount({
-          productId,
-          amount: amount - (amount - 1),
-        });
-        if (!isInStock) {
+        if (firstPlan.operation === 'diminish') {
+          const { isInStock } = await ProductsService.verifyAmount({
+            productId,
+            amount: firstPlan.delta,
+          });
+          if (!isInStock) {
+            setPending(productId, null);
+            notify({ status: 'warning', title: 'Estoque insuficiente', duration: 1500 });
+            return;
+          }
+        }
+
+        // A comanda pode ter mudado (socket) durante o verifyAmount, então a
+        // quantidade do servidor e o array de produtos são lidos de novo aqui.
+        const currentCommand = commandRef.current;
+        const serverAmount = findServerAmount();
+        if (!currentCommand?._id || serverAmount === undefined) {
+          setPending(productId, null);
+          notify({ status: 'warning', title: 'O produto não está mais na comanda', duration: 2000 });
+          return;
+        }
+        const { delta, operation } = planAmountChange(serverAmount, target);
+        if (!operation) {
+          setPending(productId, null);
           return;
         }
 
-        productsDispatch({
-          type: 'increment-amount',
-          payload: { id: productId },
-        });
-
-        // Save the update in command
-        const newProducts = command?.products?.map((product: Product) => {
-          if (product._id === productId) {
-            const newProduct = {
-              ...product,
-              amount: amount + 1,
-            };
-            return newProduct;
-          }
-          return product;
-        });
-
+        const newProducts = currentCommand.products?.map((product: Product) =>
+          product._id === productId ? { ...product, amount: target } : product
+        );
         const { command: updatedCommand } = await CommandService.updateCommand({
-          _id: command?._id as string,
+          _id: currentCommand._id as string,
           products: newProducts,
         });
-        setCommand(updatedCommand);
-
-        // Decreasing the amount of this product in stock
-        const { product: stockUpdatedProduct } =
-          await ProductsService.diminishAmount({
-            productId,
-            amount: 1,
+        commandRef.current = updatedCommand;
+        if (isMountedRef.current) {
+          setCommand(updatedCommand);
+          productsDispatch({
+            type: 'update-product-amount',
+            payload: { product: { id: productId, amount: target } },
           });
-        if (stockUpdatedProduct) {
+        }
+
+        // A comanda já foi gravada, então o pendente sai daqui mesmo se o
+        // estoque falhar (o aviso de erro mostra o que aconteceu).
+        if (pendingRef.current[productId] === target) setPending(productId, null);
+
+        const { product: stockUpdatedProduct } =
+          operation === 'diminish'
+            ? await ProductsService.diminishAmount({ productId, amount: delta })
+            : await ProductsService.increaseAmount({ productId, amount: delta });
+        if (stockUpdatedProduct && isMountedRef.current) {
           stockProductsDispatch({
             type: 'UPDATE-ONE-PRODUCT',
             payload: { product: stockUpdatedProduct },
           });
         }
       } catch (err: any) {
-        toast.closeAll();
-        toast({
+        if (pendingRef.current[productId] === target) setPending(productId, null);
+        notify({
           status: 'error',
           title: err?.response?.data?.message,
           duration: 1000,
@@ -230,89 +313,80 @@ export const ProductsList = ({isAdmin} : {isAdmin: boolean}) => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [productsDispatch, command]
+    [productsDispatch, setCommand, setPending, stockProductsDispatch, notify]
+  );
+
+  const enqueueFlush = useCallback(
+    (productId: string) => {
+      queueRef.current = queueRef.current.then(() => flushAmountChange(productId));
+    },
+    [flushAmountChange]
+  );
+
+  const scheduleFlush = useCallback(
+    (productId: string) => {
+      clearTimeout(timersRef.current[productId]);
+      timersRef.current[productId] = setTimeout(() => {
+        enqueueFlush(productId);
+      }, AMOUNT_CLICKS_DEBOUNCE_MS);
+    },
+    [enqueueFlush]
+  );
+
+  // Ao sair da tela com cliques ainda esperando, manda o que sobrou.
+  useEffect(
+    () => () => {
+      Object.keys(timersRef.current).forEach((productId) => {
+        clearTimeout(timersRef.current[productId]);
+        if (pendingRef.current[productId] !== undefined) enqueueFlush(productId);
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  const handleIncrementProductAmount = useCallback(
+    ({ productId, amount }: { productId: string; amount: number }) => {
+      const current = pendingRef.current[productId] ?? amount;
+      setPending(productId, current + 1);
+      scheduleFlush(productId);
+    },
+    [scheduleFlush, setPending]
   );
 
   const handleDecrementProductAmount = useCallback(
-    async (product: AmountProduct) => {
-      try {
-        if(isAdmin){
-          const productId = product?._id;
-          // TODO: verify if when I'm decrementing the total will be less than total payed
-          const total =
-            Math.round(
-              (product.amount * product.unitPrice + Number.EPSILON) * 100
-            ) / 100;
+    (product: AmountProduct) => {
+      if (!isAdminRef.current) return;
 
-          const newAmount = product.amount - 1;
-          if (newAmount < 0) {
-            toast.closeAll();
-            toast({
-              status: 'error',
-              duration: 1000,
-              isClosable: true,
-              title: 'Quantidade menor que 0',
-            });
-            return;
-          }
+      const productId = product._id;
+      const current = pendingRef.current[productId] ?? product.amount;
+      const newAmount = current - 1;
 
-          if (total - product.unitPrice < product.totalPayed) {
-            toast.closeAll();
-            toast({
-              status: 'warning',
-              title:
-                'Abaixando a quantidade, o total do produto seria menor do que já foi pago',
-            });
-            return;
-          }
-
-          // Save the update in command
-          const newProducts = command?.products?.map((prod: Product) => {
-            if (prod._id === productId) {
-              const newProduct = {
-                ...prod,
-                amount: product.amount - 1,
-              };
-              return newProduct;
-            }
-            return prod;
-          });
-          const { command: updatedCommand } = await CommandService.updateCommand({
-            _id: command?._id as string,
-            products: newProducts,
-          });
-
-          // I'm already receiving the updated version of socket event -> so I don't need to udpate in fr
-          // productsDispatch({
-          //   type: 'decrement-amount',
-          //   payload: { id: productId },
-          // });
-          setCommand(updatedCommand);
-
-          // Decreasing the amount of this product in stock
-          const { product: stockUpdatedProduct } =
-            await ProductsService.increaseAmount({
-              productId,
-              amount: 1,
-            });
-          if (stockUpdatedProduct) {
-            stockProductsDispatch({
-              type: 'UPDATE-ONE-PRODUCT',
-              payload: { product: stockUpdatedProduct },
-            });
-          }
-        }
-      } catch (err: any) {
+      if (newAmount < 0) {
         toast.closeAll();
         toast({
           status: 'error',
-          title: err?.response?.data?.message,
           duration: 1000,
+          isClosable: true,
+          title: 'Quantidade menor que 0',
         });
+        return;
       }
+
+      const newTotal = Math.round((newAmount * product.unitPrice + Number.EPSILON) * 100) / 100;
+      if (newTotal < product.totalPayed) {
+        toast.closeAll();
+        toast({
+          status: 'warning',
+          title: 'Abaixando a quantidade, o total do produto seria menor do que já foi pago',
+        });
+        return;
+      }
+
+      setPending(productId, newAmount);
+      scheduleFlush(productId);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [productsDispatch, command]
+    [scheduleFlush, setPending, toast]
   );
 
   //
@@ -365,10 +439,21 @@ export const ProductsList = ({isAdmin} : {isAdmin: boolean}) => {
     return filtered;
   }, [orderByDir, filteredBySearch, orderBy]);
 
+  // Mostra a quantidade já com os cliques que ainda não foram pra API.
+  const productsWithPendingAmounts = useMemo(
+    () =>
+      filteredBySort?.map((product: Product) =>
+        pendingAmounts[product._id] === undefined
+          ? product
+          : { ...product, amount: pendingAmounts[product._id] }
+      ),
+    [filteredBySort, pendingAmounts]
+  );
+
   return (
     <>
       <ProductsListLayout
-        products={filteredBySort}
+        products={productsWithPendingAmounts}
         // handleIncrementProductAmount={handleIncrementProductAmount}
         // handleDecrementProductAmount={handleDecrementProductAmount}
         handleOpenDeleteModal={handleOpenDeleteModal}
