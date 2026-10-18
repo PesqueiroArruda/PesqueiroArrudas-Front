@@ -3,9 +3,11 @@ import { SubmitHandler } from 'react-hook-form';
 import { Modal } from 'components/Modal';
 import { Button } from 'components/ui/button';
 import { Input } from 'components/ui/input';
+import { COMMAND_LOCATIONS } from 'utils/commandLocation';
 
 interface EditCommandInputs {
   table: string;
+  location: string;
   waiter: string;
 }
 
@@ -17,6 +19,9 @@ interface Props {
   rhfErrors: any;
   rhfHandleSubmit: any;
 }
+
+const selectClassName =
+  'h-10 w-full rounded-(--radius) border border-input bg-card px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
 export const EditCommandModalLayout = ({
   isModalOpen,
@@ -32,6 +37,18 @@ export const EditCommandModalLayout = ({
         <span className="text-sm font-semibold text-navy">Mesa:</span>
         <Input placeholder="João" {...rhfRegister('table', { required: true })} />
         {rhfErrors?.table && <span className="text-sm text-destructive">Esse campo é necessário</span>}
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm font-semibold text-navy">Local:</span>
+        <select {...rhfRegister('location')} className={selectClassName}>
+          <option value="">Sem local</option>
+          {COMMAND_LOCATIONS.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="flex flex-col gap-1.5">

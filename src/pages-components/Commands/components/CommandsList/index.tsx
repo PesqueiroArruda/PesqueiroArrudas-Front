@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 
 import { CommandsContext } from 'pages-components/Commands';
 import { Command } from 'types/Command';
+import { parseCommandLocation } from 'utils/commandLocation';
 import { normalizeSearch } from 'utils/normalizeSearch';
 import { CommandsListLayout } from './layout';
 import { EditCommandModal } from '../EditCommandModal';
@@ -30,10 +31,7 @@ export const CommandsList = () => {
   const router = useRouter();
   const {
     searchContent,
-    filter,
-    orderBy,
-    orderByDir,
-    setOrderByDir,
+    locationFilter,
     allCommands,
     commandStatusFilter,
   } = useContext(CommandsContext);
@@ -41,10 +39,6 @@ export const CommandsList = () => {
   const handleToggleAllSalesVisible = () => {
     setAllSalesVisible((prev) => !prev);
   }
-
-  const handleToggleOrderByDir = useCallback(() => {
-    setOrderByDir((prev: string) => (prev === 'asc' ? 'desc' : 'asc'));
-  }, [setOrderByDir]);
 
   const handleGoToCommandPage = useCallback(
     ({ commandId }: { commandId: string }) => {
@@ -68,64 +62,34 @@ export const CommandsList = () => {
     setIsDeleteCommandModalOpen(true);
   }, []);
 
-  const filteredByFilter = useMemo(() => {
-    if (!filter) {
-      return allCommands.filter((command) => {
-        if (commandStatusFilter === 'Ativas') {
-          return command?.isActive;
-        }
+  const filteredByStatus = useMemo(
+    () =>
+      allCommands.filter((command) =>
+        commandStatusFilter === 'Ativas' ? command?.isActive : !command?.isActive
+      ),
+    [allCommands, commandStatusFilter]
+  );
 
-        return !command?.isActive;
-      });
+  const filteredByLocation = useMemo(() => {
+    if (!locationFilter) {
+      return filteredByStatus;
     }
 
-    // MAKE THE ACTIVES AND PAYED COMMANDS
-
-    const filtered = allCommands.filter((command) => {
-      if (commandStatusFilter === 'Ativas') {
-        return command?.fishingType === filter && command?.isActive;
-      }
-
-      return command?.fishingType === filter && !command?.isActive;
-    });
-    return filtered;
-  }, [filter, allCommands, commandStatusFilter]);
-
-  const filteredBySort = useMemo(() => {
-    const filtered = filteredByFilter.sort((a: any, b: any) => {
-      if (orderByDir === 'asc') {
-        if (a[orderBy] < b[orderBy]) {
-          return -1;
-        }
-        if (b[orderBy] < a[orderBy]) {
-          return 1;
-        }
-        return 0;
-      }
-
-      if (a[orderBy] > b[orderBy]) {
-        return -1;
-      }
-      if (b[orderBy] > a[orderBy]) {
-        return 1;
-      }
-      return 0;
-    });
-    return filtered;
-  }, [filteredByFilter, orderBy, orderByDir]);
+    return filteredByStatus.filter(
+      (command) =>
+        parseCommandLocation(command?.table).location === locationFilter
+    );
+  }, [filteredByStatus, locationFilter]);
 
   const filteredBySearch = useMemo(() => {
-    const filtered = filteredBySort.filter((command) => {
-      const commandStr = normalizeSearch(Object?.values(command)?.join(''));
-      if (commandStr.includes(normalizeSearch(searchContent))) {
-        return true;
-      }
-      return false;
-    });
-    return filtered;
+    const normalizedSearch = normalizeSearch(searchContent);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchContent, filteredBySort, orderByDir]);
+    return filteredByLocation.filter((command) =>
+      normalizeSearch(Object?.values(command)?.join('')).includes(
+        normalizedSearch
+      )
+    );
+  }, [searchContent, filteredByLocation]);
 
   const allSalesWorth = useMemo(
     () =>
@@ -145,11 +109,8 @@ export const CommandsList = () => {
       <CommandsListLayout
         allSalesWorth={allSalesWorth}
         items={filteredBySearch}
-        orderBy={orderBy}
-        orderByDir={orderByDir}
         allSalesVisible={allSalesVisible}
         handleToggleAllSalesVisible={handleToggleAllSalesVisible}
-        handleToggleOrderByDir={handleToggleOrderByDir}
         handleGoToCommandPage={handleGoToCommandPage}
         handleOpenAddProductsModal={handleOpenAddProductsModal}
         handleOpenEditCommandModal={handleOpenEditCommandModal}

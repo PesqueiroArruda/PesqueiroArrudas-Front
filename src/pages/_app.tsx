@@ -40,10 +40,19 @@ function MyApp({ Component, pageProps }: AppProps) {
   // aberta com o backend enquanto a tela fica parada ali (ex.: um terminal
   // deslogado). Conecta normalmente assim que sai do login.
   useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => undefined);
+    }
+  }, []);
+
+  useEffect(() => {
     if (router.pathname === '/login') {
       return undefined;
     }
 
+    // O backend só aceita o socket de quem tem token (e manda ao garçom a
+    // versão da comanda sem dados de caixa).
+    socket.auth = { token: localStorage.getItem('token') || '' };
     socket.connect();
     return () => {
       socket.disconnect();
@@ -56,7 +65,8 @@ function MyApp({ Component, pageProps }: AppProps) {
         <RouteProgressBar />
         <SocketContext.Provider value={socketContextValue}>
           <Component {...pageProps} />
-          {router.pathname !== '/login' && <IfoodOrderAlert />}
+          {router.pathname !== '/login' &&
+            !router.pathname.startsWith('/garcom') && <IfoodOrderAlert />}
         </SocketContext.Provider>
       </ChakraProvider>
     </div>

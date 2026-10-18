@@ -1,24 +1,9 @@
 import { NextPage, GetServerSideProps } from 'next';
-import nookies from 'nookies';
+import { requireStaff } from 'lib/pageGuards';
 import { MenuOrganization as MenuOrganizationComponent } from 'pages-components/MenuOrganization';
 
 const MenuOrganization: NextPage = () => <MenuOrganizationComponent />;
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const cookies = nookies.get(context);
-  const { isAuthorized } = cookies;
-
-  if (!isAuthorized) {
-    return {
-      redirect: {
-        destination: '/login',
-        permanent: false,
-      },
-    };
-  }
-  return {
-    props: {},
-  };
-};
+export const getServerSideProps: GetServerSideProps = requireStaff;
 
 export default MenuOrganization;

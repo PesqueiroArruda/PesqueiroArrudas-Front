@@ -35,9 +35,7 @@ export const Commands = () => {
     { value: [] as Product[] }
   );
 
-  const [filter, setFilter] = useState('');
-  const [orderBy, setOrderBy] = useState('');
-  const [orderByDir, setOrderByDir] = useState('asc' as 'asc' | 'desc');
+  const [locationFilter, setLocationFilter] = useState('');
   const [searchContent, setSearchContent] = useState('');
   const [commandStatusFilter, setCommandStatusFilter] = useState<
     'Ativas' | 'Pagas'
@@ -187,12 +185,8 @@ export const Commands = () => {
 
   const contextValues = useMemo(
     () => ({
-      filter,
-      setFilter,
-      orderBy,
-      setOrderBy,
-      orderByDir,
-      setOrderByDir,
+      locationFilter,
+      setLocationFilter,
       searchContent,
       setSearchContent,
       commandStatusFilter,
@@ -203,9 +197,7 @@ export const Commands = () => {
       stockProductsDispatch,
     }),
     [
-      filter,
-      orderBy,
-      orderByDir,
+      locationFilter,
       searchContent,
       allCommands,
       allCommandsDispatch,

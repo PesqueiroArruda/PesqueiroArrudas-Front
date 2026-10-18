@@ -3,5 +3,6 @@ import nookies from 'nookies';
 
 export function isAuthorizedRequest(req: NextApiRequest): boolean {
   const cookies = nookies.get({ req });
-  return Boolean(cookies.isAuthorized);
+  // O garçom não acessa reservas nem usuários do cardápio.
+  return Boolean(cookies.isAuthorized) && cookies.role !== 'waiter';
 }

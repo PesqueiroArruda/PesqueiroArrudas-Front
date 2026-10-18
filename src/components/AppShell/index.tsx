@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { destroyCookie } from 'nookies';
+import { clearSession } from 'services/session';
 
 import { AppShellLayout } from './layout';
 
@@ -32,10 +32,7 @@ export const AppShell = ({ children, hasBackPageBtn, handleBackPage }: Props) =>
   }
 
   function handleLogout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('loggedUser');
-    localStorage.removeItem('isAdmin');
-    destroyCookie(null, 'isAuthorized');
+    clearSession();
     router.push('/login');
   }
 

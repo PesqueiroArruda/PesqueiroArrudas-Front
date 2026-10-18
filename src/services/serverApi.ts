@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { destroyCookie } from 'nookies';
+import { clearSession } from './session';
 import { API_URL } from './apiConfig';
 
 export const serverApi = axios.create({
@@ -22,10 +22,7 @@ serverApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (typeof window !== 'undefined' && error?.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('loggedUser');
-      localStorage.removeItem('isAdmin');
-      destroyCookie(null, 'isAuthorized');
+      clearSession();
 
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';

@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { ArrowUp, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'components/ui/table';
-import { cn } from 'lib/utils';
 import { Command } from 'types/Command';
 import { parseToBRL } from 'utils/parseToBRL';
 import { CommandRow } from './CommandRow';
@@ -17,11 +16,8 @@ const listColumns = [
 type Props = {
   allSalesWorth: number;
   items: any[];
-  orderBy: string;
-  orderByDir: 'asc' | 'desc';
   allSalesVisible: boolean;
   handleToggleAllSalesVisible: () => void;
-  handleToggleOrderByDir: () => void;
   handleGoToCommandPage: ({ commandId }: { commandId: string }) => void;
   handleOpenAddProductsModal: (commandId: string) => void;
   handleOpenEditCommandModal: (command: Command) => void;
@@ -31,11 +27,8 @@ type Props = {
 export const CommandsListLayout = ({
   allSalesWorth,
   items,
-  orderBy,
-  orderByDir,
   allSalesVisible,
   handleToggleAllSalesVisible,
-  handleToggleOrderByDir,
   handleGoToCommandPage,
   handleOpenAddProductsModal,
   handleOpenEditCommandModal,
@@ -67,18 +60,7 @@ export const CommandsListLayout = ({
           <TableRow>
             {listColumns.map(({ text, prop }) => (
               <TableHead key={`command-list-${text}-${prop}`}>
-                <div className="flex items-center gap-2">
-                  {text}
-                  {orderBy.toLowerCase() === prop.toLowerCase() && (
-                    <ArrowUp
-                      onClick={handleToggleOrderByDir}
-                      className={cn(
-                        'h-4 w-4 cursor-pointer text-navy transition-transform',
-                        orderByDir === 'desc' && 'rotate-180',
-                      )}
-                    />
-                  )}
-                </div>
+                <div className="flex items-center gap-2">{text}</div>
               </TableHead>
             ))}
             <TableHead />
