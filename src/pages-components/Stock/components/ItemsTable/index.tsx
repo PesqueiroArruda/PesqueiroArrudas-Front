@@ -25,6 +25,7 @@ export const ItemsTable = () => {
   const [amount, setAmount] = useState(null as null | number);
   const [unitPrice, setUnitPrice] = useState('');
   const [menu, setMenu] = useState<MenuConfig>(EMPTY_MENU_CONFIG);
+  const [stockSourceId, setStockSourceId] = useState<string | null>(null);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteItemModalOpen, setIsDeleteItemModalOpen] = useState(false);
@@ -85,6 +86,15 @@ export const ItemsTable = () => {
     [searchContent, filteredBySort, orderByDir]
   );
 
+  // Nome do produto de origem, pra mostrar "usa o estoque de ..." na tabela.
+  const sourceNameById = useMemo(
+    () =>
+      Object.fromEntries(
+        products.map((product) => [String(product._id), product.name])
+      ) as Record<string, string>,
+    [products]
+  );
+
   const handleOpenEditModal = useCallback((itemInfos: Item) => {
     setId(itemInfos.id);
     setName(itemInfos.name);
@@ -98,6 +108,7 @@ export const ItemsTable = () => {
     );
     setCategory(itemInfos.category);
     setMenu(itemInfos.menu || EMPTY_MENU_CONFIG);
+    setStockSourceId(itemInfos.stockSourceId || null);
 
     setIsEditModalOpen(true);
   }, []);
@@ -154,6 +165,7 @@ export const ItemsTable = () => {
         handleFavoriteProduct={handleFavoriteProduct}
         handleUnfavoriteProduct={handleUnfavoriteProduct}
         isLoading={isLoading}
+        sourceNameById={sourceNameById}
       />
       <EditModal
         isEditModalOpen={isEditModalOpen}
@@ -172,6 +184,8 @@ export const ItemsTable = () => {
           setUnitPrice,
           menu,
           setMenu,
+          stockSourceId,
+          setStockSourceId,
         }}
       />
       <DeleteItemModal

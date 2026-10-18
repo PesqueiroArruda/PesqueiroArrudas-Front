@@ -21,6 +21,11 @@ import { AutoOrderMenuModal } from './components/AutoOrderMenuModal';
 import { productsReducer } from './reducers/productsReducer';
 import { Product } from './types/Product';
 
+const LinkIfoodProductsModal = dynamic(
+  () => import('./components/LinkIfoodProductsModal').then((mod) => mod.LinkIfoodProductsModal),
+  { ssr: false }
+);
+
 const MergeDuplicatesModal = dynamic(
   () => import('./components/MergeDuplicatesModal').then((mod) => mod.MergeDuplicatesModal),
   { ssr: false }
@@ -65,6 +70,7 @@ export const Stock = () => {
 
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
   const [isMergeDuplicatesModalOpen, setIsMergeDuplicatesModalOpen] = useState(false);
+  const [isLinkIfoodModalOpen, setIsLinkIfoodModalOpen] = useState(false);
   const [isAutoOrderModalOpen, setIsAutoOrderModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -161,6 +167,10 @@ export const Stock = () => {
           isModalOpen={isMergeDuplicatesModalOpen}
           setIsModalOpen={setIsMergeDuplicatesModalOpen}
         />
+        <LinkIfoodProductsModal
+          isModalOpen={isLinkIfoodModalOpen}
+          setIsModalOpen={setIsLinkIfoodModalOpen}
+        />
         <AutoOrderMenuModal
           isModalOpen={isAutoOrderModalOpen}
           setIsModalOpen={setIsAutoOrderModalOpen}
@@ -172,6 +182,7 @@ export const Stock = () => {
           setOrderBy={setOrderBy}
           setIsAddItemModalOpen={setIsAddItemModalOpen}
           setIsMergeDuplicatesModalOpen={setIsMergeDuplicatesModalOpen}
+          setIsLinkIfoodModalOpen={setIsLinkIfoodModalOpen}
           setIsAutoOrderModalOpen={setIsAutoOrderModalOpen}
           handleGoToHome={handleGoToHome}
           handleDownload={handleDownload}

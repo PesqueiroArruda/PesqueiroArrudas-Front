@@ -1,10 +1,12 @@
-import { SetStateAction, Dispatch, useContext, useState } from 'react';
+import { SetStateAction, Dispatch, useContext, useEffect, useMemo, useState } from 'react';
 import { useToast } from '@chakra-ui/react';
 
 // import { formatPrice } from 'utils/formatPrice';
 import { formatDecimalNum } from 'utils/formatDecimalNum';
 import { StockContext } from 'pages-components/Stock';
 import { uploadFileToPresignedUrl } from 'utils/uploadFileToPresignedUrl';
+import { hasIfoodToken, suggestStockSource } from 'utils/suggestStockSource';
+import type { Product } from 'types/Product';
 import StockService from '../../services/index';
 import { EditModalLayout } from './layout';
 import type { Item } from '../../types/Item';
@@ -23,7 +25,51 @@ export const EditModal = ({
   setIsEditModalOpen,
   itemInfos,
 }: Props) => {
-  const { productsDispatch } = useContext(StockContext);
+  const { productsDispatch, products } = useContext(StockContext);
+  const [suggestedSourceId, setSuggestedSourceId] = useState<string | null>(null);
+
+  // Produto que é origem de outros (ex.: o do salão) não pode usar estoque de outro.
+  const isStockSource = useMemo(
+    () => products.some((product) => product.stockSourceId === String(itemInfos.id)),
+    [products, itemInfos.id]
+  );
+
+  const stockSourceOptions = useMemo(
+    () =>
+      (products as Product[]).filter(
+        (product) =>
+          product._id && String(product._id) !== String(itemInfos.id) && !product.stockSourceId
+      ),
+    [products, itemInfos.id]
+  );
+
+  // Ao abrir um produto "IFOOD" sem vínculo, já vem a sugestão pelo nome.
+  // Só sugere: o vínculo só vale quando o usuário salva.
+  useEffect(() => {
+    setSuggestedSourceId(null);
+    if (!isEditModalOpen || itemInfos.stockSourceId || isStockSource) return;
+    if (!hasIfoodToken(itemInfos.name)) return;
+
+    const suggestion = suggestStockSource(
+      { _id: String(itemInfos.id), name: itemInfos.name },
+      products as Product[]
+    );
+    if (!suggestion) return;
+
+    const source = products.find((product) => product._id === suggestion.sourceId);
+    setSuggestedSourceId(suggestion.sourceId);
+    itemInfos.setStockSourceId(suggestion.sourceId);
+    if (source) itemInfos.setAmount(source.amount);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditModalOpen, itemInfos.id]);
+
+  function handleChangeStockSource(productId: string) {
+    itemInfos.setStockSourceId(productId || null);
+    setSuggestedSourceId(null);
+    // O saldo que vale é o da origem; mostra ele no campo de quantidade.
+    const source = products.find((product) => product._id === productId);
+    if (source) itemInfos.setAmount(source.amount);
+  }
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [localPreviewUrl, setLocalPreviewUrl] = useState('');
@@ -94,6 +140,7 @@ export const EditModal = ({
         image,
         id,
         menu,
+        stockSourceId,
       }: any = itemInfos;
 
       const unitPrice = updatedUnitPrice;
@@ -134,6 +181,7 @@ export const EditModal = ({
           category,
           imageURL: image,
           unitPrice: formattedUnitPrice,
+          stockSourceId: stockSourceId || null,
           menu: {
             ...menu,
             order: Number(menu?.order) || 0,
@@ -187,6 +235,10 @@ export const EditModal = ({
       handleRemoveMenuImage={handleRemoveMenuImage}
       isUploadingImage={isUploadingImage}
       localPreviewUrl={localPreviewUrl}
+      stockSourceOptions={stockSourceOptions}
+      isStockSource={isStockSource}
+      suggestedSourceId={suggestedSourceId}
+      handleChangeStockSource={handleChangeStockSource}
     />
   );
 };

@@ -26,6 +26,7 @@ export interface Product {
   unitPrice: number;
   isFavorite?: boolean;
   menu?: MenuConfig;
+  stockSourceId?: string | null;
 }
 
 export const EMPTY_MENU_CONFIG: MenuConfig = {

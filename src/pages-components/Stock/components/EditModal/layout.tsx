@@ -4,6 +4,8 @@ import { Modal } from 'components/Modal';
 import { Button } from 'components/ui/button';
 import { Input } from 'components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from 'components/ui/tabs';
+import { ProductCombobox } from 'components/ProductCombobox';
+import type { Product } from 'types/Product';
 import { MENU_CATEGORIES } from '../../types/Product';
 import type { Item } from '../../types/Item';
 import { MenuImageUpload } from './components/MenuImageUpload';
@@ -20,6 +22,10 @@ interface Props {
   handleRemoveMenuImage: () => void;
   isUploadingImage: boolean;
   localPreviewUrl: string;
+  stockSourceOptions: Product[];
+  isStockSource: boolean;
+  suggestedSourceId: string | null;
+  handleChangeStockSource: (productId: string) => void;
 }
 
 const categories = [
@@ -49,6 +55,10 @@ export const EditModalLayout = ({
   handleRemoveMenuImage,
   isUploadingImage,
   localPreviewUrl,
+  stockSourceOptions,
+  isStockSource,
+  suggestedSourceId,
+  handleChangeStockSource,
 }: Props) => {
   const currentImageUrl =
     localPreviewUrl ||
@@ -100,6 +110,30 @@ export const EditModalLayout = ({
               value={itemInfos.amount || ''}
               onChange={(e) => itemInfos.setAmount(Number(e.target.value))}
             />
+
+            {isStockSource ? (
+              <p className="text-xs text-text-muted">
+                Outros itens (como os do iFood) usam o estoque deste produto, então a quantidade vale para todos.
+              </p>
+            ) : (
+              <>
+                <span className="text-sm font-semibold text-navy">Usa o estoque de</span>
+                <ProductCombobox
+                  products={stockSourceOptions}
+                  value={itemInfos.stockSourceId}
+                  onChange={handleChangeStockSource}
+                  placeholder="Estoque próprio (sem vínculo)"
+                />
+                {itemInfos.stockSourceId && (
+                  <p className="text-xs text-text-muted">
+                    {suggestedSourceId === itemInfos.stockSourceId
+                      ? 'Sugerido pelo nome. Confira antes de salvar. '
+                      : ''}
+                    A quantidade acima é a do produto escolhido e muda para os dois.
+                  </p>
+                )}
+              </>
+            )}
           </TabsContent>
 
           <TabsContent value="cardapio" className="flex flex-col gap-3">

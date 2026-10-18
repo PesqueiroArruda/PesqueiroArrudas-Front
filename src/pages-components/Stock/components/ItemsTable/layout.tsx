@@ -34,6 +34,7 @@ const categoryIcons: Record<string, ReactElement> = {
 type LayoutProps = {
   isLoading: boolean;
   handleOpenEditModal: any;
+  sourceNameById: Record<string, string>;
   handleToggleOrderByDir: any;
   handleOpenDeleteItemModal: any;
   orderByDir: 'asc' | 'desc';
@@ -48,6 +49,7 @@ export const ItemsTableLayout = ({
   orderByDir,
   handleToggleOrderByDir,
   handleOpenEditModal,
+  sourceNameById,
   handleOpenDeleteItemModal,
   orderBy,
   items,
@@ -90,10 +92,17 @@ export const ItemsTableLayout = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {items.map(({ _id, imageURL, amount, category, unitPrice, name, isFavorite, menu }) => (
+        {items.map(({ _id, imageURL, amount, category, unitPrice, name, isFavorite, menu, stockSourceId }) => (
           <TableRow key={`stock-product-_id${_id}`}>
             <TableCell>{categoryIcons[category]}</TableCell>
-            <TableCell>{name}</TableCell>
+            <TableCell>
+              {name}
+              {stockSourceId && (
+                <span className="block text-xs font-normal text-text-muted">
+                  usa o estoque de {sourceNameById[stockSourceId] || 'outro produto'}
+                </span>
+              )}
+            </TableCell>
             <TableCell>{category}</TableCell>
             <TableCell>{amount}</TableCell>
             <TableCell>{parseToBRL(unitPrice || 0)}</TableCell>
@@ -109,6 +118,7 @@ export const ItemsTableLayout = ({
                       unitPrice,
                       category,
                       menu,
+                      stockSourceId,
                     })
                   }
                   className="h-4 w-4 cursor-pointer hover:text-cyan"

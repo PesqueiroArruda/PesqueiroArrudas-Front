@@ -1,6 +1,7 @@
 import { SetStateAction, Dispatch } from 'react';
 import { useRouter } from 'next/router';
 import {
+  Link2,
   Merge,
   PackagePlus,
   ArrowUpDown,
@@ -26,6 +27,7 @@ interface Props {
   setOrderBy: Dispatch<SetStateAction<string>>;
   setIsAddItemModalOpen: Dispatch<SetStateAction<boolean>>;
   setIsMergeDuplicatesModalOpen: Dispatch<SetStateAction<boolean>>;
+  setIsLinkIfoodModalOpen: Dispatch<SetStateAction<boolean>>;
   setIsAutoOrderModalOpen: Dispatch<SetStateAction<boolean>>;
   handleGoToHome: () => void;
   handleDownload: (e: any) => void;
@@ -38,6 +40,7 @@ export const StockLayout = ({
   setOrderBy,
   setIsAddItemModalOpen,
   setIsMergeDuplicatesModalOpen,
+  setIsLinkIfoodModalOpen,
   setIsAutoOrderModalOpen,
   handleGoToHome,
   handleDownload,
@@ -66,6 +69,14 @@ export const StockLayout = ({
             >
               <Merge className="h-4 w-4" />
               Juntar Duplicados
+            </Button>
+            <Button
+              onClick={() => setIsLinkIfoodModalOpen(true)}
+              variant="secondary"
+              className="hidden sm:inline-flex"
+            >
+              <Link2 className="h-4 w-4" />
+              Vincular iFood
             </Button>
             <Button
               onClick={() => setIsAutoOrderModalOpen(true)}
@@ -97,6 +108,11 @@ export const StockLayout = ({
                   onSelect={() => setIsMergeDuplicatesModalOpen(true)}
                 >
                   Juntar Duplicados
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => setIsLinkIfoodModalOpen(true)}
+                >
+                  Vincular iFood
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onSelect={() => setIsAutoOrderModalOpen(true)}

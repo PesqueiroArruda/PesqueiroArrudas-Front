@@ -15,4 +15,6 @@ export interface Item {
   setCategory: Dispatch<SetStateAction<string>>;
   menu: MenuConfig;
   setMenu: Dispatch<SetStateAction<MenuConfig>>;
+  stockSourceId: string | null;
+  setStockSourceId: Dispatch<SetStateAction<string | null>>;
 }
