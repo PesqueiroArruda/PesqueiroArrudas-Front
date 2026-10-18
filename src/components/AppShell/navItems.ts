@@ -7,6 +7,7 @@ import {
   ReceiptText,
   ShoppingBag,
   UtensilsCrossed,
+  UserCog,
   Users,
 } from 'lucide-react';
 
@@ -24,4 +25,5 @@ export const navItems = [
   { text: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
   { text: 'Reservas', icon: CalendarCheck, path: '/reservations' },
   { text: 'Usuários do Cardápio', icon: Users, path: '/menu-users' },
+  { text: 'Equipe e Acessos', icon: UserCog, path: '/users' },
 ];
