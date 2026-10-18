@@ -3,34 +3,20 @@ import { useCallback, useContext } from 'react';
 import { NavHeaderLayout } from './layout';
 
 export const NavHeader = () => {
-  const {
-    filter,
-    setFilter,
-    orderBy,
-    setOrderBy,
-    searchContent,
-    setSearchContent,
-  } = useContext(CommandsContext);
+  const { locationFilter, setLocationFilter, searchContent, setSearchContent } =
+    useContext(CommandsContext);
 
-  const handleChangeFilter = useCallback(
-    (newFilter: string) => {
-      setFilter((prev) => (prev === newFilter ? '' : newFilter));
+  const handleChangeLocationFilter = useCallback(
+    (newLocation: string) => {
+      setLocationFilter((prev) => (prev === newLocation ? '' : newLocation));
     },
-    [setFilter]
-  );
-  const handleChangeOrderBy = useCallback(
-    (newOrderBy: string) => {
-      setOrderBy((prev) => (prev === newOrderBy ? '' : newOrderBy));
-    },
-    [setOrderBy]
+    [setLocationFilter]
   );
 
   return (
     <NavHeaderLayout
-      handleChangeFilter={handleChangeFilter}
-      handleChangeOrderBy={handleChangeOrderBy}
-      filter={filter}
-      orderBy={orderBy}
+      handleChangeLocationFilter={handleChangeLocationFilter}
+      locationFilter={locationFilter}
       searchContent={searchContent}
       setSearchContent={setSearchContent}
     />

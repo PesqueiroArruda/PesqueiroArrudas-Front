@@ -9,6 +9,7 @@ import {
   useState,
 } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { buildTableName, parseCommandLocation } from 'utils/commandLocation';
 import { EditCommandModalLayout } from './layout';
 
 interface Props {
@@ -24,6 +25,7 @@ interface Props {
 
 interface EditCommandInputs {
   table: string;
+  location: string;
   waiter: string;
 }
 
@@ -46,7 +48,9 @@ export const EditCommandModal = ({
 
   useEffect(() => {
     // Setting the value of input of form with command's values
-    setValue('table', command?.table || '');
+    const { name, location } = parseCommandLocation(command?.table);
+    setValue('table', name);
+    setValue('location', location);
     setValue('waiter', command?.waiter || '');
   }, [command, setValue]);
 
@@ -56,9 +60,12 @@ export const EditCommandModal = ({
   }
 
   const handleEditCommand: SubmitHandler<EditCommandInputs> = async ({
-    table,
+    table: tableName,
+    location,
     waiter,
   }) => {
+    const table = buildTableName(tableName, location);
+
     if (table === command?.table && waiter === command?.waiter) {
       handleCloseModal();
       toast({
