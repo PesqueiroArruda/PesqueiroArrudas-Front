@@ -1,6 +1,7 @@
 import {
   CalendarCheck,
   ChefHat,
+  CloudSun,
   Home,
   LayoutDashboard,
   Package,
@@ -23,6 +24,7 @@ export const navItems = [
     path: '/menu-organization',
   },
   { text: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+  { text: 'Previsão', icon: CloudSun, path: '/forecast' },
   { text: 'Reservas', icon: CalendarCheck, path: '/reservations' },
   { text: 'Usuários do Cardápio', icon: Users, path: '/menu-users' },
   { text: 'Equipe e Acessos', icon: UserCog, path: '/users' },
