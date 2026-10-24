@@ -2,6 +2,7 @@ import { AppShell } from 'components/AppShell';
 import { Button } from 'components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from 'components/ui/tabs';
 import { ClosedCashiers } from './components/ClosedCashiers';
+import { ForecastCard } from './components/ForecastCard';
 import { PayedCommands } from './components/PayedCommands';
 
 interface Props {
@@ -16,6 +17,7 @@ export const HomeLayout = ({
   isAdmin,
 }: Props) => (
   <AppShell>
+    {isAdmin && <ForecastCard />}
     <Tabs defaultValue="payed-commands">
       {isAdmin && (
         <TabsList className="mb-6">
