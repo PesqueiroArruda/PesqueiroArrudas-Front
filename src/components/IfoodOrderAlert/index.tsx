@@ -15,7 +15,11 @@ const ALERT_TITLE = '🔔 Novo pedido iFood!';
 export const IfoodOrderAlert = () => {
   const router = useRouter();
   const { socket } = useContext(SocketContext);
-  const [pendingCount, setPendingCount] = useState(0);
+  // Ids dos pedidos que ainda não foram tratados. Guardar o id (e não só um
+  // contador) deixa um aparelho silenciar o alarme quando outro aceita ou
+  // recusa o pedido.
+  const [pendingIds, setPendingIds] = useState<string[]>([]);
+  const pendingCount = pendingIds.length;
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const isOnIfoodPage = router.pathname === '/ifood-orders';
@@ -61,21 +65,31 @@ export const IfoodOrderAlert = () => {
   useEffect(() => {
     if (!socket?.on) return undefined;
 
-    const onReceived = () => {
+    const onReceived = (order?: { _id?: string }) => {
       if (localStorage.getItem('isAdmin') !== 'true') return;
-      setPendingCount((prev) => prev + 1);
+      const id = order?._id || `sem-id-${Date.now()}`;
+      setPendingIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
       playAlarm();
     };
 
+    // Outro aparelho aceitou, recusou ou o cliente cancelou: este pedido não
+    // está mais esperando ninguém, então sai da lista (e o alarme para).
+    const onUpdated = (order?: { _id?: string; status?: string }) => {
+      if (!order?._id || order.status === 'pending') return;
+      setPendingIds((prev) => (prev.includes(order._id as string) ? prev.filter((id) => id !== order._id) : prev));
+    };
+
     socket.on('ifood-order-received', onReceived);
+    socket.on('ifood-order-updated', onUpdated);
     return () => {
       socket.off('ifood-order-received', onReceived);
+      socket.off('ifood-order-updated', onUpdated);
     };
   }, [socket, playAlarm]);
 
   // Quem abre a tela de pedidos já está vendo o pedido: some o aviso.
   useEffect(() => {
-    if (isOnIfoodPage) setPendingCount(0);
+    if (isOnIfoodPage) setPendingIds([]);
   }, [isOnIfoodPage]);
 
   // Enquanto o aviso estiver aberto: repete o som e pisca o título da aba.
@@ -99,6 +113,13 @@ export const IfoodOrderAlert = () => {
     };
   }, [pendingCount, playAlarm]);
 
+  // Quando o último pedido pendente sai da lista, corta o toque em andamento.
+  // Fica separado do efeito acima pra não interromper o som de um pedido novo
+  // quando a contagem só muda de 1 para 2.
+  useEffect(() => {
+    if (pendingCount === 0) audioRef.current?.pause();
+  }, [pendingCount]);
+
   if (pendingCount === 0) return null;
 
   return (
@@ -115,7 +136,7 @@ export const IfoodOrderAlert = () => {
         </p>
         <button
           type="button"
-          onClick={() => (isOnIfoodPage ? setPendingCount(0) : router.push('/ifood-orders'))}
+          onClick={() => (isOnIfoodPage ? setPendingIds([]) : router.push('/ifood-orders'))}
           className="text-sm font-semibold text-gold underline"
         >
           {isOnIfoodPage ? 'Parar o alarme' : 'Abrir pedidos'}
@@ -124,7 +145,7 @@ export const IfoodOrderAlert = () => {
       <button
         type="button"
         aria-label="Dispensar aviso"
-        onClick={() => setPendingCount(0)}
+        onClick={() => setPendingIds([])}
         className="shrink-0 rounded p-1 hover:bg-white/10"
       >
         <X className="h-5 w-5" />
