@@ -7,9 +7,28 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from 'components/ui/dropdown-menu';
+import { DeliveryStatusBadge } from 'components/DeliveryStatusBadge';
 import { TableCell, TableRow } from 'components/ui/table';
 import { cn } from 'lib/utils';
+import { IfoodDeliveryStatus } from 'types/IfoodOrder';
 import { parseToBRL } from 'utils/parseToBRL';
+
+// Cor da linha de um pedido do iFood conforme a etapa: em preparo (ou ainda sem
+// status) vermelho, pronto âmbar, despachado azul, concluído verde. Cancelado
+// fica neutro: a etiqueta "Cancelada (iFood)" já diz o que houve.
+function ifoodRowClass(deliveryStatus: IfoodDeliveryStatus | undefined, isCancelled?: boolean) {
+  if (isCancelled) return 'bg-secondary/60 hover:bg-secondary';
+  switch (deliveryStatus) {
+    case 'ready':
+      return 'bg-gold/15 hover:bg-gold/20';
+    case 'dispatched':
+      return 'bg-cyan/15 hover:bg-cyan/20';
+    case 'concluded':
+      return 'bg-success/10 hover:bg-success/15';
+    default:
+      return 'bg-destructive/10 hover:bg-destructive/15';
+  }
+}
 
 type Props = {
   _id: string;
@@ -19,6 +38,7 @@ type Props = {
   fishingType: string;
   isActive: boolean;
   isCancelled?: boolean;
+  deliveryStatus?: IfoodDeliveryStatus;
   discount: number;
   hasPendingOrders?: boolean;
   isAdmin: boolean;
@@ -37,6 +57,7 @@ export const CommandRow = memo(
     fishingType,
     isActive,
     isCancelled,
+    deliveryStatus,
     discount,
     hasPendingOrders,
     isAdmin,
@@ -45,7 +66,11 @@ export const CommandRow = memo(
     handleOpenEditCommandModal,
     handleOpenDeleteCommandModal,
   }: Props) => (
-    <TableRow className={cn(table?.startsWith('iFood #') && 'bg-destructive/10 hover:bg-destructive/15')}>
+    <TableRow
+      className={cn(
+        table?.startsWith('iFood #') && ifoodRowClass(deliveryStatus, isCancelled)
+      )}
+    >
       <TableCell className="cursor-pointer" onClick={() => handleGoToCommandPage({ commandId: _id })}>
         {table}
       </TableCell>
@@ -60,6 +85,9 @@ export const CommandRow = memo(
       </TableCell>
       <TableCell>
         <div className="flex items-center justify-end gap-2">
+          {table?.startsWith('iFood #') && !isCancelled && (
+            <DeliveryStatusBadge status={deliveryStatus ?? 'confirmed'} />
+          )}
           {isCancelled && (
             <span className="inline-flex items-center gap-1.5 rounded-(--radius) bg-destructive px-2 py-1 text-sm font-bold text-white sm:px-3">
               <Ban className="h-4 w-4" />
