@@ -63,11 +63,39 @@ export interface ForecastResponse {
   supplies?: ForecastSupply[];
 }
 
+export type MovementLevel = 'baixo' | 'medio' | 'alto';
+
+// Evento da agenda: aparece na landing page quando `published` e pesa na
+// previsão pelo nível (ou pelo % digitado, que tem prioridade).
 export interface ForecastEvent {
   _id: string;
   date: string;
   name: string;
-  effectPercent: number;
+  effectPercent: number | null;
+  movementLevel: MovementLevel | null;
+  published: boolean;
+  time: string | null;
+  imageKey: string | null;
+  imageUrl?: string | null;
+}
+
+export type ForecastEventInput = Omit<ForecastEvent, '_id' | 'imageUrl'>;
+
+export interface ForecastEventResultRow {
+  _id: string;
+  date: string;
+  name: string;
+  movementLevel: MovementLevel | null;
+  expectedPct: number;
+  actualRevenue: number;
+  baseRevenue: number;
+  realPct: number;
+  sharedDay: boolean;
+}
+
+export interface ForecastEventResults {
+  rows: ForecastEventResultRow[];
+  byLevel: Partial<Record<MovementLevel, { events: number; medianPct: number }>>;
 }
 
 export interface ForecastAccuracyRow {
