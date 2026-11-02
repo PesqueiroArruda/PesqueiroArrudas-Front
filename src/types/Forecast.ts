@@ -27,6 +27,8 @@ export interface ForecastDay {
   revenue?: ForecastRange;
   level: 'baixo' | 'médio' | 'alto' | null;
   confidence: 'alta' | 'média' | 'baixa';
+  // Quanto o clima do dia mexeu na previsão, em % (já incluído nos números).
+  factors?: { weatherPct?: { comandas: number; revenue: number } };
   people: number | null;
   weather: ForecastWeather | null;
   holiday: string | null;
@@ -46,6 +48,15 @@ export interface ForecastResponse {
   generatedAt: string;
   location: string;
   weatherAvailable: boolean;
+  // false quando o histórico de clima não carregou e o modelo foi treinado sem ele.
+  weatherLearned?: boolean;
+  weatherSource?: string | null;
+  // true quando o clima veio de uma cópia guardada, não de uma consulta nova.
+  weatherStale?: boolean;
+  weatherEffects?: {
+    rain: Record<string, number>;
+    temp: Record<string, number>;
+  };
   historyDays: number;
   peoplePerCommand: number | null;
   days: ForecastDay[];
