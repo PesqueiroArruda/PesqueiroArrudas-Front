@@ -76,6 +76,46 @@ export function formatRain(day: Pick<ForecastDay, 'weather'>) {
   return `${Math.round(probability)}%`;
 }
 
+// "+8%" / "-12%" / "0%".
+export function formatSigned(value: number) {
+  return `${value > 0 ? '+' : ''}${value}%`;
+}
+
+// Efeito do clima do dia no faturamento, ou null quando não mexeu.
+export function weatherEffectText(day: Pick<ForecastDay, 'factors'>) {
+  const pct = day.factors?.weatherPct?.revenue;
+  if (!pct) return null;
+  return `clima ${formatSigned(pct)} no faturamento`;
+}
+
+const RAIN_LABEL: Record<string, string> = {
+  seco: 'Dia seco',
+  fraca: 'Chuva fraca',
+  forte: 'Chuva forte',
+};
+const TEMP_LABEL: Record<string, string> = {
+  frio: 'Frio (máx. abaixo de 20°)',
+  ameno: 'Ameno',
+  quente: 'Quente (máx. a partir de 30°)',
+};
+
+export function weatherEffectRows(effects: {
+  rain: Record<string, number>;
+  temp: Record<string, number>;
+}) {
+  const rows = [
+    ...Object.entries(effects.rain).map(([key, pct]) => ({
+      label: RAIN_LABEL[key] ?? key,
+      pct,
+    })),
+    ...Object.entries(effects.temp).map(([key, pct]) => ({
+      label: TEMP_LABEL[key] ?? key,
+      pct,
+    })),
+  ];
+  return rows;
+}
+
 // Quando o dia costuma ficar fechado e não há feriado nem evento, não mostra número.
 export function isUsuallyClosed(day: ForecastDay) {
   return day.likelyClosed && !day.holiday && day.events.length === 0;

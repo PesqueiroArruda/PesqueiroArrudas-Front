@@ -25,10 +25,13 @@ import {
   dayLabel,
   formatPercent,
   formatRain,
+  formatSigned,
   formatTemp,
   isUsuallyClosed,
   isWeekend,
   parseDay,
+  weatherEffectRows,
+  weatherEffectText,
   weatherLabel,
 } from 'utils/forecastDisplay';
 
@@ -168,6 +171,11 @@ const DaysTable = ({ days }: { days: ForecastDay[] }) => (
                   {weatherLabel(day.weather?.weatherCode ?? null)}
                   {formatRain(day) ? ` · chuva ${formatRain(day)}` : ''}
                 </span>
+                {weatherEffectText(day) && (
+                  <span className="block text-xs font-semibold text-navy">
+                    {weatherEffectText(day)}
+                  </span>
+                )}
               </span>
             </span>
           </TableCell>
@@ -455,6 +463,19 @@ export const ForecastLayout = ({
             histórico de vendas.
           </p>
         )}
+        {forecast.weatherAvailable && forecast.weatherLearned === false && (
+          <p className="mt-1 text-sm font-semibold text-destructive">
+            O histórico do tempo não carregou agora. A temperatura e a chuva dos
+            próximos dias aparecem, mas ainda não mexem nos valores. Tentamos de
+            novo em instantes.
+          </p>
+        )}
+        {forecast.weatherAvailable && forecast.weatherStale && (
+          <p className="mt-1 text-xs text-text-muted">
+            Os serviços de clima estão instáveis. Estamos usando a última
+            consulta que deu certo.
+          </p>
+        )}
       </div>
 
       <SectionCard
@@ -467,6 +488,25 @@ export const ForecastLayout = ({
       <SectionCard title="Dia a dia">
         <DaysTable days={forecast.days} />
       </SectionCard>
+
+      {forecast.weatherEffects && forecast.weatherLearned !== false && (
+        <SectionCard
+          title="Quanto o clima pesa nas vendas"
+          hint="Aprendido no seu histórico de caixa: diferença no faturamento em relação a um dia normal da mesma semana. 0% quer dizer que não deu pra medir diferença."
+        >
+          <ul className="grid gap-1.5 sm:grid-cols-2">
+            {weatherEffectRows(forecast.weatherEffects).map((row) => (
+              <li
+                key={row.label}
+                className="flex items-center justify-between rounded-card bg-card px-3 py-2 text-sm"
+              >
+                <span>{row.label}</span>
+                <strong className="text-navy">{formatSigned(row.pct)}</strong>
+              </li>
+            ))}
+          </ul>
+        </SectionCard>
+      )}
 
       <SectionCard
         title="Insumos dos próximos 7 dias"
