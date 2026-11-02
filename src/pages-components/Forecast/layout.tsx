@@ -1,9 +1,8 @@
-import { FormEvent, ReactNode, useState } from 'react';
-import { CloudSun, Loader2, Trash2 } from 'lucide-react';
+import { ReactNode } from 'react';
+import { CloudSun, Loader2 } from 'lucide-react';
 
 import { Badge } from 'components/ui/badge';
 import { Button } from 'components/ui/button';
-import { Input } from 'components/ui/input';
 import {
   Table,
   TableBody,
@@ -16,7 +15,6 @@ import { WeatherIcon } from 'components/WeatherIcon';
 import {
   ForecastAccuracy,
   ForecastDay,
-  ForecastEvent,
   ForecastResponse,
 } from 'types/Forecast';
 import { parseToBRL } from 'utils/parseToBRL';
@@ -38,11 +36,8 @@ import {
 interface Props {
   forecast: ForecastResponse | null;
   accuracy: ForecastAccuracy | null;
-  events: ForecastEvent[];
   isLoading: boolean;
   hasFailed: boolean;
-  onCreateEvent: (event: Omit<ForecastEvent, '_id'>) => Promise<boolean>;
-  onDeleteEvent: (id: string) => void;
 }
 
 const SectionCard = ({
@@ -280,88 +275,6 @@ const SuppliesTable = ({ forecast }: { forecast: ForecastResponse }) => {
   );
 };
 
-const EventsSection = ({
-  events,
-  onCreateEvent,
-  onDeleteEvent,
-}: Pick<Props, 'events' | 'onCreateEvent' | 'onDeleteEvent'>) => {
-  const [date, setDate] = useState('');
-  const [name, setName] = useState('');
-  const [effect, setEffect] = useState('');
-
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!date || !name.trim() || effect === '') return;
-    const saved = await onCreateEvent({
-      date,
-      name: name.trim(),
-      effectPercent: Number(effect),
-    });
-    if (saved) {
-      setDate('');
-      setName('');
-      setEffect('');
-    }
-  }
-
-  return (
-    <div className="flex flex-col gap-3">
-      <form
-        onSubmit={handleSubmit}
-        className="grid gap-2 sm:grid-cols-[10rem_1fr_9rem_auto]"
-      >
-        <Input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          aria-label="Data do evento"
-        />
-        <Input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Ex.: campeonato de pesca"
-          aria-label="Nome do evento"
-        />
-        <Input
-          type="number"
-          inputMode="numeric"
-          value={effect}
-          onChange={(e) => setEffect(e.target.value)}
-          placeholder="Efeito em %, ex.: 30"
-          aria-label="Efeito esperado em porcentagem"
-        />
-        <Button type="submit">Adicionar</Button>
-      </form>
-      {events.length === 0 ? (
-        <span className="text-sm text-text-muted">Nenhum evento marcado.</span>
-      ) : (
-        <ul className="flex flex-col gap-1.5">
-          {events.map((event) => (
-            <li
-              key={event._id}
-              className="flex items-center justify-between gap-2 rounded-card bg-card px-3 py-2 text-sm"
-            >
-              <span>
-                <strong className="capitalize">{dayLabel(event.date)}</strong> ·{' '}
-                {event.name} · {event.effectPercent > 0 ? '+' : ''}
-                {event.effectPercent}%
-              </span>
-              <button
-                type="button"
-                onClick={() => onDeleteEvent(event._id)}
-                className="text-destructive"
-                aria-label={`Remover ${event.name}`}
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-};
-
 const AccuracySection = ({ accuracy }: { accuracy: ForecastAccuracy }) => {
   const { summary, rows } = accuracy;
   if (summary.compared === 0) {
@@ -418,11 +331,8 @@ const AccuracySection = ({ accuracy }: { accuracy: ForecastAccuracy }) => {
 export const ForecastLayout = ({
   forecast,
   accuracy,
-  events,
   isLoading,
   hasFailed,
-  onCreateEvent,
-  onDeleteEvent,
 }: Props) => {
   if (isLoading) {
     return (
@@ -513,17 +423,6 @@ export const ForecastLayout = ({
         hint="Quantidade por comanda de cada item (média dos mesmos dias da semana) vezes as comandas previstas. Entram os itens mais vendidos dos últimos 6 meses."
       >
         <SuppliesTable forecast={forecast} />
-      </SectionCard>
-
-      <SectionCard
-        title="Eventos e promoções"
-        hint="Marque festa, campeonato ou promoção com o efeito esperado no movimento. Ele entra na previsão do dia."
-      >
-        <EventsSection
-          events={events}
-          onCreateEvent={onCreateEvent}
-          onDeleteEvent={onDeleteEvent}
-        />
       </SectionCard>
 
       <SectionCard

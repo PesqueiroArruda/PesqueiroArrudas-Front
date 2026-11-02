@@ -1,9 +1,5 @@
 import { serverApi } from 'services/serverApi';
-import {
-  ForecastAccuracy,
-  ForecastEvent,
-  ForecastResponse,
-} from 'types/Forecast';
+import { ForecastAccuracy, ForecastResponse } from 'types/Forecast';
 
 class ForecastService {
   async getSummary(days = 7): Promise<ForecastResponse> {
@@ -24,21 +20,6 @@ class ForecastService {
     const { data } = await serverApi.get('/forecast/accuracy', {
       params: { days },
     });
-    return data;
-  }
-
-  async getEvents(): Promise<ForecastEvent[]> {
-    const { data } = await serverApi.get('/forecast/events');
-    return data;
-  }
-
-  async createEvent(event: Omit<ForecastEvent, '_id'>): Promise<ForecastEvent> {
-    const { data } = await serverApi.post('/forecast/events', event);
-    return data;
-  }
-
-  async deleteEvent(id: string) {
-    const { data } = await serverApi.delete(`/forecast/events/${id}`);
     return data;
   }
 }

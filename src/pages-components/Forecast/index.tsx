@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 
@@ -7,11 +7,7 @@ import { Modal } from 'components/Modal';
 import { Button } from 'components/ui/button';
 import { Input } from 'components/ui/input';
 import AuthService from 'pages-components/Home/services/AuthService';
-import {
-  ForecastAccuracy,
-  ForecastEvent,
-  ForecastResponse,
-} from 'types/Forecast';
+import { ForecastAccuracy, ForecastResponse } from 'types/Forecast';
 import ForecastService from './services/ForecastService';
 import { ForecastLayout } from './layout';
 
@@ -24,7 +20,6 @@ export const Forecast = () => {
 
   const [forecast, setForecast] = useState<ForecastResponse | null>(null);
   const [accuracy, setAccuracy] = useState<ForecastAccuracy | null>(null);
-  const [events, setEvents] = useState<ForecastEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasFailed, setHasFailed] = useState(false);
 
@@ -75,22 +70,16 @@ export const Forecast = () => {
     password.current = '';
   }
 
-  const loadEvents = useCallback(async () => {
-    setEvents(await ForecastService.getEvents());
-  }, []);
-
   useEffect(() => {
     if (!isPermitted) return;
     (async () => {
       try {
-        const [detail, accuracyData, eventList] = await Promise.all([
+        const [detail, accuracyData] = await Promise.all([
           ForecastService.getDetail(14),
           ForecastService.getAccuracy(28),
-          ForecastService.getEvents(),
         ]);
         setForecast(detail);
         setAccuracy(accuracyData);
-        setEvents(eventList);
       } catch {
         setHasFailed(true);
       } finally {
@@ -99,38 +88,6 @@ export const Forecast = () => {
     })();
   }, [isPermitted]);
 
-  async function handleCreateEvent(event: Omit<ForecastEvent, '_id'>) {
-    try {
-      await ForecastService.createEvent(event);
-      await loadEvents();
-      // O efeito do evento entra na previsão, então recarrega os dias.
-      setForecast(await ForecastService.getDetail(14));
-      toast({ status: 'success', title: 'Evento salvo', duration: 1500 });
-      return true;
-    } catch (err: any) {
-      toast({
-        status: 'error',
-        title:
-          err?.response?.data?.message || 'Não foi possível salvar o evento.',
-      });
-      return false;
-    }
-  }
-
-  async function handleDeleteEvent(id: string) {
-    try {
-      await ForecastService.deleteEvent(id);
-      await loadEvents();
-      setForecast(await ForecastService.getDetail(14));
-    } catch (err: any) {
-      toast({
-        status: 'error',
-        title:
-          err?.response?.data?.message || 'Não foi possível remover o evento.',
-      });
-    }
-  }
-
   return (
     <>
       <AppShell>
@@ -138,11 +95,8 @@ export const Forecast = () => {
           <ForecastLayout
             forecast={forecast}
             accuracy={accuracy}
-            events={events}
             isLoading={isLoading}
             hasFailed={hasFailed}
-            onCreateEvent={handleCreateEvent}
-            onDeleteEvent={handleDeleteEvent}
           />
         ) : (
           <Button onClick={() => setIsAsksPermitionModalOpen(true)}>
